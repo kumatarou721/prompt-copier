@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Copier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    
+    body {
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+    }
+    
+    .glass {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .btn-glow {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-glow::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .btn-glow:hover::before {
+      left: 100%;
+    }
+    
+    .btn-glow:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px -10px currentColor;
+    }
+    
+    .btn-glow:active {
+      transform: translateY(0);
+    }
+    
+    .prompt-btn {
+      background: linear-gradient(135deg, var(--btn-color-1), var(--btn-color-2));
+      box-shadow: 0 4px 15px -3px var(--btn-color-1);
+    }
+    
+    .copied-animation {
+      animation: copied 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes copied {
+      0% { transform: scale(1); }
+      30% { transform: scale(0.95); }
+      60% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .glow-text {
+      text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+    }
+    
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .floating {
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+  </style>
+</head>
+<body class="p-4 md:p-6">
+  <div class="max-w-2xl mx-auto">
+    
+    <!-- Header -->
+    <div class="text-center mb-8 fade-in">
+      <h1 class="text-3xl md:text-4xl font-bold text-white mb-2 glow-text tracking-tight">
+        Prompt Copier
+      </h1>
+      <p class="text-slate-400 text-sm">One-click copy for your trading workflow</p>
+    </div>
+    
+    <!-- フォルダ選択 -->
+    <div id="folder-section" class="glass-card rounded-2xl p-8 mb-6 fade-in">
+      <button id="select-folder" class="w-full btn-glow flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl transition-all text-lg font-semibold">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"/></svg>
+        Select Prompts Folder
+      </button>
+      <p class="text-slate-500 text-sm mt-4 text-center">Select the <code class="text-indigo-400 bg-indigo-950/50 px-2 py-0.5 rounded">prompts/</code> folder</p>
+    </div>
+
+    <!-- フォルダ情報バー -->
+    <div id="folder-info" class="hidden glass rounded-full px-5 py-3 mb-6 fade-in">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-3 text-slate-300">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+          </div>
+          <span id="folder-name" class="font-medium"></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="refresh-btn" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors">
+            <svg id="refresh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+            Refresh
+          </button>
+          <button id="change-folder" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-slate-400 hover:bg-white/5 transition-colors">
+            Change
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- プロンプトセクション -->
+    <div id="main-content" class="hidden">
+      <div class="glass-card rounded-2xl p-6 fade-in">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center floating">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-white">Prompts</h2>
+            <p class="text-xs text-slate-500">Click to copy text</p>
+          </div>
+        </div>
+        <div id="prompts-grid" class="grid grid-cols-3 sm:grid-cols-6 gap-3"></div>
+      </div>
+    </div>
+
+    <!-- エラー表示 -->
+    <div id="error" class="hidden glass-card border-red-500/30 rounded-2xl p-4 text-red-300 text-center mt-4 fade-in">
+      <span id="error-text"></span>
+    </div>
+
+    <!-- 非対応ブラウザ -->
+    <div id="not-supported" class="hidden glass-card rounded-2xl p-8 text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-500/10 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-red-400"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <p class="text-red-300 text-lg font-medium">Browser Not Supported</p>
+      <p class="text-slate-500 text-sm mt-2">Please use Chrome or Edge</p>
+    </div>
+    
+  </div>
+
+  <script>
+    // プロンプト定義
+    const PROMPTS = [
+      { file: '01_portfolio_review.txt', label: 'Portfolio', colors: ['#9333ea', '#7c3aed'] },
+      { file: '02_long_term_entry.txt', label: 'Long term', colors: ['#2563eb', '#3b82f6'] },
+      { file: '03_swing_entry.txt', label: 'Swing', colors: ['#059669', '#10b981'] },
+      { file: '04_day_trade.txt', label: 'Day', colors: ['#ea580c', '#f97316'] },
+      { file: '05_sector_rotation.txt', label: 'Sector', colors: ['#db2777', '#ec4899'] },
+      { file: '06_translate.txt', label: 'Translate', colors: ['#0891b2', '#06b6d4'] },
+    ];
+
+    let promptsHandle = null;
+    let promptContents = {};
+
+    // 初期化
+    async function init() {
+      if (!('showDirectoryPicker' in window)) {
+        document.getElementById('folder-section').classList.add('hidden');
+        document.getElementById('not-supported').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('select-folder').addEventListener('click', selectFolder);
+      document.getElementById('change-folder').addEventListener('click', selectFolder);
+      document.getElementById('refresh-btn').addEventListener('click', refresh);
+      
+      createPromptButtons();
+    }
+
+    // プロンプトボタン生成
+    function createPromptButtons() {
+      const grid = document.getElementById('prompts-grid');
+      grid.innerHTML = '';
+      
+      PROMPTS.forEach((prompt, index) => {
+        const btn = document.createElement('button');
+        btn.id = `prompt-btn-${index}`;
+        btn.style.setProperty('--btn-color-1', prompt.colors[0]);
+        btn.style.setProperty('--btn-color-2', prompt.colors[1]);
+        btn.className = `relative prompt-btn btn-glow px-4 py-4 text-white rounded-xl transition-all text-sm font-semibold disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none`;
+        btn.innerHTML = `
+          <span class="relative z-10">${prompt.label}</span>
+          <div id="prompt-status-${index}" class="absolute inset-0 rounded-xl opacity-0 pointer-events-none flex items-center justify-center bg-emerald-500/90 transition-opacity">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        `;
+        btn.disabled = true;
+        btn.addEventListener('click', () => copyPrompt(index));
+        grid.appendChild(btn);
+      });
+    }
+
+    // フォルダ選択
+    async function selectFolder() {
+      try {
+        hideError();
+        promptsHandle = await window.showDirectoryPicker({ mode: 'read' });
+        
+        document.getElementById('folder-name').textContent = promptsHandle.name;
+        document.getElementById('folder-section').classList.add('hidden');
+        document.getElementById('folder-info').classList.remove('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+        
+        await loadPrompts();
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          showError('Failed to select folder: ' + err.message);
+        }
+      }
+    }
+
+    // 更新
+    async function refresh() {
+      const icon = document.getElementById('refresh-icon');
+      icon.classList.add('spin');
+      await loadPrompts();
+      icon.classList.remove('spin');
+    }
+
+    // プロンプト読み込み
+    async function loadPrompts() {
+      promptContents = {};
+      
+      for (let i = 0; i < PROMPTS.length; i++) {
+        const prompt = PROMPTS[i];
+        const btn = document.getElementById(`prompt-btn-${i}`);
+        
+        try {
+          const fileHandle = await promptsHandle.getFileHandle(prompt.file);
+          const file = await fileHandle.getFile();
+          const content = await file.text();
+          promptContents[i] = content;
+          btn.disabled = false;
+        } catch {
+          btn.disabled = true;
+        }
+      }
+    }
+
+    // プロンプトコピー
+    async function copyPrompt(index) {
+      const content = promptContents[index];
+      if (!content) return;
+
+      try {
+        await navigator.clipboard.writeText(content);
+        
+        const btn = document.getElementById(`prompt-btn-${index}`);
+        const status = document.getElementById(`prompt-status-${index}`);
+        
+        btn.classList.add('copied-animation');
+        status.style.opacity = '1';
+        
+        setTimeout(() => {
+          btn.classList.remove('copied-animation');
+          status.style.opacity = '0';
+        }, 800);
+        
+      } catch (err) {
+        showError('Copy failed');
+      }
+    }
+
+    // エラー表示
+    function showError(message) {
+      const errorEl = document.getElementById('error');
+      document.getElementById('error-text').textContent = message;
+      errorEl.classList.remove('hidden');
+    }
+
+    // エラー非表示
+    function hideError() {
+      document.getElementById('error').classList.add('hidden');
+    }
+
+    // 起動
+    init();
+  </script>
+</body>
+</html>
