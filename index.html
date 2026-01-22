@@ -4,447 +4,537 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Prompt Copier</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#090a0f">
+  <title>US Stock Analyzer - Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * { 
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* --- サイバーパンク・テーマ設定 --- */
+    :root {
+      --neon-blue: #3b82f6;
+      --neon-purple: #8b5cf6;
+      --neon-amber: #f59e0b;
+      --neon-green: #10b981;
+      --neon-red: #ef4444;
+      --bg-dark: #090a0f;
+    }
+
+    body {
+      /* 宇宙的な背景とグリッドパターン */
+      background: 
+        radial-gradient(circle at 50% -20%, #2a1f62, #090a0f 60%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.386 7.9 40.486 0h2.828zm-26.628 0l-6.485 6.485 1.414 1.414L17.314 0h-2.828zM31.113 0L47.8 16.686 46.386 18.1 28.286 0h2.828zm-2.226 0l-16.686 16.686 1.414 1.414L30.3 0h-2.828zM14.857 0L44.97 30.113 43.557 31.527 12.03 0h2.828zm30.286 0L15.03 30.113 16.443 31.527 47.97 0h-2.828zM0 14.857L30.113 44.97 31.527 43.557 0 12.03v2.828zm0 30.286L30.113 15.03 31.527 16.443 0 47.97v-2.828zM0 31.113L16.686 47.8 18.1 46.386 0 28.286v2.828zm0-2.226L16.686 12.2 18.1 13.614 0 31.714v-2.828zM0 5.373L5.373 0h2.828L0 8.2v-2.827zm0 49.254L54.627 60h2.828L0 51.8v2.827zm0-5.373L48.97 60h2.828L0 46.143v2.828zm0-43.88L11.03 0h2.828L0 13.857V5.374zm0 49.254L54.627 0h2.828L0 57.457v-2.83zm0-5.374L48.97 0h2.828L0 51.8v-2.827zm0-43.88L11.03 60h2.828L0 46.143V5.373zm0 49.254L43.314 0h2.828L0 46.143v2.83zm0-5.373L37.657 0h2.828L0 40.486v2.827zm0-38.514L11.03 60h2.828L0 13.857v-2.828zM0 0l60 60h-2.828L0 2.828V0zm0 60L60 0h-2.828L0 57.172V60z' fill='%232d3748' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+      color: #e2e8f0;
+      font-family: 'Chakra Petch', sans-serif; /* テクノロジー感のある本文フォント */
+      min-height: 100vh;
       -webkit-tap-highlight-color: transparent;
     }
-    
-    body {
-      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
-      min-height: 100vh;
-      min-height: 100dvh;
+
+    /* 見出し用フォント */
+    h1, h2, h4, .font-display {
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
     }
-    
-    .glass {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+
+    /* タイトルの発光グラデーション */
+    .title-gradient {
+      background: linear-gradient(to right, #60a5fa, #34d399);
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
     }
-    
-    .glass-card {
-      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .btn-glow {
+
+    /* --- ネオングラス・パネル (共通) --- */
+    .neon-glass {
+      background: rgba(13, 17, 30, 0.6);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.5),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       overflow: hidden;
-      transition: all 0.3s ease;
     }
-    
-    .btn-glow::before {
+    /* ホバー時に光が走るエフェクト */
+    .neon-glass::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s ease;
+      top: 0; left: -150%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: skewX(-25deg);
+      transition: left 0.7s ease-in-out;
+      pointer-events: none;
     }
-    
-    .btn-glow:hover::before {
-      left: 100%;
+    .neon-glass:hover::before {
+      left: 150%;
     }
-    
-    .btn-glow:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 40px -10px currentColor;
+
+    /* ファイルローダー専用 */
+    .loader-box {
+      border: 2px dashed rgba(99, 102, 241, 0.3);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
     }
-    
-    .btn-glow:active {
-      transform: scale(0.95);
+    .loader-box:hover {
+      border-color: var(--neon-purple);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
     }
-    
-    .prompt-btn {
-      background: linear-gradient(135deg, var(--btn-color-1), var(--btn-color-2));
-      box-shadow: 0 4px 15px -3px var(--btn-color-1);
+
+    /* --- カードスタイル (発光強化) --- */
+    .card-base {
+      border: 1px solid;
+      transition: all 0.3s ease;
+    }
+    .card-lt { border-color: rgba(59, 130, 246, 0.5); background: rgba(59, 130, 246, 0.05); }
+    .card-lt:hover { box-shadow: 0 0 25px rgba(59, 130, 246, 0.4); border-color: var(--neon-blue); }
+
+    .card-swing { border-color: rgba(245, 158, 11, 0.5); background: rgba(245, 158, 11, 0.05); }
+    .card-swing:hover { box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); border-color: var(--neon-amber); }
+
+    .card-stat { border-color: rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.05); }
+    .card-stat:hover { border-color: var(--neon-purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
+
+    .card-sector { border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.05); }
+
+    /* --- アラート (パルス発光) --- */
+    .alert-box {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.6);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+    }
+    .pulse-border {
+      animation: pulseNeon 2s infinite alternate;
+    }
+    @keyframes pulseNeon {
+      from { box-shadow: 0 0 15px rgba(16, 185, 129, 0.2), inset 0 0 10px rgba(16, 185, 129, 0.1); }
+      to { box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.3); border-color: var(--neon-green); }
+    }
+
+    /* --- ボタン (ネオングロー) --- */
+    .btn-neon {
+      position: relative;
+      border: 1px solid transparent;
+      background-clip: padding-box;
       transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+      font-size: 0.85rem;
     }
-    
-    .prompt-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px -5px var(--btn-color-1);
+    /* ボタン周囲の光る枠線 */
+    .btn-neon::after {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      z-index: -1;
+      border-radius: inherit;
+      background: linear-gradient(45deg, var(--btn-color-1), var(--btn-color-2));
+      opacity: 0.5;
+      filter: blur(5px);
+      transition: opacity 0.3s ease;
     }
-    
-    .prompt-btn:active {
-      transform: scale(0.95);
+    .btn-neon:hover::after { opacity: 1; filter: blur(8px); }
+    .btn-neon:hover { transform: translateY(-2px); }
+    .btn-neon:active { transform: scale(0.98) translateY(0); }
+    .btn-neon:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-neon:disabled::after { opacity: 0.2; filter: blur(2px); }
+
+    .btn-pf { --btn-color-1: #8B5CF6; --btn-color-2: #6366F1; background: linear-gradient(135deg, #8B5CF6cc, #6366F1cc); }
+    .btn-long { --btn-color-1: #10B981; --btn-color-2: #059669; background: linear-gradient(135deg, #10B981cc, #059669cc); }
+    .btn-swing { --btn-color-1: #F59E0B; --btn-color-2: #D97706; background: linear-gradient(135deg, #F59E0Bcc, #D97706cc); }
+    .btn-day { --btn-color-1: #EF4444; --btn-color-2: #DC2626; background: linear-gradient(135deg, #EF4444cc, #DC2626cc); }
+    .btn-tr { --btn-color-1: #6366F1; --btn-color-2: #4F46E5; background: linear-gradient(135deg, #6366F1cc, #4F46E5cc); }
+
+    /* --- 計算機入力フィールド --- */
+    .cyber-input {
+      background: rgba(15, 23, 42, 0.8) !important;
+      border: 1px solid rgba(99, 102, 241, 0.3) !important;
+      color: #a5b4fc !important;
+      font-family: 'Chakra Petch', sans-serif;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
     }
-    
-    .copied-animation {
-      animation: copied 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    @keyframes copied {
-      0% { transform: scale(1); }
-      30% { transform: scale(0.95); }
-      60% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.5s ease-out;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .glow-text {
-      text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
-    }
-    
-    .spin {
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    .cyber-input:focus {
+      border-color: var(--neon-purple) !important;
+      box-shadow: 0 0 15px rgba(139, 92, 246, 0.3) !important;
     }
 
-    .floating {
-      animation: floating 3s ease-in-out infinite;
-    }
-
-    @keyframes floating {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-
-    input[type="file"] {
-      display: none;
-    }
+    /* --- その他ユーティリティ --- */
+    .text-glow-blue { text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
+    .text-glow-amber { text-shadow: 0 0 10px rgba(245, 158, 11, 0.8); }
+    .text-xxs { font-size: 0.65rem; }
+    .fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    input[type="number"]::-webkit-inner-spin-button, 
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
-<body class="p-4 md:p-6">
-  <div class="max-w-2xl mx-auto">
-    
-    <!-- Header -->
-    <div class="text-center mb-6 md:mb-8 fade-in">
-      <h1 class="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2 glow-text tracking-tight">
-        Prompt Copier
+<body class="p-4 max-w-md mx-auto">
+
+  <div id="loader-screen" class="flex flex-col items-center justify-center min-h-[80vh] fade-in">
+    <div class="text-center mb-10">
+      <h1 class="text-3xl font-bold title-gradient mb-2">
+        US Stock Analyzer
       </h1>
-      <p class="text-slate-400 text-xs md:text-sm">One-click copy for your trading workflow</p>
+      <p class="text-slate-400 text-sm font-display tracking-widest">/// Mobile Command Center ///</p>
     </div>
+
+    <label class="w-full neon-glass loader-box rounded-xl p-8 flex flex-col items-center justify-center gap-5 cursor-pointer transition-all group">
+      <div class="w-16 h-16 rounded-full bg-slate-800/50 border border-indigo-500/30 flex items-center justify-center text-3xl group-hover:border-indigo-400 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all">📂</div>
+      <div class="text-center">
+        <span class="block font-bold text-indigo-300 text-lg font-display group-hover:text-indigo-200">Load Data Module</span>
+        <span class="text-xs text-slate-500 mt-2 block font-display">SELECT MOBILE_PROMPTS.JSON</span>
+      </div>
+      <input type="file" id="file-input" accept=".json" class="hidden">
+    </label>
     
-    <!-- PC用: フォルダ選択 -->
-    <div id="folder-section" class="hidden glass-card rounded-2xl p-6 md:p-8 mb-6 fade-in">
-      <button id="select-folder" class="w-full btn-glow flex items-center justify-center gap-3 px-6 py-4 md:px-8 md:py-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl transition-all text-base md:text-lg font-semibold">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"/></svg>
-        Select Prompts Folder
+    <div class="mt-8 text-xs text-slate-600 text-center max-w-xs font-mono">
+      [SYSTEM]: Awaiting output from us-stock-analyzer.ipynb (Cell 9)
+    </div>
+  </div>
+
+  <div id="dashboard" class="hidden fade-in pb-20">
+    
+    <div class="text-center mb-6">
+      <div class="flex items-center justify-center gap-2 mb-1">
+        <h2 class="text-xl font-bold text-white text-glow-blue">Analysis Report</h2>
+      </div>
+      <div id="gen-date" class="text-xs text-slate-400 font-mono leading-relaxed bg-slate-900/50 inline-block px-3 py-1.5 rounded border border-slate-700/50">
+        Generated: --
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="neon-glass card-base card-lt rounded-xl p-4 text-center relative">
+        <h4 class="text-blue-400 text-xs font-bold mb-2 uppercase tracking-wider">🚀 Long-Term</h4>
+        <div id="lt-signal-count" class="text-3xl font-bold text-blue-400 text-glow-blue">--</div>
+        <div class="text-xs text-slate-400 mt-2 font-mono">
+          W:<span id="lt-watch" class="text-slate-200">--</span> <span class="text-slate-600">|</span> R:<span id="lt-ready" class="text-slate-200">--</span>
+        </div>
+      </div>
+      <div class="neon-glass card-base card-swing rounded-xl p-4 text-center relative">
+        <h4 class="text-amber-400 text-xs font-bold mb-2 uppercase tracking-wider">🏄 Swing</h4>
+        <div id="swing-signal-count" class="text-3xl font-bold text-amber-400 text-glow-amber">--</div>
+        <div class="text-xs text-slate-400 mt-2 font-mono">
+          W:<span id="swing-watch" class="text-slate-200">--</span> <span class="text-slate-600">|</span> R:<span id="swing-ready" class="text-slate-200">--</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
+        <div class="text-xxs text-violet-300 uppercase font-display">Total</div>
+        <div id="stat-total" class="font-bold text-violet-100 text-lg">--</div>
+      </div>
+      <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
+        <div class="text-xxs text-violet-300 uppercase font-display">Watch</div>
+        <div id="stat-watch" class="font-bold text-violet-100 text-lg">--</div>
+      </div>
+      <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
+        <div class="text-xxs text-violet-300 uppercase font-display">Charts</div>
+        <div id="stat-charts" class="font-bold text-violet-100 text-lg">--</div>
+      </div>
+    </div>
+
+    <div id="sector-bar" class="neon-glass card-base card-sector rounded-xl p-3 mb-4 text-center hidden">
+      <div class="text-emerald-400 text-xs font-bold mb-1 uppercase tracking-wider">🔄 Sector Rotation</div>
+      <div id="sector-text" class="text-xs text-slate-200 truncate font-mono"></div>
+    </div>
+
+    <div id="signal-alert" class="neon-glass alert-box rounded-xl p-4 mb-6 text-center hidden">
+      <span id="signal-alert-text" class="text-emerald-400 font-bold text-sm font-display tracking-wide"></span>
+    </div>
+
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-4 text-slate-400">
+        <div class="h-px bg-slate-700/50 flex-1 box-shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+        <span class="text-xs font-bold uppercase tracking-widest font-display text-indigo-300">📋 Command Prompts</span>
+        <div class="h-px bg-slate-700/50 flex-1"></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="copyPrompt('pf')" id="btn-pf" class="btn-neon btn-pf p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
+          <span>💼</span> Portfolio
+        </button>
+        
+        <button onclick="copyPrompt('long')" id="btn-long" class="btn-neon btn-long p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
+          <span>🚀</span> Long
+          <span id="badge-long" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-emerald-400/30"></span>
+        </button>
+        
+        <button onclick="copyPrompt('swing')" id="btn-swing" class="btn-neon btn-swing p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
+          <span>🏄</span> Swing
+          <span id="badge-swing" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-amber-400/30"></span>
+        </button>
+        
+        <button onclick="copyPrompt('short')" id="btn-day" class="btn-neon btn-day p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
+          <span>🏎️</span> Day
+        </button>
+        
+        <button onclick="copyPrompt('translate')" class="btn-neon btn-tr p-4 rounded-xl text-white font-bold shadow-lg col-span-2 flex justify-center items-center gap-2">
+          <span>🇯🇵</span> Translate
+        </button>
+      </div>
+    </div>
+
+    <div class="neon-glass rounded-xl p-5 border-t border-slate-700/30">
+      <h4 class="text-xs font-bold text-indigo-300 mb-4 uppercase tracking-widest font-display">🧮 Position Calculator</h4>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <input type="number" id="calc-eq" placeholder="Total $" value="10000" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
+        <input type="number" id="calc-risk" placeholder="Risk %" value="1" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
+        <input type="number" id="calc-entry" placeholder="Entry Price" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
+        <input type="number" id="calc-stop" placeholder="Stop Price" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
+      </div>
+      
+      <div class="bg-slate-900/60 rounded-lg p-4 grid grid-cols-3 gap-2 text-center border border-slate-700/50">
+        <div>
+          <div class="text-xxs text-slate-500 font-display uppercase">Risk Amt</div>
+          <div id="res-risk" class="text-sm font-bold text-slate-300 font-mono mt-1">$0</div>
+        </div>
+        <div class="border-l border-slate-700/50 relative">
+           <div class="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-indigo-500/50 to-transparent"></div>
+          <div class="text-xxs text-slate-500 font-display uppercase">Shares</div>
+          <div id="res-shares" class="text-lg font-bold text-blue-400 text-glow-blue font-mono mt-1">---</div>
+        </div>
+        <div class="border-l border-slate-700/50 relative">
+          <div class="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-emerald-500/50 to-transparent"></div>
+          <div class="text-xxs text-slate-500 font-display uppercase">Position</div>
+          <div id="res-cost" class="text-sm font-bold text-emerald-400 font-mono mt-1">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-10">
+      <button onclick="location.reload()" class="text-xs text-slate-500 hover:text-indigo-400 underline font-display tracking-wider transition-colors">
+        [SYSTEM]: TERMINATE & RELOAD
       </button>
-      <p class="text-slate-500 text-xs md:text-sm mt-3 md:mt-4 text-center">Select the <code class="text-indigo-400 bg-indigo-950/50 px-2 py-0.5 rounded">prompts/</code> folder</p>
     </div>
 
-    <!-- PC用: フォルダ情報バー -->
-    <div id="folder-info" class="hidden glass rounded-full px-4 md:px-5 py-2 md:py-3 mb-6 fade-in">
-      <div class="flex items-center justify-between flex-wrap gap-2">
-        <div class="flex items-center gap-2 md:gap-3 text-slate-300">
-          <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
-          </div>
-          <span id="folder-name" class="font-medium text-sm md:text-base"></span>
-        </div>
-        <div class="flex items-center gap-1 md:gap-2">
-          <button id="refresh-btn" class="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors">
-            <svg id="refresh-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
-            <span class="hidden sm:inline">Refresh</span>
-          </button>
-          <button id="change-folder" class="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium text-slate-400 hover:bg-white/5 transition-colors">
-            <span class="hidden sm:inline">Change</span>
-            <span class="sm:hidden">📁</span>
-          </button>
-        </div>
-      </div>
-    </div>
+  </div>
 
-    <!-- プロンプトセクション -->
-    <div id="main-content" class="glass-card rounded-2xl p-5 md:p-6 fade-in">
-      <div class="flex items-center justify-between mb-4 md:mb-5">
-        <div class="flex items-center gap-2 md:gap-3">
-          <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center floating">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          </div>
-          <div>
-            <h2 class="text-base md:text-lg font-semibold text-white">Prompts</h2>
-            <p class="text-xs text-slate-500">Tap to copy</p>
-          </div>
-        </div>
-        <!-- Mobile用: ファイル選択ボタン -->
-        <label id="file-select-btn" class="hidden px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-medium active:bg-indigo-700 cursor-pointer">
-          Select Files
-          <input type="file" id="prompt-input" accept=".txt" multiple>
-        </label>
-      </div>
-      
-      <div id="prompts-grid" class="grid grid-cols-3 sm:grid-cols-6 gap-2 md:gap-3">
-        <!-- ボタンはJSで生成 -->
-      </div>
-      
-      <div id="prompts-empty" class="text-center py-8 text-slate-500 text-sm">
-        <span id="empty-message">Select prompt files</span>
-      </div>
-    </div>
-
-    <!-- 使い方 -->
-    <div class="glass-card rounded-2xl p-4 mt-5 md:mt-6 fade-in">
-      <h3 class="text-sm font-semibold text-white mb-2">💡 How to use</h3>
-      <ul id="instructions" class="text-xs text-slate-400 space-y-1">
-        <!-- JSで切り替え -->
-      </ul>
-    </div>
-
-    <!-- エラー表示 -->
-    <div id="error" class="hidden glass-card border-red-500/30 rounded-2xl p-4 text-red-300 text-center mt-4 fade-in">
-      <span id="error-text"></span>
-    </div>
-    
+  <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/90 text-emerald-400 px-6 py-3 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.3)] border border-emerald-500/30 text-sm font-bold opacity-0 transition-all pointer-events-none flex items-center gap-3 z-50 backdrop-blur-md font-display">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-[0_0_5px_rgba(16,185,129,0.8)]"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="toast-msg" class="tracking-wider">COPIED!</span>
   </div>
 
   <script>
-    // プロンプト定義
-    const PROMPTS = [
-      { file: '01_portfolio_review.txt', label: 'Portfolio', colors: ['#9333ea', '#7c3aed'] },
-      { file: '02_long_term_entry.txt', label: 'Long term', colors: ['#2563eb', '#3b82f6'] },
-      { file: '03_swing_entry.txt', label: 'Swing', colors: ['#059669', '#10b981'] },
-      { file: '04_day_trade.txt', label: 'Day', colors: ['#ea580c', '#f97316'] },
-      { file: '05_sector_rotation.txt', label: 'Sector', colors: ['#db2777', '#ec4899'] },
-      { file: '06_translate.txt', label: 'Translate', colors: ['#0891b2', '#06b6d4'] },
-    ];
+    let appData = null;
 
-    // モード判定
-    const supportsDirectoryPicker = 'showDirectoryPicker' in window;
-    
-    let promptsHandle = null;
-    let promptContents = {};
+    // File Input Handler
+    document.getElementById('file-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    // 初期化
-    function init() {
-      if (supportsDirectoryPicker) {
-        // PC モード
-        initPCMode();
-      } else {
-        // Mobile モード
-        initMobileMode();
-      }
-      
-      createPromptButtons();
-      updateInstructions();
-    }
-
-    // PC モード初期化
-    function initPCMode() {
-      document.getElementById('folder-section').classList.remove('hidden');
-      document.getElementById('file-select-btn').classList.add('hidden');
-      document.getElementById('prompts-empty').classList.remove('hidden');
-      document.getElementById('prompts-grid').classList.add('hidden');
-      document.getElementById('empty-message').textContent = 'Select prompts folder to start';
-      
-      document.getElementById('select-folder').addEventListener('click', selectFolder);
-      document.getElementById('change-folder').addEventListener('click', selectFolder);
-      document.getElementById('refresh-btn').addEventListener('click', refresh);
-    }
-
-    // Mobile モード初期化
-    function initMobileMode() {
-      document.getElementById('folder-section').classList.add('hidden');
-      document.getElementById('file-select-btn').classList.remove('hidden');
-      document.getElementById('prompts-empty').classList.remove('hidden');
-      document.getElementById('prompts-grid').classList.add('hidden');
-      document.getElementById('empty-message').textContent = 'Select prompt files (.txt)';
-      
-      document.getElementById('prompt-input').addEventListener('change', handlePromptFiles);
-    }
-
-    // 使い方を更新
-    function updateInstructions() {
-      const instructions = document.getElementById('instructions');
-      if (supportsDirectoryPicker) {
-        instructions.innerHTML = `
-          <li>1. Click "Select Prompts Folder" to choose folder</li>
-          <li>2. Click prompt button to copy text</li>
-          <li>3. Click "Refresh" when files are updated</li>
-        `;
-      } else {
-        instructions.innerHTML = `
-          <li>1. Tap "Select Files" to choose from Google Drive</li>
-          <li>2. Tap prompt button to copy text</li>
-          <li>3. Paste in Claude or Gemini chat</li>
-        `;
-      }
-    }
-
-    // プロンプトボタン生成
-    function createPromptButtons() {
-      const grid = document.getElementById('prompts-grid');
-      grid.innerHTML = '';
-      
-      PROMPTS.forEach((prompt, index) => {
-        const btn = document.createElement('button');
-        btn.id = `prompt-btn-${index}`;
-        btn.style.setProperty('--btn-color-1', prompt.colors[0]);
-        btn.style.setProperty('--btn-color-2', prompt.colors[1]);
-        btn.className = `relative prompt-btn px-3 py-3 md:px-4 md:py-4 text-white rounded-xl transition-all text-xs md:text-sm font-semibold disabled:opacity-30 disabled:cursor-not-allowed`;
-        btn.innerHTML = `
-          <span class="relative z-10">${prompt.label}</span>
-          <div id="prompt-status-${index}" class="absolute inset-0 rounded-xl opacity-0 pointer-events-none flex items-center justify-center bg-emerald-500/90 transition-opacity">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-        `;
-        btn.disabled = true;
-        btn.addEventListener('click', () => copyPrompt(index));
-        grid.appendChild(btn);
-      });
-    }
-
-    // ===== PC用機能 =====
-
-    // フォルダ選択
-    async function selectFolder() {
-      try {
-        hideError();
-        promptsHandle = await window.showDirectoryPicker({ mode: 'read' });
-        
-        document.getElementById('folder-name').textContent = promptsHandle.name;
-        document.getElementById('folder-section').classList.add('hidden');
-        document.getElementById('folder-info').classList.remove('hidden');
-        document.getElementById('prompts-empty').classList.add('hidden');
-        document.getElementById('prompts-grid').classList.remove('hidden');
-        
-        await loadPromptsFromFolder();
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          showError('Failed to select folder: ' + err.message);
-        }
-      }
-    }
-
-    // 更新
-    async function refresh() {
-      const icon = document.getElementById('refresh-icon');
-      icon.classList.add('spin');
-      await loadPromptsFromFolder();
-      icon.classList.remove('spin');
-    }
-
-    // フォルダからプロンプト読み込み
-    async function loadPromptsFromFolder() {
-      promptContents = {};
-      
-      for (let i = 0; i < PROMPTS.length; i++) {
-        const prompt = PROMPTS[i];
-        const btn = document.getElementById(`prompt-btn-${i}`);
-        
+      const reader = new FileReader();
+      reader.onload = function(e) {
         try {
-          const fileHandle = await promptsHandle.getFileHandle(prompt.file);
-          const file = await fileHandle.getFile();
-          const content = await file.text();
-          promptContents[i] = content;
-          btn.disabled = false;
-        } catch {
-          btn.disabled = true;
+          // --- NaN対策 ---
+          let jsonStr = e.target.result;
+          jsonStr = jsonStr.replace(/:\s*NaN\b/g, ': null');
+          jsonStr = jsonStr.replace(/:\s*Infinity\b/g, ': null');
+          jsonStr = jsonStr.replace(/:\s*-Infinity\b/g, ': null');
+          // ------------------------
+
+          appData = JSON.parse(jsonStr);
+          renderDashboard(appData);
+        } catch (error) {
+          console.error(error);
+          alert("Invalid JSON file.\nError: " + error.message);
         }
+      };
+      reader.readAsText(file);
+    });
+
+    function renderDashboard(data) {
+      document.getElementById('loader-screen').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+
+      // 1. Metadata
+      const meta = data.metadata || {};
+      
+      // 日付の整形（US / JP 並列表示）
+      const formattedDate = formatDualTime(meta.generated_at);
+      document.getElementById('gen-date').innerHTML = formattedDate;
+
+      // 2. Signals & Watchlists Stats
+      const signals = data.signals || {};
+      const watchlists = data.watchlists || {};
+      
+      const ltCount = (signals.long_term || []).length;
+      const swingCount = (signals.swing || []).length;
+      
+      const ltW = watchlists.long_term?.watching || 0;
+      const ltR = watchlists.long_term?.ready || 0;
+      const swW = watchlists.swing?.watching || 0;
+      const swR = watchlists.swing?.ready || 0;
+
+      updateStat('lt-signal-count', ltCount, ltCount > 0);
+      updateStat('swing-signal-count', swingCount, swingCount > 0);
+      document.getElementById('lt-watch').textContent = ltW;
+      document.getElementById('lt-ready').textContent = ltR;
+      document.getElementById('swing-watch').textContent = swW;
+      document.getElementById('swing-ready').textContent = swR;
+
+      // 3. Stats Row
+      const chartCount = Object.values(data.charts || {}).flat().length;
+      document.getElementById('stat-total').textContent = ltCount + swingCount;
+      document.getElementById('stat-watch').textContent = ltW + swW + ltR + swR;
+      document.getElementById('stat-charts').textContent = chartCount;
+
+      // 4. Sector Info
+      const sectors = data.sector_rotation || {};
+      const topS = (sectors.top_sectors || []).map(s => s.sector).slice(0, 3).join(', ');
+      const botS = (sectors.bottom_sectors || []).map(s => s.sector).slice(0, 2).join(', ');
+      
+      if (topS) {
+        const sectorEl = document.getElementById('sector-bar');
+        sectorEl.classList.remove('hidden');
+        document.getElementById('sector-text').innerHTML = `<span class="text-emerald-300">🟢 ${topS}</span> <span class="text-slate-500 mx-2">|</span> <span class="text-red-300">🔴 ${botS}</span>`;
+      }
+
+      // 5. Signal Alert
+      const totalSignals = ltCount + swingCount;
+      const alertEl = document.getElementById('signal-alert');
+      const alertText = document.getElementById('signal-alert-text');
+      
+      alertEl.classList.remove('hidden');
+      if (totalSignals > 0) {
+        alertEl.classList.add('pulse-border');
+        alertText.innerHTML = `⚡ ${totalSignals} SIGNALS DETECTED`;
+        alertText.className = "text-emerald-400 font-bold text-sm font-display tracking-wide text-glow-green";
+      } else {
+        alertEl.classList.remove('pulse-border');
+        alertEl.style.borderColor = "rgba(148, 163, 184, 0.2)";
+        alertEl.style.background = "rgba(148, 163, 184, 0.05)";
+        alertText.textContent = "📊 NO NEW SIGNALS TODAY";
+        alertText.className = "text-slate-400 text-sm font-display tracking-wide";
+      }
+
+      // 6. Buttons State & Badges
+      const avail = data.availability || {};
+      toggleBtn('btn-pf', avail.pf);
+      toggleBtn('btn-long', avail.long);
+      toggleBtn('btn-swing', avail.swing);
+      toggleBtn('btn-day', avail.short);
+
+      if (ltCount > 0) showBadge('badge-long', `${ltCount}⚡`);
+      if (swingCount > 0) showBadge('badge-swing', `${swingCount}⚡`);
+    }
+
+    // 日付整形ロジック
+    function formatDualTime(isoString) {
+      if (!isoString) return 'Unknown';
+      try {
+        const date = new Date(isoString);
+        if (isNaN(date.getTime())) return isoString;
+
+        const fmt = (tz) => new Intl.DateTimeFormat('ja-JP', {
+          month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+          hour12: false,
+          timeZone: tz
+        }).format(date);
+
+        // US (NY) / JP (Tokyo)
+        return `🇺🇸 ${fmt('America/New_York')}<span class="mx-2 opacity-50">|</span>🇯🇵 ${fmt('Asia/Tokyo')}`;
+      } catch (e) {
+        return isoString;
       }
     }
 
-    // ===== Mobile用機能 =====
-
-    // ファイル選択処理
-    async function handlePromptFiles(e) {
-      const files = Array.from(e.target.files);
-      if (files.length === 0) return;
-      
-      promptContents = {};
-      
-      // ファイル名とインデックスのマッピング
-      const fileMap = {};
-      PROMPTS.forEach((p, i) => {
-        fileMap[p.file] = i;
-      });
-      
-      for (const file of files) {
-        const index = fileMap[file.name];
-        if (index !== undefined) {
-          const content = await file.text();
-          promptContents[index] = content;
-        }
-      }
-      
-      // ボタンの有効/無効を更新
-      PROMPTS.forEach((_, i) => {
-        const btn = document.getElementById(`prompt-btn-${i}`);
-        btn.disabled = !promptContents[i];
-      });
-      
-      // 表示切り替え
-      if (Object.keys(promptContents).length > 0) {
-        document.getElementById('prompts-empty').classList.add('hidden');
-        document.getElementById('prompts-grid').classList.remove('hidden');
+    function updateStat(id, value, highlight) {
+      const el = document.getElementById(id);
+      el.textContent = value;
+      if (highlight) {
+        el.classList.add(id.includes('lt') ? 'text-glow-blue' : 'text-glow-amber');
+        el.style.opacity = '1';
+      } else {
+        el.classList.remove('text-glow-blue', 'text-glow-amber');
+        el.style.opacity = '0.5';
       }
     }
 
-    // ===== 共通機能 =====
+    function toggleBtn(id, enable) {
+      const btn = document.getElementById(id);
+      btn.disabled = !enable;
+    }
 
-    // プロンプトコピー
-    async function copyPrompt(index) {
-      const content = promptContents[index];
-      if (!content) return;
+    function showBadge(id, text) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.classList.remove('hidden');
+    }
 
-      const btn = document.getElementById(`prompt-btn-${index}`);
-      const status = document.getElementById(`prompt-status-${index}`);
+    // --- Calculator Logic ---
+    const calcInputs = ['calc-eq', 'calc-risk', 'calc-entry', 'calc-stop'];
+    calcInputs.forEach(id => {
+      document.getElementById(id).addEventListener('input', calculatePosition);
+    });
+
+    function calculatePosition() {
+      const eq = parseFloat(document.getElementById('calc-eq').value) || 0;
+      const risk = parseFloat(document.getElementById('calc-risk').value) || 0;
+      const entry = parseFloat(document.getElementById('calc-entry').value) || 0;
+      const stop = parseFloat(document.getElementById('calc-stop').value) || 0;
+
+      const riskAmt = eq * (risk / 100);
+      document.getElementById('res-risk').textContent = '$' + Math.floor(riskAmt);
+
+      if (entry > 0 && stop > 0 && entry > stop) {
+        const riskPerShare = entry - stop;
+        const shares = Math.floor(riskAmt / riskPerShare);
+        const cost = shares * entry;
+        
+        document.getElementById('res-shares').textContent = shares.toLocaleString();
+        document.getElementById('res-cost').textContent = '$' + (Math.toLocaleString ? cost.toLocaleString() : cost);
+        document.getElementById('res-shares').classList.add('text-glow-blue');
+      } else {
+        document.getElementById('res-shares').textContent = '---';
+        document.getElementById('res-cost').textContent = '$0';
+        document.getElementById('res-shares').classList.remove('text-glow-blue');
+      }
+    }
+
+    // --- Copy Logic ---
+    async function copyPrompt(key) {
+      if (!appData || !appData.prompts) return;
+      const text = appData.prompts[key];
+      if (!text) return;
 
       try {
-        await navigator.clipboard.writeText(content);
-        showCopyFeedback(btn, status);
+        await navigator.clipboard.writeText(text);
+        showToast(`✅ ${key.toUpperCase()} COPIED`);
       } catch (err) {
-        // フォールバック
-        const textarea = document.createElement('textarea');
-        textarea.value = content;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showCopyFeedback(btn, status);
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showToast(`✅ ${key.toUpperCase()} COPIED`);
+        } catch (e) {
+          showToast("❌ COPY FAILED");
+        }
+        document.body.removeChild(textArea);
       }
     }
 
-    // コピーフィードバック表示
-    function showCopyFeedback(btn, status) {
-      btn.classList.add('copied-animation');
-      status.style.opacity = '1';
-      
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      const tm = document.getElementById('toast-msg');
+      tm.textContent = msg;
+      t.style.opacity = '1';
+      t.style.transform = 'translate(-50%, -20px) scale(1)';
       setTimeout(() => {
-        btn.classList.remove('copied-animation');
-        status.style.opacity = '0';
-      }, 800);
+        t.style.opacity = '0';
+        t.style.transform = 'translate(-50%, 0) scale(0.95)';
+      }, 2000);
     }
-
-    // エラー表示
-    function showError(message) {
-      const errorEl = document.getElementById('error');
-      document.getElementById('error-text').textContent = message;
-      errorEl.classList.remove('hidden');
-    }
-
-    // エラー非表示
-    function hideError() {
-      document.getElementById('error').classList.add('hidden');
-    }
-
-    // 起動
-    init();
   </script>
 </body>
 </html>
