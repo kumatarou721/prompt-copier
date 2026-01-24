@@ -38,8 +38,7 @@
       font-family: 'Chakra Petch', sans-serif;
       min-height: 100vh;
       
-      /* 【修正】コンテンツをステータスバーの下に下げる */
-      /* env()が効かない場合でも最低24px、効く場合は安全領域+10px確保 */
+      /* コンテンツをステータスバーの下に下げる */
       padding-top: calc(env(safe-area-inset-top) + 24px);
       padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
       
@@ -175,6 +174,7 @@
 
     .text-glow-blue { text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
     .text-glow-amber { text-shadow: 0 0 10px rgba(245, 158, 11, 0.8); }
+    .text-glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.8); }
     .text-xxs { font-size: 0.65rem; }
     .fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -333,15 +333,22 @@
   <script>
     let appData = null;
 
-    // File Input Handler
-    document.getElementById('file-input').addEventListener('change', function(e) {
+    // File Input Logic (Enhanced)
+    const fileInput = document.getElementById('file-input');
+    
+    // Allow re-selecting the same file by resetting value on click
+    fileInput.addEventListener('click', function(e) {
+      e.target.value = '';
+    });
+
+    fileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
-          // --- NaN対策 ---
+          // --- JSON Sanitization (NaN/Infinity handling) ---
           let jsonStr = e.target.result;
           jsonStr = jsonStr.replace(/:\s*NaN\b/g, ': null');
           jsonStr = jsonStr.replace(/:\s*Infinity\b/g, ': null');
@@ -362,7 +369,7 @@
       document.getElementById('loader-screen').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
 
-      // 1. Metadata & Date formatting
+      // 1. Metadata & Date
       const meta = data.metadata || {};
       const formattedDate = formatDualTime(meta.generated_at);
       document.getElementById('gen-date').innerHTML = formattedDate;
@@ -392,8 +399,9 @@
       document.getElementById('stat-watch').textContent = ltW + swW + ltR + swR;
       document.getElementById('stat-charts').textContent = chartCount;
 
-      // 4. Sector Info
+      // 4. Sector Info (Corrected Logic)
       const sectors = data.sector_rotation || {};
+      // Ensure we safely access the arrays
       const topS = (sectors.top_sectors || []).map(s => s.sector).slice(0, 3).join(', ');
       const botS = (sectors.bottom_sectors || []).map(s => s.sector).slice(0, 2).join(', ');
       
@@ -421,7 +429,7 @@
         alertText.className = "text-slate-400 text-sm font-display tracking-wide";
       }
 
-      // 6. Buttons State & Badges
+      // 6. Buttons & Badges
       const avail = data.availability || {};
       toggleBtn('btn-pf', avail.pf);
       toggleBtn('btn-long', avail.long);
@@ -432,7 +440,7 @@
       if (swingCount > 0) showBadge('badge-swing', `${swingCount}⚡`);
     }
 
-    // 日付整形ロジック (US/JP並列表示)
+    // Date Format (US/JP)
     function formatDualTime(isoString) {
       if (!isoString) return 'Unknown';
       try {
@@ -446,7 +454,6 @@
           timeZone: tz
         }).format(date);
 
-        // US (NY) / JP (Tokyo)
         return `🇺🇸 ${fmt('America/New_York')}<span class="mx-2 opacity-50">|</span>🇯🇵 ${fmt('Asia/Tokyo')}`;
       } catch (e) {
         return isoString;
@@ -476,7 +483,7 @@
       el.classList.remove('hidden');
     }
 
-    // --- Calculator Logic ---
+    // --- Calculator Logic (Safe) ---
     const calcInputs = ['calc-eq', 'calc-risk', 'calc-entry', 'calc-stop'];
     calcInputs.forEach(id => {
       document.getElementById(id).addEventListener('input', calculatePosition);
@@ -494,13 +501,16 @@
       if (entry > 0 && stop > 0 && entry > stop) {
         const riskPerShare = entry - stop;
         const shares = Math.floor(riskAmt / riskPerShare);
-        const shares = Math.floor(riskAmt / riskPerShare);
-        // 万が一 riskPerShare が非常に小さい場合の無限大対策
+        
+        // Safety check for infinity/NaN
         if (!isFinite(shares) || shares < 0) {
-          document.getElementById('res-shares').textContent = '---';
-          return;
-        const cost = shares * entry;
+             document.getElementById('res-shares').textContent = '---';
+             document.getElementById('res-cost').textContent = '$0';
+             return;
         }
+
+        const cost = shares * entry;
+        
         document.getElementById('res-shares').textContent = shares.toLocaleString();
         document.getElementById('res-cost').textContent = '$' + (Math.toLocaleString ? cost.toLocaleString() : cost);
         document.getElementById('res-shares').classList.add('text-glow-blue');
