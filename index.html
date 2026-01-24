@@ -494,8 +494,13 @@
       if (entry > 0 && stop > 0 && entry > stop) {
         const riskPerShare = entry - stop;
         const shares = Math.floor(riskAmt / riskPerShare);
+        const shares = Math.floor(riskAmt / riskPerShare);
+        // 万が一 riskPerShare が非常に小さい場合の無限大対策
+        if (!isFinite(shares) || shares < 0) {
+          document.getElementById('res-shares').textContent = '---';
+          return;
         const cost = shares * entry;
-        
+        }
         document.getElementById('res-shares').textContent = shares.toLocaleString();
         document.getElementById('res-cost').textContent = '$' + (Math.toLocaleString ? cost.toLocaleString() : cost);
         document.getElementById('res-shares').classList.add('text-glow-blue');
