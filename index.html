@@ -82,11 +82,6 @@
       }
     }
 
-    /* Text Glow Utilities */
-    .text-glow-blue { text-shadow: 0 0 10px rgba(59, 130, 246, 0.7); }
-    .text-glow-amber { text-shadow: 0 0 10px rgba(245, 158, 11, 0.7); }
-    .text-glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.7); }
-    
     /* Input Reset */
     input[type="number"]::-webkit-inner-spin-button, 
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -99,16 +94,15 @@
     }
     @media (min-width: 1024px) {
       .grid-dashboard {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns on desktop */
+        grid-template-columns: repeat(2, 1fr);
       }
     }
     @media (min-width: 1280px) {
       .grid-dashboard {
-        grid-template-columns: repeat(3, 1fr); /* 3 columns on large screens */
+        grid-template-columns: repeat(3, 1fr);
       }
     }
     
-    /* Utility class for spanning full width in grid */
     .col-span-full {
       grid-column: 1 / -1;
     }
@@ -221,7 +215,7 @@
 
       <div class="grid-dashboard">
         
-        <div class="col-span-full">
+        <div class="col-span-full space-y-3">
           <div id="signal-alert" class="hidden p-4 rounded-xl border transition-all duration-300 flex items-center gap-3">
             <div class="p-2 rounded-full bg-slate-900/50" id="alert-icon">
               </div>
@@ -230,6 +224,11 @@
               <p id="signal-alert-desc" class="text-xs text-slate-400 mt-0.5">--</p>
             </div>
           </div>
+
+          <button onclick="copyPrompt('translate')" class="w-full glass-panel hover:bg-slate-800/50 transition-colors rounded-lg p-2.5 flex items-center justify-center gap-2 text-xs font-mono font-bold text-slate-400 hover:text-blue-300 border border-white/5 shadow-sm active:scale-[0.99]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+            <span>COPY TRANSLATION PROMPT</span>
+          </button>
         </div>
 
         <div id="portfolio-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-purple-500 hidden relative overflow-hidden">
@@ -442,13 +441,6 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="glass-panel rounded-xl p-4">
-            <button onclick="copyPrompt('translate')" class="w-full py-2 text-xs font-mono text-slate-500 hover:text-slate-300 transition-colors flex items-center justify-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
-              Copy Translation Prompt
-            </button>
           </div>
 
         </div>
@@ -757,21 +749,18 @@
       const prefix = type === 'lt' ? 'lt' : 'sw';
       const gSummary = document.getElementById(`${prefix}-gemini`).value;
       const cSummary = document.getElementById(`${prefix}-claude`).value;
-
+      
       if (!gSummary || !cSummary) {
         showToast("MISSING INPUT");
         return;
       }
 
-      const typeLabel = type === 'lt' ? 'Long-Term' : 'Swing';
-      const prompt = `# 🔬 Cross-Validation Report: ${typeLabel}
-Ver 21.2 | Date: ${appData.metadata.date}
+      const prompt = `# 🔬 Cross-Validation: ${type === 'lt' ? 'Long-Term' : 'Swing'}
+Date: ${appData.metadata.date}
 
 ---
-## ⚠️ CRITICAL CONSTRAINTS
-1. **Conservative Bias**: When analysts disagree → Default to PASS
-2. **Stop Validation Required**: Both analysts must have valid stop.reason
-3. **False Positive Preference**: Missing a trade is better than a bad trade
+## ⚠️ CRITICAL: Devil's Advocate Constraint
+**If opinions diverge, default to PASS.** (False positives > False negatives)
 
 ---
 ## 📊 Analyst A (Gemini)
@@ -782,78 +771,10 @@ ${gSummary}
 ${cSummary}
 
 ---
-## 🎯 4-Step Verification Framework
-
-### Step 1: Consensus Analysis
-For EACH ticker, identify agreement level:
-- ✅ FULL: Both PROCEED with same stop
-- ⚠️ PARTIAL: Both PROCEED but different stops
-- ❌ DIVERGE: One PROCEED, one PASS
-- ⏸️ SKIP: Both PASS
-
-### Step 2: Divergence Deep-Dive
-For ANY ⚠️ or ❌ cases, analyze:
-- Which analyst identified risks the other missed?
-- Is the disagreement on fundamentals or technicals?
-- What specific data point caused divergence?
-
-### Step 3: Devil's Advocate Synthesis
-For EACH PROCEED candidate:
-- What is the STRONGEST argument to PASS?
-- Pre-Mortem: Which failure scenario is most likely?
-- If short-seller's thesis has merit → PASS
-
-### Step 4: Stop Validation
-Check stop.reason quality:
-- Must be specific price level with rationale
-- "Below support" is WEAK → Need "Below $XX.XX (20-day low)"
-- Missing or vague stop.reason → PASS
-
----
-## 📋 Required Output Format
-\`\`\`json
-{
-  "cross_validation": {
-    "date": "${appData.metadata.date}",
-    "type": "${typeLabel}",
-    "version": "21.2"
-  },
-  "ticker_analysis": [
-    {
-      "ticker": "SYMBOL",
-      "gemini_verdict": "PROCEED|PASS",
-      "claude_verdict": "PROCEED|PASS",
-      "consensus": "FULL|PARTIAL|DIVERGE|SKIP",
-      "divergence_reason": "string or null",
-      "devils_advocate_concern": "string",
-      "stop_validation": {
-        "gemini_stop": "price and reason",
-        "claude_stop": "price and reason",
-        "stop_quality": "STRONG|WEAK|MISSING"
-      },
-      "final_decision": "PROCEED|PASS",
-      "decision_rationale": "string"
-    }
-  ],
-  "summary": {
-    "total_candidates": 0,
-    "proceed_count": 0,
-    "pass_count": 0,
-    "highest_conviction": "TICKER or null",
-    "biggest_concern": "string"
-  }
-}
-\`\`\`
-
----
-## 📝 日本語サマリー
-最後に、以下の形式で日本語要約を追加してください：
-- 分析対象: X銘柄
-- 両者一致でPROCEED: X銘柄 (ティッカー一覧)
-- 意見相違でPASS: X銘柄 (理由)
-- 最重要アクション: 具体的な推奨
+## 🎯 Task: Final Verdict
+Compare A & B. Return structured JSON with "final_decision": "PROCEED" or "PASS".
 `;
-
+      
       navigator.clipboard.writeText(prompt).then(() => {
         showToast("GENERATED & COPIED");
       });
