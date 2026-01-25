@@ -47,6 +47,13 @@
           },
           animation: {
             'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'border-flow': 'borderFlow 3s ease infinite',
+          },
+          keyframes: {
+            borderFlow: {
+              '0%, 100%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+            }
           }
         }
       }
@@ -82,11 +89,16 @@
       }
     }
 
+    /* Text Glow Utilities */
+    .text-glow-blue { text-shadow: 0 0 10px rgba(59, 130, 246, 0.7); }
+    .text-glow-amber { text-shadow: 0 0 10px rgba(245, 158, 11, 0.7); }
+    .text-glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.7); }
+    
     /* Input Reset */
     input[type="number"]::-webkit-inner-spin-button, 
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-    /* Layout tweaks */
+    /* Grid layout tweaks */
     .grid-dashboard {
       display: grid;
       grid-template-columns: 1fr;
@@ -94,15 +106,16 @@
     }
     @media (min-width: 1024px) {
       .grid-dashboard {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr 320px; /* Main content + Sidebar */
       }
     }
     @media (min-width: 1280px) {
       .grid-dashboard {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr 380px;
       }
     }
     
+    /* Utility class for spanning full width in grid */
     .col-span-full {
       grid-column: 1 / -1;
     }
@@ -231,36 +244,76 @@
           </button>
         </div>
 
-        <div id="portfolio-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-purple-500 hidden relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          </div>
-          <div class="flex items-center justify-between mb-4 relative z-10">
-            <div class="flex items-center gap-2">
-              <span class="text-lg">💼</span>
-              <h3 class="font-display font-bold text-sm text-purple-400 uppercase tracking-widest">Portfolio</h3>
-            </div>
-            <span id="portfolio-health" class="px-2 py-1 rounded bg-slate-800 text-xs font-mono font-bold border border-slate-700">--</span>
-          </div>
-
-          <div id="sell-signals-container" class="mb-4 hidden">
-            <div class="text-xs font-bold text-red-400 mb-2 flex items-center gap-1">
-              <span class="animate-pulse">🚨</span> SELL SIGNALS
-            </div>
-            <div id="sell-signals-list" class="space-y-2"></div>
-          </div>
-          <div id="addon-signals-container" class="hidden mb-4">
-            <div class="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1">
-              <span>💰</span> ADD-ON OPPORTUNITIES
-            </div>
-            <div id="addon-signals-list" class="space-y-2"></div>
-          </div>
-
-          <div class="mt-4 pt-4 border-t border-white/5">
-            <button onclick="copyPrompt('pf')" id="btn-pf" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-purple-500/50 text-purple-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="16" x2="16" y1="11" y2="13"/><line x1="8" x2="8" y1="11" y2="13"/><line x1="12" x2="12" y1="15" y2="13"/></svg>
-              COPY REVIEW PROMPT
+        <div class="col-span-full">
+          <div class="glass-panel rounded-xl overflow-hidden border border-white/10">
+            <button onclick="toggleCrossVal()" class="w-full p-4 flex items-center justify-between bg-white/5 hover:bg-white/10 transition-colors text-left group">
+              <div class="flex items-center gap-3">
+                <div class="p-1.5 rounded bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30 group-hover:text-cyan-300 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                </div>
+                <div>
+                  <div class="text-xs font-bold font-display uppercase tracking-wider text-cyan-100">Step 3 & 4: Final Decision</div>
+                  <div class="text-[10px] text-slate-400">Summary & Cross-Validation</div>
+                </div>
+              </div>
+              <svg id="crossval-icon" class="w-4 h-4 text-slate-500 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
+            
+            <div id="crossval-panel" class="hidden bg-black/20">
+              
+              <div class="p-4 border-b border-white/5 bg-indigo-900/10">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="bg-indigo-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">STEP 3</span>
+                  <span class="text-xs font-bold text-indigo-200 uppercase tracking-wide">Generate AI Summary</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mb-3">
+                  First, ask both Gemini and Claude to summarize their Phase 1 & 2 analysis using these prompts.
+                </p>
+                <div class="flex gap-2">
+                  <button onclick="copyPrompt('lt_summary')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98] border border-indigo-400/50 shadow-lg shadow-indigo-900/50">
+                    📋 Copy LT Summary
+                  </button>
+                  <button onclick="copyPrompt('swing_summary')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98] border border-indigo-400/50 shadow-lg shadow-indigo-900/50">
+                    📋 Copy Swing Summary
+                  </button>
+                </div>
+              </div>
+
+              <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="bg-cyan-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">STEP 4</span>
+                  <span class="text-xs font-bold text-cyan-200 uppercase tracking-wide">Cross-Validation</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mb-3">
+                  Paste the summaries (C1 & C2) below to generate the final decision prompt.
+                </p>
+
+                <div class="space-y-4">
+                  <div class="grid grid-cols-1 gap-3">
+                    <div class="relative group">
+                      <span class="absolute top-2 left-3 text-[9px] font-bold text-slate-500 uppercase group-focus-within:text-cyan-400 transition-colors">Gemini Summary (C1)</span>
+                      <textarea id="gemini-summary" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 pt-6 text-[10px] text-slate-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none transition-all" placeholder="Paste Gemini's summary here..."></textarea>
+                    </div>
+                    <div class="relative group">
+                      <span class="absolute top-2 left-3 text-[9px] font-bold text-slate-500 uppercase group-focus-within:text-cyan-400 transition-colors">Claude Summary (C2)</span>
+                      <textarea id="claude-summary" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 pt-6 text-[10px] text-slate-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none transition-all" placeholder="Paste Claude's summary here..."></textarea>
+                    </div>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-3">
+                    <button onclick="generateCrossVal('lt')" class="bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-500/30 hover:border-cyan-400/50 text-cyan-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex flex-col items-center justify-center gap-1">
+                      <span>🔬 LT VERIFY</span>
+                      <span class="text-[9px] opacity-60 font-normal">Generate Final Prompt</span>
+                    </button>
+                    <button onclick="generateCrossVal('swing')" class="bg-amber-900/40 hover:bg-amber-800/60 border border-amber-500/30 hover:border-amber-400/50 text-amber-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex flex-col items-center justify-center gap-1">
+                      <span>⚖️ SWING VERIFY</span>
+                      <span class="text-[9px] opacity-60 font-normal">Generate Final Prompt</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
 
@@ -283,24 +336,9 @@
                 2. Deep Analysis
               </button>
             </div>
-
-            <div class="bg-black/20 rounded-lg p-3 border border-white/5">
-              <button onclick="toggleSection('lt-crossval')" class="w-full flex items-center justify-between text-xs font-bold text-blue-300/70 hover:text-blue-300 transition-colors">
-                <span>🔬 Cross-Validation</span>
-                <svg class="w-3 h-3 transition-transform" id="icon-lt-crossval" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <div id="lt-crossval" class="hidden pt-3 mt-2 border-t border-white/5 space-y-3">
-                <textarea id="lt-gemini" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-blue-500 outline-none resize-none" placeholder="Paste Gemini Summary..."></textarea>
-                <textarea id="lt-claude" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-blue-500 outline-none resize-none" placeholder="Paste Claude Summary..."></textarea>
-                <button onclick="generateCrossVal('lt')" class="w-full bg-blue-900/30 hover:bg-blue-900/50 border border-blue-500/30 text-blue-300 py-2 rounded text-xs font-bold">
-                  Generate Verification Prompt
-                </button>
-                <div class="flex justify-center gap-3">
-                  <button onclick="copyPrompt('lt_summary')" class="text-[9px] text-slate-500 hover:text-blue-400 underline">Copy Summary Prompt</button>
-                </div>
-              </div>
-            </div>
           </div>
+          
+          <div id="lt-signal-list" class="mt-4 pt-4 border-t border-white/5 space-y-2"></div>
         </div>
 
         <div id="swing-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-amber-500 hidden relative overflow-hidden">
@@ -322,61 +360,9 @@
                 2. Technical
               </button>
             </div>
-
-            <div class="bg-black/20 rounded-lg p-3 border border-white/5">
-              <button onclick="toggleSection('sw-crossval')" class="w-full flex items-center justify-between text-xs font-bold text-amber-300/70 hover:text-amber-300 transition-colors">
-                <span>🔬 Cross-Validation</span>
-                <svg class="w-3 h-3 transition-transform" id="icon-sw-crossval" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <div id="sw-crossval" class="hidden pt-3 mt-2 border-t border-white/5 space-y-3">
-                <textarea id="sw-gemini" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Paste Gemini Summary..."></textarea>
-                <textarea id="sw-claude" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Paste Claude Summary..."></textarea>
-                <button onclick="generateCrossVal('swing')" class="w-full bg-amber-900/30 hover:bg-amber-900/50 border border-amber-500/30 text-amber-300 py-2 rounded text-xs font-bold">
-                  Generate Verification Prompt
-                </button>
-                <div class="flex justify-center gap-3">
-                  <button onclick="copyPrompt('swing_summary')" class="text-[9px] text-slate-500 hover:text-amber-400 underline">Copy Summary Prompt</button>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
-
-        <div id="daytrade-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-red-500 hidden">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-              <span class="text-lg">🏎️</span>
-              <h3 class="font-display font-bold text-sm text-red-400 uppercase tracking-widest">Day Trade</h3>
-            </div>
-            <span id="market-hours" class="text-xxs font-bold px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 uppercase">--</span>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2 mb-4">
-            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
-              <div class="text-[10px] text-slate-500 font-bold">VWAP</div>
-              <div id="vwap-status" class="text-xs font-mono font-bold mt-1">--</div>
-            </div>
-            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
-              <div class="text-[10px] text-slate-500 font-bold">ORB</div>
-              <div id="orb-status" class="text-xs font-mono font-bold mt-1">--</div>
-            </div>
-            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
-              <div class="text-[10px] text-slate-500 font-bold">GAP</div>
-              <div id="gap-status" class="text-xs font-mono font-bold mt-1">--</div>
-            </div>
-          </div>
-
-          <div id="daytrade-candidates" class="hidden mb-4">
-            <div class="text-[10px] text-slate-400 uppercase font-bold mb-2 tracking-wider">Momentum Picks</div>
-            <div id="daytrade-list" class="space-y-2"></div>
-          </div>
-
-          <div class="pt-4 border-t border-white/5">
-            <button onclick="copyPrompt('short')" id="btn-day" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-red-500/50 text-red-400 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-              COPY DAY TRADE PROMPT
-            </button>
-          </div>
+          
+          <div id="swing-signal-list" class="mt-4 pt-4 border-t border-white/5 space-y-2"></div>
         </div>
 
         <div class="space-y-6">
@@ -461,7 +447,7 @@
 
     // --- File Handling ---
     const fileInput = document.getElementById('file-input');
-    fileInput.addEventListener('click', (e) => e.target.value = '');
+    fileInput.addEventListener('click', (e) => e.target.value = ''); // Allow re-select
     fileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -469,6 +455,7 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
+          // JSON sanitization
           let jsonStr = e.target.result
             .replace(/:\s*NaN\b/g, ': null')
             .replace(/:\s*Infinity\b/g, ': null')
@@ -485,11 +472,12 @@
 
     // --- Dashboard Rendering ---
     function renderDashboard(data) {
+      // Transition
       document.getElementById('loader-screen').classList.add('hidden');
       const dash = document.getElementById('dashboard');
       dash.classList.remove('hidden');
 
-      // 1. Header & Meta
+      // 1. Header Info
       const meta = data.metadata || {};
       document.getElementById('header-date').textContent = formatTime(meta.generated_at);
       
@@ -527,6 +515,10 @@
           document.getElementById('badge-swing').classList.remove('hidden');
         }
       }
+
+      // Render Detailed Lists (New Function Call)
+      renderSignals(data.signals?.long_term, 'lt-signal-list', 'text-blue-400');
+      renderSignals(data.signals?.swing, 'swing-signal-list', 'text-amber-400');
 
       // Watchlist Stats
       const watchlists = data.watchlists || {};
@@ -697,6 +689,37 @@
       }
     }
 
+    function renderSignals(signals, containerId, colorClass) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = ''; 
+
+      if (!signals || signals.length === 0) return;
+
+      signals.forEach(sig => {
+        let icon = '💫';
+        if (sig.confidence === 'HIGH') icon = '🔥';
+        if (sig.confidence === 'MEDIUM') icon = '✨';
+        
+        const html = `
+          <div class="bg-slate-900/50 rounded-lg p-3 border border-slate-700/50 flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-bold text-white text-sm">${sig.ticker}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-slate-300">${sig.signal_type}</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-1">${sig.notes || ''}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-sm text-white">$${sig.price}</div>
+              <div class="text-xs ${colorClass} font-bold">${icon} ${sig.confidence}</div>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+      });
+    }
+
     // --- Logic: Calculator ---
     const calcInputs = ['calc-eq', 'calc-risk', 'calc-entry', 'calc-stop'];
     calcInputs.forEach(id => document.getElementById(id).addEventListener('input', updateCalc));
@@ -746,9 +769,8 @@
     }
 
     function generateCrossVal(type) {
-      const prefix = type === 'lt' ? 'lt' : 'sw';
-      const gSummary = document.getElementById(`${prefix}-gemini`).value;
-      const cSummary = document.getElementById(`${prefix}-claude`).value;
+      const gSummary = document.getElementById('gemini-summary').value;
+      const cSummary = document.getElementById('claude-summary').value;
       
       if (!gSummary || !cSummary) {
         showToast("MISSING INPUT");
