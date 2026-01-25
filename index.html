@@ -269,22 +269,42 @@
         <button onclick="copyPrompt('pf')" id="btn-pf" class="btn-neon btn-pf p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
           <span>💼</span> Portfolio
         </button>
-        
-        <button onclick="copyPrompt('long')" id="btn-long" class="btn-neon btn-long p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
-          <span>🚀</span> Long
-          <span id="badge-long" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-emerald-400/30"></span>
-        </button>
-        
-        <button onclick="copyPrompt('swing')" id="btn-swing" class="btn-neon btn-swing p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
-          <span>🏄</span> Swing
-          <span id="badge-swing" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-amber-400/30"></span>
-        </button>
-        
+
         <button onclick="copyPrompt('short')" id="btn-day" class="btn-neon btn-day p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
           <span>🏎️</span> Day
         </button>
-        
-        <button onclick="copyPrompt('translate')" class="btn-neon btn-tr p-4 rounded-xl text-white font-bold shadow-lg col-span-2 flex justify-center items-center gap-2">
+      </div>
+
+      <!-- Ver 21.0: 2-Phase Long Term Prompts -->
+      <div class="mt-3">
+        <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">🚀 Long-Term (2-Phase)</div>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="copyPrompt('long_p1')" id="btn-long-p1" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+            <span>1️⃣</span> LT Phase1
+          </button>
+          <button onclick="copyPrompt('long_p2')" id="btn-long-p2" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+            <span>2️⃣</span> LT Phase2
+            <span id="badge-long" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-emerald-400/30"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Ver 21.0: 2-Phase Swing Prompts -->
+      <div class="mt-3">
+        <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">🏄 Swing (2-Phase)</div>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="copyPrompt('swing_p1')" id="btn-swing-p1" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+            <span>1️⃣</span> SW Phase1
+          </button>
+          <button onclick="copyPrompt('swing_p2')" id="btn-swing-p2" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+            <span>2️⃣</span> SW Phase2
+            <span id="badge-swing" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-amber-400/30"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 mt-3">
+        <button onclick="copyPrompt('translate')" class="btn-neon btn-tr p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
           <span>🇯🇵</span> Translate
         </button>
       </div>
@@ -432,9 +452,13 @@
       // 6. Buttons & Badges
       const avail = data.availability || {};
       toggleBtn('btn-pf', avail.pf);
-      toggleBtn('btn-long', avail.long);
-      toggleBtn('btn-swing', avail.swing);
       toggleBtn('btn-day', avail.short);
+
+      // Ver 21.0: 2-Phase buttons
+      toggleBtn('btn-long-p1', avail.long_p1 || avail.long);
+      toggleBtn('btn-long-p2', avail.long_p2 || avail.long);
+      toggleBtn('btn-swing-p1', avail.swing_p1 || avail.swing);
+      toggleBtn('btn-swing-p2', avail.swing_p2 || avail.swing);
 
       if (ltCount > 0) showBadge('badge-long', `${ltCount}⚡`);
       if (swingCount > 0) showBadge('badge-swing', `${swingCount}⚡`);
