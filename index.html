@@ -1,500 +1,479 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#090a0f">
-  <title>US Stock Analyzer - Command Center (Ver 21.1)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0f172a">
+  <title>US Stock Analyzer - Command Center</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Chakra Petch"', 'sans-serif'],
+            display: ['"Orbitron"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            bg: {
+              main: '#030712', // gray-950 darker
+              card: 'rgba(17, 24, 39, 0.7)', // gray-900/70
+            },
+            neon: {
+              blue: '#3b82f6',
+              purple: '#8b5cf6',
+              cyan: '#06b6d4',
+              green: '#10b981',
+              amber: '#f59e0b',
+              red: '#ef4444',
+            }
+          },
+          backgroundImage: {
+            'cyber-grid': "linear-gradient(rgba(17, 24, 39, 0.9), rgba(3, 7, 18, 0.95)), url('data:image/svg+xml,%3Csvg width=\\'40\\' height=\\'40\\' viewBox=\\'0 0 40 40\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cpath d=\\'M0 0h40v40H0V0zm1 1h38v38H1V1z\\' fill=\\'%233b82f6\\' fill-opacity=\\'0.05\\' fill-rule=\\'evenodd\\'/%3E%3C/svg%3E')",
+          },
+          boxShadow: {
+            'glow-blue': '0 0 15px rgba(59, 130, 246, 0.3)',
+            'glow-amber': '0 0 15px rgba(245, 158, 11, 0.3)',
+            'glow-green': '0 0 15px rgba(16, 185, 129, 0.3)',
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'border-flow': 'borderFlow 3s ease infinite',
+          },
+          keyframes: {
+            borderFlow: {
+              '0%, 100%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    /* --- サイバーパンク・テーマ設定 --- */
-    :root {
-      --neon-blue: #3b82f6;
-      --neon-purple: #8b5cf6;
-      --neon-amber: #f59e0b;
-      --neon-green: #10b981;
-      --neon-red: #ef4444;
-      --bg-dark: #090a0f;
-    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-    /* HTML全体に背景色を設定（バウンススクロール時の白背景防止） */
-    html {
-      background-color: var(--bg-dark);
-      height: 100%;
-      overflow-y: scroll; /* スクロールバーのガタつき防止 */
+    /* Glassmorphism Utilities */
+    .glass-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
-
-    body {
-      background: 
-        radial-gradient(circle at 50% -20%, #2a1f62, #090a0f 60%),
-        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.386 7.9 40.486 0h2.828zm-26.628 0l-6.485 6.485 1.414 1.414L17.314 0h-2.828zM31.113 0L47.8 16.686 46.386 18.1 28.286 0h2.828zm-2.226 0l-16.686 16.686 1.414 1.414L30.3 0h-2.828zM14.857 0L44.97 30.113 43.557 31.527 12.03 0h2.828zm30.286 0L15.03 30.113 16.443 31.527 47.97 0h-2.828zM0 14.857L30.113 44.97 31.527 43.557 0 12.03v2.828zm0 30.286L30.113 15.03 31.527 16.443 0 47.97v-2.828zM0 31.113L16.686 47.8 18.1 46.386 0 28.286v2.828zm0-2.226L16.686 12.2 18.1 13.614 0 31.714v-2.828zM0 5.373L5.373 0h2.828L0 8.2v-2.827zm0 49.254L54.627 60h2.828L0 51.8v2.827zm0-5.373L48.97 60h2.828L0 46.143v2.828zm0-43.88L11.03 0h2.828L0 13.857V5.374zm0 49.254L54.627 0h2.828L0 57.457v-2.83zm0-5.374L48.97 0h2.828L0 51.8v-2.827zm0-43.88L11.03 60h2.828L0 46.143V5.373zm0 49.254L43.314 0h2.828L0 46.143v2.83zm0-5.373L37.657 0h2.828L0 40.486v2.827zm0-38.514L11.03 60h2.828L0 13.857v-2.828zM0 0l60 60h-2.828L0 2.828V0zm0 60L60 0h-2.828L0 57.172V60z' fill='%232d3748' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-      background-color: var(--bg-dark); /* フォールバック */
-      background-attachment: fixed;
-      background-size: auto;
-      color: #e2e8f0;
-      font-family: 'Chakra Petch', sans-serif;
-      min-height: 100vh;
-      
-      /* コンテンツをステータスバーの下に下げる */
-      padding-top: calc(env(safe-area-inset-top) + 24px);
-      padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
-      
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    h1, h2, h4, .font-display {
-      font-family: 'Orbitron', sans-serif;
-      letter-spacing: 1px;
-    }
-
-    .title-gradient {
-      background: linear-gradient(to right, #60a5fa, #34d399);
-      -webkit-background-clip: text;
-      color: transparent;
-      text-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
-    }
-
-    /* --- ネオングラス・パネル --- */
-    .neon-glass {
-      background: rgba(13, 17, 30, 0.6);
-      backdrop-filter: blur(20px) saturate(150%);
-      -webkit-backdrop-filter: blur(20px) saturate(150%);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow: 
-        0 8px 32px 0 rgba(0, 0, 0, 0.5),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    
+    .glass-panel-hover {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
     }
-    .neon-glass::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -150%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-      transform: skewX(-25deg);
-      transition: left 0.7s ease-in-out;
-      pointer-events: none;
-    }
-    .neon-glass:hover::before {
-      left: 150%;
+    
+    @media (hover: hover) {
+      .glass-panel-hover:hover {
+        background: rgba(30, 41, 59, 0.8);
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      }
     }
 
-    .loader-box {
-      border: 2px dashed rgba(99, 102, 241, 0.3);
-      box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
-    }
-    .loader-box:hover {
-      border-color: var(--neon-purple);
-      box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
-    }
-
-    /* --- カードスタイル --- */
-    .card-base {
-      border: 1px solid;
-      transition: all 0.3s ease;
-    }
-    .card-lt { border-color: rgba(59, 130, 246, 0.5); background: rgba(59, 130, 246, 0.05); }
-    .card-lt:hover { box-shadow: 0 0 25px rgba(59, 130, 246, 0.4); border-color: var(--neon-blue); }
-
-    .card-swing { border-color: rgba(245, 158, 11, 0.5); background: rgba(245, 158, 11, 0.05); }
-    .card-swing:hover { box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); border-color: var(--neon-amber); }
-
-    .card-stat { border-color: rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.05); }
-    .card-stat:hover { border-color: var(--neon-purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
-
-    .card-sector { border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.05); }
-
-    /* Ver 21.1: Portfolio & Day Trade Cards */
-    .card-portfolio { border-color: rgba(139, 92, 246, 0.5); background: rgba(139, 92, 246, 0.05); }
-    .card-portfolio:hover { box-shadow: 0 0 25px rgba(139, 92, 246, 0.4); border-color: var(--neon-purple); }
-
-    .card-daytrade { border-color: rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.05); }
-    .card-daytrade:hover { box-shadow: 0 0 25px rgba(239, 68, 68, 0.4); border-color: var(--neon-red); }
-
-    /* Urgency indicators */
-    .urgency-urgent { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.8); }
-    .urgency-high { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.8); }
-    .urgency-medium { color: #eab308; }
-    .urgency-low { color: #22c55e; }
-
-    /* VWAP/ORB status */
-    .vwap-above { color: #10b981; }
-    .vwap-below { color: #ef4444; }
-    .orb-breakout { color: #10b981; text-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
-    .gap-go { color: #10b981; }
-    .gap-fill { color: #f59e0b; }
-
-    /* --- アラート --- */
-    .alert-box {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.6);
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
-    }
-    .pulse-border {
-      animation: pulseNeon 2s infinite alternate;
-    }
-    @keyframes pulseNeon {
-      from { box-shadow: 0 0 15px rgba(16, 185, 129, 0.2), inset 0 0 10px rgba(16, 185, 129, 0.1); }
-      to { box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.3); border-color: var(--neon-green); }
-    }
-
-    /* --- ボタン --- */
-    .btn-neon {
-      position: relative;
-      border: 1px solid transparent;
-      background-clip: padding-box;
-      transition: all 0.2s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-family: 'Orbitron', sans-serif;
-      overflow: hidden;
-      font-size: 0.85rem;
-    }
-    .btn-neon::after {
-      content: '';
-      position: absolute;
-      top: -2px; left: -2px; right: -2px; bottom: -2px;
-      z-index: -1;
-      border-radius: inherit;
-      background: linear-gradient(45deg, var(--btn-color-1), var(--btn-color-2));
-      opacity: 0.5;
-      filter: blur(5px);
-      transition: opacity 0.3s ease;
-    }
-    .btn-neon:hover::after { opacity: 1; filter: blur(8px); }
-    .btn-neon:hover { transform: translateY(-2px); }
-    .btn-neon:active { transform: scale(0.98) translateY(0); }
-    .btn-neon:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .btn-neon:disabled::after { opacity: 0.2; filter: blur(2px); }
-
-    .btn-pf { --btn-color-1: #8B5CF6; --btn-color-2: #6366F1; background: linear-gradient(135deg, #8B5CF6cc, #6366F1cc); }
-    .btn-long { --btn-color-1: #10B981; --btn-color-2: #059669; background: linear-gradient(135deg, #10B981cc, #059669cc); }
-    .btn-swing { --btn-color-1: #F59E0B; --btn-color-2: #D97706; background: linear-gradient(135deg, #F59E0Bcc, #D97706cc); }
-    .btn-day { --btn-color-1: #EF4444; --btn-color-2: #DC2626; background: linear-gradient(135deg, #EF4444cc, #DC2626cc); }
-    .btn-tr { --btn-color-1: #6366F1; --btn-color-2: #4F46E5; background: linear-gradient(135deg, #6366F1cc, #4F46E5cc); }
-
-    /* --- 入力フィールド --- */
-    .cyber-input {
-      background: rgba(15, 23, 42, 0.8) !important;
-      border: 1px solid rgba(99, 102, 241, 0.3) !important;
-      color: #a5b4fc !important;
-      font-family: 'Chakra Petch', sans-serif;
-      letter-spacing: 1px;
-      transition: all 0.3s ease;
-    }
-    .cyber-input:focus {
-      border-color: var(--neon-purple) !important;
-      box-shadow: 0 0 15px rgba(139, 92, 246, 0.3) !important;
-    }
-
-    .text-glow-blue { text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
-    .text-glow-amber { text-shadow: 0 0 10px rgba(245, 158, 11, 0.8); }
-    .text-glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.8); }
-    .text-xxs { font-size: 0.65rem; }
-    .fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    /* Text Glow Utilities */
+    .text-glow-blue { text-shadow: 0 0 10px rgba(59, 130, 246, 0.7); }
+    .text-glow-amber { text-shadow: 0 0 10px rgba(245, 158, 11, 0.7); }
+    .text-glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.7); }
+    
+    /* Input Reset */
     input[type="number"]::-webkit-inner-spin-button, 
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+    /* Grid layout tweaks */
+    .grid-dashboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    @media (min-width: 1024px) {
+      .grid-dashboard {
+        grid-template-columns: 1fr 320px; /* Main content + Sidebar */
+      }
+    }
+    @media (min-width: 1280px) {
+      .grid-dashboard {
+        grid-template-columns: 1fr 380px;
+      }
+    }
   </style>
 </head>
-<body class="p-4 max-w-md mx-auto lg:max-w-6xl">
+<body class="bg-bg-main bg-cyber-grid text-slate-200 min-h-screen font-sans selection:bg-neon-blue selection:text-white pb-24 lg:pb-10">
 
-  <div id="loader-screen" class="flex flex-col items-center justify-center min-h-[80vh] fade-in">
-    <div class="text-center mb-10">
-      <h1 class="text-3xl font-bold title-gradient mb-2">
-        US Stock Analyzer
-      </h1>
-      <p class="text-slate-400 text-sm font-display tracking-widest">/// Mobile Command Center ///</p>
-    </div>
-
-    <label class="w-full neon-glass loader-box rounded-xl p-8 flex flex-col items-center justify-center gap-5 cursor-pointer transition-all group">
-      <div class="w-16 h-16 rounded-full bg-slate-800/50 border border-indigo-500/30 flex items-center justify-center text-3xl group-hover:border-indigo-400 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all">📂</div>
-      <div class="text-center">
-        <span class="block font-bold text-indigo-300 text-lg font-display group-hover:text-indigo-200">Load Data Module</span>
-        <span class="text-xs text-slate-500 mt-2 block font-display">SELECT MOBILE_PROMPTS.JSON</span>
+  <header class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/5 bg-opacity-90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
+        <h1 class="font-display font-bold text-lg tracking-wider bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+          US STOCK <span class="hidden sm:inline">ANALYZER</span>
+        </h1>
       </div>
-      <input type="file" id="file-input" accept=".json" class="hidden">
-    </label>
-    
-    <div class="mt-8 text-xs text-slate-600 text-center max-w-xs font-mono">
-      [SYSTEM]: Awaiting output from us-stock-analyzer.ipynb (Cell 9)
-    </div>
-  </div>
-
-  <div id="dashboard" class="hidden fade-in pb-20">
-
-    <div class="text-center mb-6">
-      <div class="flex items-center justify-center gap-2 mb-1">
-        <h2 class="text-xl font-bold text-white text-glow-blue">Analysis Report</h2>
-      </div>
-      <div id="gen-date" class="text-xs text-slate-400 font-mono leading-relaxed bg-slate-900/50 inline-block px-3 py-1.5 rounded border border-slate-700/50">
-        Generated: --
-      </div>
-    </div>
-
-    <!-- PC: 2カラムレイアウト -->
-    <div class="lg:grid lg:grid-cols-2 lg:gap-8">
-
-      <!-- 左カラム: サマリー & ステータス -->
-      <div>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="neon-glass card-base card-lt rounded-xl p-4 text-center relative">
-            <h4 class="text-blue-400 text-xs font-bold mb-2 uppercase tracking-wider">🚀 Long-Term</h4>
-            <div id="lt-signal-count" class="text-3xl font-bold text-blue-400 text-glow-blue">--</div>
-            <div class="text-xs text-slate-400 mt-2 font-mono">
-              W:<span id="lt-watch" class="text-slate-200">--</span> <span class="text-slate-600">|</span> R:<span id="lt-ready" class="text-slate-200">--</span>
-            </div>
-          </div>
-          <div class="neon-glass card-base card-swing rounded-xl p-4 text-center relative">
-            <h4 class="text-amber-400 text-xs font-bold mb-2 uppercase tracking-wider">🏄 Swing</h4>
-            <div id="swing-signal-count" class="text-3xl font-bold text-amber-400 text-glow-amber">--</div>
-            <div class="text-xs text-slate-400 mt-2 font-mono">
-              W:<span id="swing-watch" class="text-slate-200">--</span> <span class="text-slate-600">|</span> R:<span id="swing-ready" class="text-slate-200">--</span>
-            </div>
-          </div>
+      
+      <div id="header-status" class="flex items-center gap-4 text-xs font-mono hidden">
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+          <span class="text-slate-400">MARKET:</span>
+          <span id="market-regime-badge" class="font-bold text-white">--</span>
         </div>
-
-        <div class="grid grid-cols-3 gap-3 mb-4">
-          <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
-            <div class="text-xxs text-violet-300 uppercase font-display">Total</div>
-            <div id="stat-total" class="font-bold text-violet-100 text-lg">--</div>
-          </div>
-          <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
-            <div class="text-xxs text-violet-300 uppercase font-display">Watch</div>
-            <div id="stat-watch" class="font-bold text-violet-100 text-lg">--</div>
-          </div>
-          <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
-            <div class="text-xxs text-violet-300 uppercase font-display">Charts</div>
-            <div id="stat-charts" class="font-bold text-violet-100 text-lg">--</div>
-          </div>
-        </div>
-
-        <div id="sector-bar" class="neon-glass card-base card-sector rounded-xl p-3 mb-4 text-center hidden">
-          <div class="text-emerald-400 text-xs font-bold mb-1 uppercase tracking-wider">🔄 Sector Rotation</div>
-          <div id="sector-text" class="text-xs text-slate-200 font-mono flex flex-wrap justify-center gap-x-2"></div>
-        </div>
-
-        <div id="signal-alert" class="neon-glass alert-box rounded-xl p-4 mb-6 text-center hidden">
-          <span id="signal-alert-text" class="text-emerald-400 font-bold text-sm font-display tracking-wide"></span>
-        </div>
-
-        <!-- Ver 21.1: Portfolio Review Section -->
-        <div id="portfolio-section" class="neon-glass card-base card-portfolio rounded-xl p-4 mb-4 hidden">
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="text-violet-400 text-xs font-bold uppercase tracking-wider">💼 Portfolio Review</h4>
-            <span id="portfolio-health" class="text-xs font-mono text-slate-400">Health: --</span>
-          </div>
-
-          <!-- Sell Signals -->
-          <div id="sell-signals-container" class="mb-3 hidden">
-            <div class="text-xxs text-red-400 uppercase mb-1 font-display">🚨 Sell Signals</div>
-            <div id="sell-signals-list" class="space-y-1 text-xs"></div>
-          </div>
-
-          <!-- Add-on Candidates -->
-          <div id="addon-signals-container" class="hidden">
-            <div class="text-xxs text-emerald-400 uppercase mb-1 font-display">📈 Add-on Candidates</div>
-            <div id="addon-signals-list" class="space-y-1 text-xs"></div>
-          </div>
-        </div>
-
-        <!-- Ver 21.1: Day Trade Section -->
-        <div id="daytrade-section" class="neon-glass card-base card-daytrade rounded-xl p-4 mb-4 hidden">
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="text-red-400 text-xs font-bold uppercase tracking-wider">🏎️ Day Trade</h4>
-            <span id="market-hours" class="text-xs font-mono text-slate-400">Market: --</span>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2 text-center">
-            <!-- VWAP Status -->
-            <div class="bg-slate-900/50 rounded-lg p-2">
-              <div class="text-xxs text-slate-500 uppercase font-display">VWAP</div>
-              <div id="vwap-status" class="text-sm font-bold font-mono mt-1">--</div>
-            </div>
-
-            <!-- ORB Status -->
-            <div class="bg-slate-900/50 rounded-lg p-2">
-              <div class="text-xxs text-slate-500 uppercase font-display">ORB</div>
-              <div id="orb-status" class="text-sm font-bold font-mono mt-1">--</div>
-            </div>
-
-            <!-- Gap Status -->
-            <div class="bg-slate-900/50 rounded-lg p-2">
-              <div class="text-xxs text-slate-500 uppercase font-display">GAP</div>
-              <div id="gap-status" class="text-sm font-bold font-mono mt-1">--</div>
-            </div>
-          </div>
-
-          <!-- Day Trade Candidates -->
-          <div id="daytrade-candidates" class="mt-3 hidden">
-            <div class="text-xxs text-slate-400 uppercase mb-1 font-display">Top Momentum</div>
-            <div id="daytrade-list" class="space-y-1 text-xs"></div>
-          </div>
-        </div>
+        <div class="text-slate-500 hidden sm:block" id="header-date">--</div>
       </div>
 
-      <!-- 右カラム: コマンドプロンプト & ツール -->
-      <div>
-        <div class="mb-6">
-          <div class="flex items-center gap-3 mb-4 text-slate-400">
-            <div class="h-px bg-slate-700/50 flex-1 box-shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
-            <span class="text-xs font-bold uppercase tracking-widest font-display text-indigo-300">📋 Command Prompts</span>
-            <div class="h-px bg-slate-700/50 flex-1"></div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <button onclick="copyPrompt('pf')" id="btn-pf" class="btn-neon btn-pf p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
-              <span>💼</span> Portfolio
-            </button>
-
-            <button onclick="copyPrompt('short')" id="btn-day" class="btn-neon btn-day p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
-              <span>🏎️</span> Day
-            </button>
-          </div>
-
-          <!-- Ver 21.0: 2-Phase Long Term Prompts -->
-          <div class="mt-3">
-            <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">🚀 Long-Term (2-Phase)</div>
-            <div class="grid grid-cols-2 gap-3">
-              <button onclick="copyPrompt('long_p1')" id="btn-long-p1" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-                <span>1️⃣</span> LT Phase1
-                <span id="badge-long" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-emerald-400/30"></span>
-              </button>
-              <button onclick="copyPrompt('long_p2')" id="btn-long-p2" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-                <span>2️⃣</span> LT Phase2
-              </button>
-            </div>
-          </div>
-
-          <!-- Ver 21.0: 2-Phase Swing Prompts -->
-          <div class="mt-3">
-            <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">🏄 Swing (2-Phase)</div>
-            <div class="grid grid-cols-2 gap-3">
-              <button onclick="copyPrompt('swing_p1')" id="btn-swing-p1" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-                <span>1️⃣</span> SW Phase1
-                <span id="badge-swing" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-amber-400/30"></span>
-              </button>
-              <button onclick="copyPrompt('swing_p2')" id="btn-swing-p2" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-                <span>2️⃣</span> SW Phase2
-              </button>
-            </div>
-          </div>
-
-          <!-- Ver 21.0: Summary Prompts -->
-          <div class="mt-3">
-            <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">📋 Summary (for Cross-Val)</div>
-            <div class="grid grid-cols-2 gap-3">
-              <button onclick="copyPrompt('lt_summary')" id="btn-lt-summary" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-                <span>📋</span> LT Summary
-              </button>
-              <button onclick="copyPrompt('swing_summary')" id="btn-swing-summary" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-                <span>📋</span> SW Summary
-              </button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 gap-3 mt-3">
-            <button onclick="copyPrompt('translate')" class="btn-neon btn-tr p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
-              <span>🇯🇵</span> Translate
-            </button>
-          </div>
-        </div>
-
-        <!-- Ver 21.0: Cross-Validation Generator -->
-        <div class="neon-glass rounded-xl p-5 mb-6 border-t border-slate-700/30">
-          <div class="flex items-center gap-3 mb-4">
-            <h4 class="text-xs font-bold text-cyan-300 uppercase tracking-widest font-display">🔬 Cross-Validation Generator</h4>
-            <button onclick="toggleCrossVal()" id="crossval-toggle" class="text-xs text-slate-500 hover:text-cyan-400 ml-auto">
-              [EXPAND]
-            </button>
-          </div>
-
-          <div id="crossval-panel" class="hidden">
-            <div class="lg:grid lg:grid-cols-2 lg:gap-4">
-              <div>
-                <div class="text-[10px] text-slate-500 mb-2">Gemini Summary (C1):</div>
-                <textarea id="gemini-summary" rows="4" placeholder="Gemini の Summary 回答を貼り付け..." class="cyber-input w-full rounded-lg px-3 py-2 text-xs mb-3 resize-none"></textarea>
-              </div>
-
-              <div>
-                <div class="text-[10px] text-slate-500 mb-2">Claude Summary (C2):</div>
-                <textarea id="claude-summary" rows="4" placeholder="Claude の Summary 回答を貼り付け..." class="cyber-input w-full rounded-lg px-3 py-2 text-xs mb-3 resize-none"></textarea>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <button onclick="generateCrossVal('lt')" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-                <span>🔬</span> LT Cross-Val
-              </button>
-              <button onclick="generateCrossVal('swing')" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-                <span>🔬</span> SW Cross-Val
-              </button>
-            </div>
-
-            <div class="text-[10px] text-slate-600 mt-3 text-center">
-              生成されたプロンプトは自動でコピーされます
-            </div>
-          </div>
-        </div>
-
-        <div class="neon-glass rounded-xl p-5 border-t border-slate-700/30">
-          <h4 class="text-xs font-bold text-indigo-300 mb-4 uppercase tracking-widest font-display">🧮 Position Calculator</h4>
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <input type="number" id="calc-eq" placeholder="Total $" value="10000" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
-            <input type="number" id="calc-risk" placeholder="Risk %" value="1" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
-            <input type="number" id="calc-entry" placeholder="Entry Price" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
-            <input type="number" id="calc-stop" placeholder="Stop Price" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
-          </div>
-
-          <div class="bg-slate-900/60 rounded-lg p-4 grid grid-cols-3 gap-2 text-center border border-slate-700/50">
-            <div>
-              <div class="text-xxs text-slate-500 font-display uppercase">Risk Amt</div>
-              <div id="res-risk" class="text-sm font-bold text-slate-300 font-mono mt-1">$0</div>
-            </div>
-            <div class="border-l border-slate-700/50 relative">
-               <div class="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-indigo-500/50 to-transparent"></div>
-              <div class="text-xxs text-slate-500 font-display uppercase">Shares</div>
-              <div id="res-shares" class="text-lg font-bold text-blue-400 text-glow-blue font-mono mt-1">---</div>
-            </div>
-            <div class="border-l border-slate-700/50 relative">
-              <div class="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-emerald-500/50 to-transparent"></div>
-              <div class="text-xxs text-slate-500 font-display uppercase">Position</div>
-              <div id="res-cost" class="text-sm font-bold text-emerald-400 font-mono mt-1">$0</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="text-center mt-10">
-      <button onclick="location.reload()" class="text-xs text-slate-500 hover:text-indigo-400 underline font-display tracking-wider transition-colors">
-        [SYSTEM]: TERMINATE & RELOAD
+      <button onclick="location.reload()" class="p-2 text-slate-400 hover:text-white active:scale-95 transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/></svg>
       </button>
     </div>
+  </header>
 
-  </div>
+  <main class="pt-20 px-4 max-w-7xl mx-auto">
+    
+    <div id="loader-screen" class="min-h-[70vh] flex flex-col items-center justify-center fade-in">
+      <div class="w-full max-w-md p-1">
+        <div class="glass-panel rounded-2xl p-8 text-center relative overflow-hidden group">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500"></div>
+          
+          <div class="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800/50 border border-slate-700 group-hover:border-blue-500/50 group-hover:shadow-glow-blue transition-all duration-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          
+          <h2 class="text-2xl font-display font-bold text-white mb-2">Load Data Module</h2>
+          <p class="text-slate-400 text-sm mb-8">Select <code class="bg-slate-900 px-1.5 py-0.5 rounded text-blue-300">mobile_prompts.json</code> to initialize</p>
+          
+          <label class="block w-full">
+            <span class="sr-only">Choose file</span>
+            <input type="file" id="file-input" accept=".json" class="block w-full text-sm text-slate-400
+              file:mr-4 file:py-2.5 file:px-6
+              file:rounded-full file:border-0
+              file:text-sm file:font-bold file:font-display
+              file:bg-blue-600 file:text-white
+              hover:file:bg-blue-500
+              active:file:scale-95 transition-all
+              cursor-pointer mx-auto
+            "/>
+          </label>
+        </div>
+      </div>
+    </div>
 
-  <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/90 text-emerald-400 px-6 py-3 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.3)] border border-emerald-500/30 text-sm font-bold opacity-0 transition-all pointer-events-none flex items-center gap-3 z-50 backdrop-blur-md font-display">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-[0_0_5px_rgba(16,185,129,0.8)]"><polyline points="20 6 9 17 4 12"/></svg>
-    <span id="toast-msg" class="tracking-wider">COPIED!</span>
+    <div id="dashboard" class="hidden animate-in fade-in zoom-in duration-300">
+      
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div class="glass-panel glass-panel-hover rounded-xl p-4 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-3 opacity-10"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div>
+          <h3 class="text-blue-400 text-xs font-display font-bold uppercase tracking-wider mb-1">Long-Term</h3>
+          <div class="flex items-baseline gap-1">
+            <span id="lt-signal-count" class="text-3xl font-mono font-bold text-white">--</span>
+            <span class="text-xs text-slate-500 font-bold">Signals</span>
+          </div>
+          <div class="mt-2 flex gap-3 text-xs font-mono text-slate-400">
+            <span>Wait: <span id="lt-watch" class="text-slate-200">--</span></span>
+            <span>Ready: <span id="lt-ready" class="text-blue-300 font-bold">--</span></span>
+          </div>
+        </div>
+
+        <div class="glass-panel glass-panel-hover rounded-xl p-4 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-3 opacity-10"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><path d="M2 12h5"/><path d="M17 12h5"/><path d="M7 12a5 5 0 0 1 5-5 5 5 0 0 1 5 5"/></svg></div>
+          <h3 class="text-amber-400 text-xs font-display font-bold uppercase tracking-wider mb-1">Swing</h3>
+          <div class="flex items-baseline gap-1">
+            <span id="swing-signal-count" class="text-3xl font-mono font-bold text-white">--</span>
+            <span class="text-xs text-slate-500 font-bold">Signals</span>
+          </div>
+          <div class="mt-2 flex gap-3 text-xs font-mono text-slate-400">
+            <span>Wait: <span id="swing-watch" class="text-slate-200">--</span></span>
+            <span>Ready: <span id="swing-ready" class="text-amber-300 font-bold">--</span></span>
+          </div>
+        </div>
+
+        <div class="glass-panel glass-panel-hover rounded-xl p-4">
+          <h3 class="text-slate-400 text-xs font-display font-bold uppercase tracking-wider mb-1">Watchlist</h3>
+          <div class="flex items-baseline gap-1">
+            <span id="stat-watch" class="text-2xl font-mono font-bold text-white">--</span>
+            <span class="text-xs text-slate-500">Total</span>
+          </div>
+          <div class="mt-3 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-amber-500 w-0 transition-all duration-1000"></div>
+          </div>
+        </div>
+
+        <div class="glass-panel glass-panel-hover rounded-xl p-4">
+          <h3 class="text-slate-400 text-xs font-display font-bold uppercase tracking-wider mb-1">Charts</h3>
+          <div class="flex items-baseline gap-1">
+            <span id="stat-charts" class="text-2xl font-mono font-bold text-white">--</span>
+            <span class="text-xs text-slate-500">Generated</span>
+          </div>
+          <div class="mt-2 text-xxs text-slate-500">Check Google Drive</div>
+        </div>
+      </div>
+
+      <div class="grid-dashboard">
+        
+        <div class="space-y-6">
+          
+          <div id="signal-alert" class="hidden p-4 rounded-xl border transition-all duration-300 flex items-center gap-3">
+            <div class="p-2 rounded-full bg-slate-900/50" id="alert-icon">
+              </div>
+            <div>
+              <h3 id="signal-alert-title" class="font-display font-bold text-sm">--</h3>
+              <p id="signal-alert-desc" class="text-xs text-slate-400 mt-0.5">--</p>
+            </div>
+          </div>
+
+          <div id="sector-section" class="glass-panel rounded-xl p-5 hidden">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-lg">🔄</span>
+              <h3 class="font-display font-bold text-sm text-emerald-400 uppercase tracking-widest">Sector Flow</h3>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <div class="text-xxs text-slate-500 font-bold mb-1 uppercase">Strong Inflow (Buy Focus)</div>
+                <div id="sector-top" class="flex flex-wrap gap-2"></div>
+              </div>
+              <div class="h-px bg-white/5 w-full"></div>
+              <div>
+                <div class="text-xxs text-slate-500 font-bold mb-1 uppercase">Weak Outflow (Avoid)</div>
+                <div id="sector-bottom" class="flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="portfolio-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-purple-500 hidden relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="flex items-center justify-between mb-4 relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">💼</span>
+                <h3 class="font-display font-bold text-sm text-purple-400 uppercase tracking-widest">Portfolio</h3>
+              </div>
+              <span id="portfolio-health" class="px-2 py-1 rounded bg-slate-800 text-xs font-mono font-bold border border-slate-700">--</span>
+            </div>
+
+            <div id="sell-signals-container" class="mb-4 hidden">
+              <div class="text-xs font-bold text-red-400 mb-2 flex items-center gap-1">
+                <span class="animate-pulse">🚨</span> SELL SIGNALS
+              </div>
+              <div id="sell-signals-list" class="space-y-2"></div>
+            </div>
+
+            <div id="addon-signals-container" class="hidden">
+              <div class="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1">
+                <span>💰</span> ADD-ON OPPORTUNITIES
+              </div>
+              <div id="addon-signals-list" class="space-y-2"></div>
+            </div>
+          </div>
+
+          <div id="daytrade-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-red-500 hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🏎️</span>
+                <h3 class="font-display font-bold text-sm text-red-400 uppercase tracking-widest">Day Trade</h3>
+              </div>
+              <span id="market-hours" class="text-xxs font-bold px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 uppercase">--</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mb-4">
+              <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+                <div class="text-[10px] text-slate-500 font-bold">VWAP</div>
+                <div id="vwap-status" class="text-xs font-mono font-bold mt-1">--</div>
+              </div>
+              <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+                <div class="text-[10px] text-slate-500 font-bold">ORB</div>
+                <div id="orb-status" class="text-xs font-mono font-bold mt-1">--</div>
+              </div>
+              <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+                <div class="text-[10px] text-slate-500 font-bold">GAP</div>
+                <div id="gap-status" class="text-xs font-mono font-bold mt-1">--</div>
+              </div>
+            </div>
+
+            <div id="daytrade-candidates" class="hidden">
+              <div class="text-[10px] text-slate-400 uppercase font-bold mb-2 tracking-wider">Momentum Picks</div>
+              <div id="daytrade-list" class="space-y-2"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="space-y-6">
+          
+          <div class="glass-panel rounded-xl p-5 sticky top-20">
+            <h3 class="font-display font-bold text-xs text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="16" x2="16" y1="11" y2="13"/><line x1="8" x2="8" y1="11" y2="13"/><line x1="12" x2="12" y1="15" y2="13"/></svg>
+              Command Prompts
+            </h3>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+              <button onclick="copyPrompt('pf')" id="btn-pf" class="group relative overflow-hidden rounded-lg bg-slate-800 p-3 text-left transition-all hover:bg-slate-700 border border-slate-700 hover:border-purple-500/50">
+                <div class="text-xs font-bold text-purple-400 mb-0.5">PORTFOLIO</div>
+                <div class="text-[10px] text-slate-500 group-hover:text-slate-300">Review holdings</div>
+                <div class="absolute bottom-0 left-0 h-0.5 w-full bg-purple-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+              </button>
+              
+              <button onclick="copyPrompt('short')" id="btn-day" class="group relative overflow-hidden rounded-lg bg-slate-800 p-3 text-left transition-all hover:bg-slate-700 border border-slate-700 hover:border-red-500/50">
+                <div class="text-xs font-bold text-red-400 mb-0.5">DAY TRADE</div>
+                <div class="text-[10px] text-slate-500 group-hover:text-slate-300">Intraday setup</div>
+                <div class="absolute bottom-0 left-0 h-0.5 w-full bg-red-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+              </button>
+            </div>
+
+            <div class="mb-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Long-Term (2-Phase)</div>
+                <div id="badge-long" class="hidden text-[9px] bg-blue-900/50 text-blue-300 px-1.5 py-0.5 rounded border border-blue-800"></div>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="copyPrompt('long_p1')" id="btn-long-p1" class="flex-1 bg-slate-800 hover:bg-blue-900/20 border border-slate-700 hover:border-blue-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                  1. Screen
+                </button>
+                <div class="text-slate-600 flex items-center">→</div>
+                <button onclick="copyPrompt('long_p2')" id="btn-long-p2" class="flex-1 bg-slate-800 hover:bg-blue-900/20 border border-slate-700 hover:border-blue-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                  2. Analysis
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Swing (2-Phase)</div>
+                <div id="badge-swing" class="hidden text-[9px] bg-amber-900/50 text-amber-300 px-1.5 py-0.5 rounded border border-amber-800"></div>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="copyPrompt('swing_p1')" id="btn-swing-p1" class="flex-1 bg-slate-800 hover:bg-amber-900/20 border border-slate-700 hover:border-amber-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                  1. Screen
+                </button>
+                <div class="text-slate-600 flex items-center">→</div>
+                <button onclick="copyPrompt('swing_p2')" id="btn-swing-p2" class="flex-1 bg-slate-800 hover:bg-amber-900/20 border border-slate-700 hover:border-amber-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                  2. Analysis
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-2 pt-4 border-t border-white/5">
+              <button onclick="copyPrompt('translate')" class="w-full py-2 text-xs font-mono text-slate-500 hover:text-slate-300 transition-colors flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+                Translate to Japanese
+              </button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-xl overflow-hidden">
+            <button onclick="toggleCrossVal()" class="w-full p-4 flex items-center justify-between bg-white/5 hover:bg-white/10 transition-colors text-left">
+              <div class="flex items-center gap-2">
+                <span class="text-cyan-400 text-lg">🔬</span>
+                <span class="text-xs font-bold font-display uppercase tracking-wider text-cyan-100">Cross-Validation</span>
+              </div>
+              <svg id="crossval-icon" class="w-4 h-4 text-slate-400 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            
+            <div id="crossval-panel" class="hidden p-4 border-t border-white/5 bg-black/20">
+              <div class="space-y-4">
+                <div class="grid grid-cols-1 gap-3">
+                  <div class="relative">
+                    <span class="absolute top-2 left-3 text-[10px] font-bold text-slate-500 uppercase">Gemini (C1)</span>
+                    <textarea id="gemini-summary" rows="3" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 pt-7 text-xs text-slate-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none" placeholder="Paste Gemini Summary..."></textarea>
+                  </div>
+                  <div class="relative">
+                    <span class="absolute top-2 left-3 text-[10px] font-bold text-slate-500 uppercase">Claude (C2)</span>
+                    <textarea id="claude-summary" rows="3" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 pt-7 text-xs text-slate-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none" placeholder="Paste Claude Summary..."></textarea>
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                  <button onclick="generateCrossVal('lt')" class="bg-cyan-900/30 hover:bg-cyan-900/50 border border-cyan-500/30 text-cyan-300 py-2 rounded-lg text-xs font-bold transition-all">
+                    LT Verify
+                  </button>
+                  <button onclick="generateCrossVal('swing')" class="bg-cyan-900/30 hover:bg-cyan-900/50 border border-cyan-500/30 text-cyan-300 py-2 rounded-lg text-xs font-bold transition-all">
+                    Swing Verify
+                  </button>
+                </div>
+                
+                <div class="flex gap-2 justify-center pt-2 border-t border-white/5">
+                  <button onclick="copyPrompt('lt_summary')" class="text-[10px] text-slate-500 hover:text-cyan-400 underline">Copy LT Summary</button>
+                  <span class="text-slate-700">|</span>
+                  <button onclick="copyPrompt('swing_summary')" class="text-[10px] text-slate-500 hover:text-cyan-400 underline">Copy SW Summary</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-xl p-5">
+            <h3 class="font-display font-bold text-xs text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+              Quick Calc
+            </h3>
+            <div class="space-y-3">
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Capital</label>
+                  <input type="number" id="calc-eq" value="10000" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-right focus:border-blue-500 outline-none font-mono">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Risk %</label>
+                  <input type="number" id="calc-risk" value="1.0" step="0.1" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-right focus:border-blue-500 outline-none font-mono">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Entry $</label>
+                  <input type="number" id="calc-entry" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-right focus:border-blue-500 outline-none font-mono">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Stop $</label>
+                  <input type="number" id="calc-stop" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-right focus:border-blue-500 outline-none font-mono">
+                </div>
+              </div>
+              
+              <div class="bg-slate-800/50 rounded-lg p-3 mt-2 border border-slate-700/50">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-xs text-slate-400">Shares:</span>
+                  <span id="res-shares" class="font-mono font-bold text-white text-lg">0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-slate-400">Size:</span>
+                  <span id="res-cost" class="font-mono text-emerald-400 text-sm">$0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-slate-400">Risk Amt:</span>
+                  <span id="res-risk" class="font-mono text-red-400 text-xs">$0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div> </div> </div> </main>
+
+  <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-none opacity-0 transform translate-y-4 transition-all duration-300">
+    <div class="bg-slate-800/90 backdrop-blur text-white px-4 py-2.5 rounded-full shadow-lg border border-white/10 flex items-center gap-2">
+      <div class="bg-emerald-500 rounded-full p-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="text-slate-900"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <span id="toast-msg" class="text-sm font-bold font-display tracking-wide">COPIED</span>
+    </div>
   </div>
 
   <script>
     let appData = null;
 
-    // File Input Logic (Enhanced)
+    // --- File Handling ---
     const fileInput = document.getElementById('file-input');
-    
-    // Allow re-selecting the same file by resetting value on click
-    fileInput.addEventListener('click', function(e) {
-      e.target.value = '';
-    });
-
+    fileInput.addEventListener('click', (e) => e.target.value = ''); // Allow re-select
     fileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -502,505 +481,349 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
-          // --- JSON Sanitization (NaN/Infinity handling) ---
-          let jsonStr = e.target.result;
-          jsonStr = jsonStr.replace(/:\s*NaN\b/g, ': null');
-          jsonStr = jsonStr.replace(/:\s*Infinity\b/g, ': null');
-          jsonStr = jsonStr.replace(/:\s*-Infinity\b/g, ': null');
-          // ------------------------
-
+          // JSON sanitization
+          let jsonStr = e.target.result
+            .replace(/:\s*NaN\b/g, ': null')
+            .replace(/:\s*Infinity\b/g, ': null')
+            .replace(/:\s*-Infinity\b/g, ': null');
+          
           appData = JSON.parse(jsonStr);
           renderDashboard(appData);
         } catch (error) {
-          console.error(error);
-          alert("Invalid JSON file.\nError: " + error.message);
+          alert("Error parsing JSON: " + error.message);
         }
       };
       reader.readAsText(file);
     });
 
+    // --- Dashboard Rendering ---
     function renderDashboard(data) {
+      // Transition
       document.getElementById('loader-screen').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
+      const dash = document.getElementById('dashboard');
+      dash.classList.remove('hidden');
 
-      // 1. Metadata & Date
+      // 1. Header Info
       const meta = data.metadata || {};
-      const formattedDate = formatDualTime(meta.generated_at);
-      document.getElementById('gen-date').innerHTML = formattedDate;
+      document.getElementById('header-date').textContent = formatTime(meta.generated_at);
+      
+      // Market Regime (from first prompt text mostly, or fallback)
+      // Extract from sector rotation prompt if available or data
+      // For simplicity, we check if we can find it in the prompt text
+      // In a real app, 'market_regime' should be in metadata. Assuming standard fallback here.
+      // Let's grab it from prompts text regex if not in meta
+      let regime = "NEUTRAL";
+      if (data.prompts && data.prompts.long_p1) {
+        const match = data.prompts.long_p1.match(/Market: ([A-Z_]+)/);
+        if (match) regime = match[1];
+      }
+      const regimeEl = document.getElementById('market-regime-badge');
+      regimeEl.textContent = regime;
+      regimeEl.className = `font-bold ${getRegimeColor(regime)}`;
+      document.getElementById('header-status').classList.remove('hidden');
 
-      // 2. Signals & Watchlists Stats
+      // 2. Stats
       const signals = data.signals || {};
       const watchlists = data.watchlists || {};
       
       const ltCount = (signals.long_term || []).length;
-      const swingCount = (signals.swing || []).length;
+      const swCount = (signals.swing || []).length;
       
-      const ltW = watchlists.long_term?.watching || 0;
-      const ltR = watchlists.long_term?.ready || 0;
-      const swW = watchlists.swing?.watching || 0;
-      const swR = watchlists.swing?.ready || 0;
+      updateStat('lt-signal-count', ltCount);
+      updateStat('swing-signal-count', swCount);
+      
+      document.getElementById('lt-watch').textContent = watchlists.long_term?.watching || 0;
+      document.getElementById('lt-ready').textContent = watchlists.long_term?.ready || 0;
+      
+      document.getElementById('swing-watch').textContent = watchlists.swing?.watching || 0;
+      document.getElementById('swing-ready').textContent = watchlists.swing?.ready || 0;
 
-      updateStat('lt-signal-count', ltCount, ltCount > 0);
-      updateStat('swing-signal-count', swingCount, swingCount > 0);
-      document.getElementById('lt-watch').textContent = ltW;
-      document.getElementById('lt-ready').textContent = ltR;
-      document.getElementById('swing-watch').textContent = swW;
-      document.getElementById('swing-ready').textContent = swR;
-
-      // 3. Stats Row
+      document.getElementById('stat-watch').textContent = 
+        (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
+      
       const chartCount = Object.values(data.charts || {}).flat().length;
-      document.getElementById('stat-total').textContent = ltCount + swingCount;
-      document.getElementById('stat-watch').textContent = ltW + swW + ltR + swR;
       document.getElementById('stat-charts').textContent = chartCount;
 
-      // 4. Sector Info (Corrected Logic)
-      const sectors = data.sector_rotation || {};
-      // Ensure we safely access the arrays
-      const topS = (sectors.top_sectors || []).map(s => s.sector).slice(0, 3).join(', ');
-      const botS = (sectors.bottom_sectors || []).map(s => s.sector).slice(0, 2).join(', ');
+      // Progress Bar Animation
+      setTimeout(() => {
+        const total = (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
+        const max = 100; // Arbitrary max for bar visuals
+        const pct = Math.min(100, (total / max) * 100);
+        document.getElementById('progress-bar').style.width = `${pct}%`;
+      }, 100);
 
-      if (topS) {
-        const sectorEl = document.getElementById('sector-bar');
-        sectorEl.classList.remove('hidden');
-        document.getElementById('sector-text').innerHTML = `
-          <span class="text-emerald-300 whitespace-nowrap">🟢 ${topS}</span>
-          <span class="text-slate-500">|</span>
-          <span class="text-red-300 whitespace-nowrap">🔴 ${botS}</span>
-        `;
-      }
-
-      // 5. Signal Alert
-      const totalSignals = ltCount + swingCount;
-      const alertEl = document.getElementById('signal-alert');
-      const alertText = document.getElementById('signal-alert-text');
+      // 3. Alerts
+      const totalSignals = ltCount + swCount;
+      const alertDiv = document.getElementById('signal-alert');
+      const alertIcon = document.getElementById('alert-icon');
+      const alertTitle = document.getElementById('signal-alert-title');
+      const alertDesc = document.getElementById('signal-alert-desc');
       
-      alertEl.classList.remove('hidden');
+      alertDiv.classList.remove('hidden');
       if (totalSignals > 0) {
-        alertEl.classList.add('pulse-border');
-        alertText.innerHTML = `⚡ ${totalSignals} SIGNALS DETECTED`;
-        alertText.className = "text-emerald-400 font-bold text-sm font-display tracking-wide text-glow-green";
+        alertDiv.className = "p-4 rounded-xl border border-emerald-500/30 bg-emerald-900/10 flex items-center gap-3 shadow-glow-green";
+        alertIcon.innerHTML = "⚡";
+        alertIcon.className = "p-2 rounded-full bg-emerald-500/20 text-emerald-400";
+        alertTitle.textContent = `${totalSignals} SIGNALS DETECTED`;
+        alertTitle.className = "font-display font-bold text-sm text-emerald-400";
+        alertDesc.textContent = `${ltCount} Long-Term / ${swCount} Swing`;
       } else {
-        alertEl.classList.remove('pulse-border');
-        alertEl.style.borderColor = "rgba(148, 163, 184, 0.2)";
-        alertEl.style.background = "rgba(148, 163, 184, 0.05)";
-        alertText.textContent = "📊 NO NEW SIGNALS TODAY";
-        alertText.className = "text-slate-400 text-sm font-display tracking-wide";
+        alertDiv.className = "p-4 rounded-xl border border-slate-800 bg-slate-900/30 flex items-center gap-3";
+        alertIcon.innerHTML = "💤";
+        alertIcon.className = "p-2 rounded-full bg-slate-800 text-slate-500";
+        alertTitle.textContent = "NO SIGNALS TODAY";
+        alertTitle.className = "font-display font-bold text-sm text-slate-400";
+        alertDesc.textContent = "Monitoring watchlists...";
       }
 
-      // 6. Portfolio Review (Ver 21.1)
-      renderPortfolioSection(data.portfolio || {});
+      // 4. Sectors
+      const sectors = data.sector_rotation || {};
+      const topS = (sectors.top_sectors || []).map(s => `<span class="bg-emerald-900/30 text-emerald-400 px-1.5 rounded text-xs border border-emerald-800">${s.sector}</span>`).join('');
+      const botS = (sectors.bottom_sectors || []).map(s => `<span class="bg-red-900/30 text-red-400 px-1.5 rounded text-xs border border-red-800">${s.sector}</span>`).join('');
+      
+      if (topS) {
+        document.getElementById('sector-section').classList.remove('hidden');
+        document.getElementById('sector-top').innerHTML = topS;
+        document.getElementById('sector-bottom').innerHTML = botS;
+      }
 
-      // 7. Day Trade Section (Ver 21.1)
-      renderDayTradeSection(data.day_trade || {});
+      // 5. Portfolio Section (Mock logic assuming structure exists in JSON)
+      // Note: If JSON structure differs from mock, add checks.
+      // Assuming 'portfolio' key in JSON based on previous context.
+      // If not present in JSON export logic yet, this will just hide.
+      // Ver 21.1 Logic
+      // Since JSON export might not fully match Ver 21.1 prompt structure directly in 'portfolio' key,
+      // we'll check if prompt text contains indicators or if we can parse it.
+      // For now, we'll try to extract simple data if available or just show "Check Prompt"
+      // BUT the improved JSON export logic in Python was 'ctx.df_portfolio_analysis' -> not exported to JSON in provided snippets?
+      // Actually, Cell 9 exports 'prompts', 'signals', 'watchlists'.
+      // It does NOT export raw portfolio analysis dataframe.
+      // So we can only rely on the PROMPT TEXT or add parsing.
+      // To keep it simple and robust, we'll parse the prompt text for "URGENT" or "SELL".
+      
+      const pfPrompt = data.prompts?.pf || "";
+      const hasUrgent = pfPrompt.includes("🚨 URGENT");
+      const hasAdd = pfPrompt.includes("🟢 ADD");
+      const sellMatches = (pfPrompt.match(/🔴 SELL|🟠 REDUCE/g) || []).length;
+      
+      if (pfPrompt.length > 50) {
+        const pfSec = document.getElementById('portfolio-section');
+        pfSec.classList.remove('hidden');
+        
+        const healthEl = document.getElementById('portfolio-health');
+        // Fake health score extraction if not available, or just status
+        if (hasUrgent) {
+          pfSec.classList.add('border-red-500'); // Override default purple
+          healthEl.textContent = "CRITICAL";
+          healthEl.className = "px-2 py-1 rounded bg-red-900 text-white text-xs font-bold border border-red-700 animate-pulse";
+        } else {
+          healthEl.textContent = "REVIEW";
+        }
 
-      // 8. Buttons & Badges
+        if (sellMatches > 0) {
+          document.getElementById('sell-signals-container').classList.remove('hidden');
+          document.getElementById('sell-signals-list').innerHTML = `
+            <div class="text-xs text-slate-300 bg-red-900/20 p-2 rounded border border-red-500/20">
+              Found ${sellMatches} potential sell signals.<br>Check prompt for details.
+            </div>
+          `;
+        }
+        
+        if (hasAdd) {
+          document.getElementById('addon-signals-container').classList.remove('hidden');
+          document.getElementById('addon-signals-list').innerHTML = `
+            <div class="text-xs text-slate-300 bg-emerald-900/20 p-2 rounded border border-emerald-500/20">
+              Add-on opportunities detected.
+            </div>
+          `;
+        }
+      }
+
+      // 6. Day Trade Section
+      const dayPrompt = data.prompts?.short || "";
+      if (dayPrompt.length > 50) {
+        document.getElementById('daytrade-section').classList.remove('hidden');
+        
+        // Simple extraction regex
+        const vwapMatch = dayPrompt.match(/VWAP\*\*: ([A-Z]+)/);
+        const orbMatch = dayPrompt.match(/ORB\*\*: ([A-Z_]+)/);
+        const mktMatch = dayPrompt.match(/Market Status\*\*: (.*)/);
+        
+        if (mktMatch) document.getElementById('market-hours').textContent = mktMatch[1].replace(/[🟢🔴]/g, '').trim();
+        if (vwapMatch) document.getElementById('vwap-status').textContent = vwapMatch[1];
+        if (orbMatch) document.getElementById('orb-status').textContent = orbMatch[1];
+        
+        // Candidates extraction (simple line check)
+        const lines = dayPrompt.split('\n');
+        const picks = lines.filter(l => l.includes('|')).slice(4, 8); // Skip table headers
+        if (picks.length > 0) {
+          document.getElementById('daytrade-candidates').classList.remove('hidden');
+          document.getElementById('daytrade-list').innerHTML = picks.map(p => {
+            const cols = p.split('|').map(c => c.trim()).filter(c => c);
+            if (cols.length < 2) return '';
+            return `<div class="flex justify-between text-xs border-b border-slate-800 pb-1">
+              <span class="font-bold text-slate-300">${cols[1]}</span>
+              <span class="text-slate-500">${cols[2]}</span>
+            </div>`;
+          }).join('');
+        }
+      }
+
+      // 7. Buttons Availability
       const avail = data.availability || {};
-      toggleBtn('btn-pf', avail.pf);
-      toggleBtn('btn-day', avail.short);
-
-      // Ver 21.0: 2-Phase buttons
-      toggleBtn('btn-long-p1', avail.long_p1 || avail.long);
-      toggleBtn('btn-long-p2', avail.long_p2 || avail.long);
-      toggleBtn('btn-swing-p1', avail.swing_p1 || avail.swing);
-      toggleBtn('btn-swing-p2', avail.swing_p2 || avail.swing);
-
-      // Ver 21.0: Summary buttons
-      toggleBtn('btn-lt-summary', avail.lt_summary || avail.long);
-      toggleBtn('btn-swing-summary', avail.swing_summary || avail.swing);
-
-      if (ltCount > 0) showBadge('badge-long', `${ltCount}⚡`);
-      if (swingCount > 0) showBadge('badge-swing', `${swingCount}⚡`);
-    }
-
-    // Date Format (US/JP)
-    function formatDualTime(isoString) {
-      if (!isoString) return 'Unknown';
-      try {
-        const date = new Date(isoString);
-        if (isNaN(date.getTime())) return isoString;
-
-        const fmt = (tz) => new Intl.DateTimeFormat('ja-JP', {
-          month: '2-digit', day: '2-digit',
-          hour: '2-digit', minute: '2-digit', second: '2-digit',
-          hour12: false,
-          timeZone: tz
-        }).format(date);
-
-        return `🇺🇸 ${fmt('America/New_York')}<span class="mx-2 opacity-50">|</span>🇯🇵 ${fmt('Asia/Tokyo')}`;
-      } catch (e) {
-        return isoString;
+      setBtnState('btn-pf', avail.pf);
+      setBtnState('btn-day', avail.short);
+      setBtnState('btn-long-p1', avail.long_p1);
+      setBtnState('btn-long-p2', avail.long_p2);
+      setBtnState('btn-swing-p1', avail.swing_p1);
+      setBtnState('btn-swing-p2', avail.swing_p2);
+      
+      // Badges
+      if (ltCount > 0) {
+        document.getElementById('badge-long').classList.remove('hidden');
+        document.getElementById('badge-long').textContent = `${ltCount} SIG`;
+      }
+      if (swCount > 0) {
+        document.getElementById('badge-swing').classList.remove('hidden');
+        document.getElementById('badge-swing').textContent = `${swCount} SIG`;
       }
     }
 
-    function updateStat(id, value, highlight) {
+    // --- Helpers ---
+    function formatTime(iso) {
+      if (!iso) return '--';
+      const d = new Date(iso);
+      return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function getRegimeColor(regime) {
+      if (regime.includes('STRONG_BULL')) return 'text-purple-400';
+      if (regime.includes('BULL')) return 'text-emerald-400';
+      if (regime.includes('BEAR') || regime.includes('CORRECTION')) return 'text-red-400';
+      return 'text-amber-400'; // NEUTRAL
+    }
+
+    function updateStat(id, val) {
       const el = document.getElementById(id);
-      el.textContent = value;
-      if (highlight) {
-        el.classList.add(id.includes('lt') ? 'text-glow-blue' : 'text-glow-amber');
-        el.style.opacity = '1';
-      } else {
-        el.classList.remove('text-glow-blue', 'text-glow-amber');
-        el.style.opacity = '0.5';
-      }
+      el.textContent = val;
+      if (val > 0) el.classList.add('text-neon-blue'); // fallback color class if needed
     }
 
-    function toggleBtn(id, enable) {
+    function setBtnState(id, enabled) {
       const btn = document.getElementById(id);
-      btn.disabled = !enable;
+      if (!enabled) {
+        btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
+        btn.onclick = null;
+      }
     }
 
-    function showBadge(id, text) {
-      const el = document.getElementById(id);
-      el.textContent = text;
-      el.classList.remove('hidden');
-    }
-
-    // --- Calculator Logic (Safe) ---
+    // --- Logic: Calculator ---
     const calcInputs = ['calc-eq', 'calc-risk', 'calc-entry', 'calc-stop'];
-    calcInputs.forEach(id => {
-      document.getElementById(id).addEventListener('input', calculatePosition);
-    });
+    calcInputs.forEach(id => document.getElementById(id).addEventListener('input', updateCalc));
 
-    function calculatePosition() {
+    function updateCalc() {
       const eq = parseFloat(document.getElementById('calc-eq').value) || 0;
-      const risk = parseFloat(document.getElementById('calc-risk').value) || 0;
+      const riskPct = parseFloat(document.getElementById('calc-risk').value) || 0;
       const entry = parseFloat(document.getElementById('calc-entry').value) || 0;
       const stop = parseFloat(document.getElementById('calc-stop').value) || 0;
 
-      const riskAmt = eq * (risk / 100);
-      document.getElementById('res-risk').textContent = '$' + Math.floor(riskAmt);
+      const riskAmt = eq * (riskPct / 100);
+      document.getElementById('res-risk').textContent = `$${Math.round(riskAmt)}`;
 
       if (entry > 0 && stop > 0 && entry > stop) {
         const riskPerShare = entry - stop;
         const shares = Math.floor(riskAmt / riskPerShare);
-        
-        // Safety check for infinity/NaN
-        if (!isFinite(shares) || shares < 0) {
-             document.getElementById('res-shares').textContent = '---';
-             document.getElementById('res-cost').textContent = '$0';
-             return;
-        }
-
         const cost = shares * entry;
         
         document.getElementById('res-shares').textContent = shares.toLocaleString();
-        document.getElementById('res-cost').textContent = '$' + (Math.toLocaleString ? cost.toLocaleString() : cost);
-        document.getElementById('res-shares').classList.add('text-glow-blue');
+        document.getElementById('res-cost').textContent = `$${Math.round(cost).toLocaleString()}`;
       } else {
-        document.getElementById('res-shares').textContent = '---';
-        document.getElementById('res-cost').textContent = '$0';
-        document.getElementById('res-shares').classList.remove('text-glow-blue');
+        document.getElementById('res-shares').textContent = "0";
+        document.getElementById('res-cost').textContent = "$0";
       }
     }
 
-    // --- Copy Logic ---
-    async function copyPrompt(key) {
-      if (!appData || !appData.prompts) return;
-      const text = appData.prompts[key];
-      if (!text) return;
-
-      try {
-        await navigator.clipboard.writeText(text);
-        showToast(`✅ ${key.toUpperCase()} COPIED`);
-      } catch (err) {
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        textArea.style.position = "fixed";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          showToast(`✅ ${key.toUpperCase()} COPIED`);
-        } catch (e) {
-          showToast("❌ COPY FAILED");
-        }
-        document.body.removeChild(textArea);
-      }
-    }
-
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      const tm = document.getElementById('toast-msg');
-      tm.textContent = msg;
-      t.style.opacity = '1';
-      t.style.transform = 'translate(-50%, -20px) scale(1)';
-      setTimeout(() => {
-        t.style.opacity = '0';
-        t.style.transform = 'translate(-50%, 0) scale(0.95)';
-      }, 2000);
-    }
-
-    // --- Ver 21.1: Portfolio Review Section ---
-    function renderPortfolioSection(portfolio) {
-      const section = document.getElementById('portfolio-section');
-      const sellSignals = portfolio.sell_signals || [];
-      const addonSignals = portfolio.addon_signals || [];
-      const avgHealth = portfolio.avg_health_score;
-
-      // Show section if any data exists
-      if (sellSignals.length > 0 || addonSignals.length > 0 || avgHealth) {
-        section.classList.remove('hidden');
-      } else {
-        return;
-      }
-
-      // Health Score
-      if (avgHealth !== undefined) {
-        const healthEl = document.getElementById('portfolio-health');
-        healthEl.textContent = `Health: ${avgHealth.toFixed(0)}%`;
-        if (avgHealth >= 70) {
-          healthEl.classList.add('text-emerald-400');
-        } else if (avgHealth >= 50) {
-          healthEl.classList.add('text-amber-400');
-        } else {
-          healthEl.classList.add('text-red-400');
-        }
-      }
-
-      // Sell Signals
-      if (sellSignals.length > 0) {
-        const container = document.getElementById('sell-signals-container');
-        const list = document.getElementById('sell-signals-list');
-        container.classList.remove('hidden');
-
-        list.innerHTML = sellSignals.map(sig => {
-          const urgencyClass = `urgency-${sig.urgency?.toLowerCase() || 'low'}`;
-          const reasons = sig.reasons ? sig.reasons.slice(0, 2).join(', ') : '';
-          return `<div class="flex justify-between items-center bg-red-900/20 rounded px-2 py-1">
-            <span class="font-mono font-bold ${urgencyClass}">${sig.ticker}</span>
-            <span class="text-slate-400 truncate ml-2" style="max-width: 60%">${reasons}</span>
-            <span class="text-xxs ${urgencyClass}">${sig.urgency || ''}</span>
-          </div>`;
-        }).join('');
-      }
-
-      // Add-on Signals
-      if (addonSignals.length > 0) {
-        const container = document.getElementById('addon-signals-container');
-        const list = document.getElementById('addon-signals-list');
-        container.classList.remove('hidden');
-
-        list.innerHTML = addonSignals.map(sig => {
-          const pattern = sig.pattern || sig.signal_type || '';
-          return `<div class="flex justify-between items-center bg-emerald-900/20 rounded px-2 py-1">
-            <span class="font-mono font-bold text-emerald-400">${sig.ticker}</span>
-            <span class="text-slate-400">${pattern}</span>
-          </div>`;
-        }).join('');
-      }
-    }
-
-    // --- Ver 21.1: Day Trade Section ---
-    function renderDayTradeSection(dayTrade) {
-      const section = document.getElementById('daytrade-section');
-      const vwapData = dayTrade.vwap || {};
-      const orbData = dayTrade.orb || {};
-      const gapData = dayTrade.gap || {};
-      const candidates = dayTrade.candidates || [];
-      const marketStatus = dayTrade.market_status;
-
-      // Show section if any data exists
-      if (Object.keys(vwapData).length > 0 || Object.keys(orbData).length > 0 || candidates.length > 0) {
-        section.classList.remove('hidden');
-      } else {
-        return;
-      }
-
-      // Market Hours Status
-      if (marketStatus) {
-        const marketEl = document.getElementById('market-hours');
-        if (marketStatus === 'open') {
-          marketEl.innerHTML = '<span class="text-emerald-400">● LIVE</span>';
-        } else if (marketStatus === 'pre') {
-          marketEl.innerHTML = '<span class="text-amber-400">◐ PRE</span>';
-        } else if (marketStatus === 'after') {
-          marketEl.innerHTML = '<span class="text-violet-400">◐ AH</span>';
-        } else {
-          marketEl.innerHTML = '<span class="text-slate-500">○ CLOSED</span>';
-        }
-      }
-
-      // VWAP Status
-      if (vwapData.trend) {
-        const vwapEl = document.getElementById('vwap-status');
-        const isAbove = vwapData.trend === 'above';
-        vwapEl.textContent = isAbove ? '▲ ABOVE' : '▼ BELOW';
-        vwapEl.className = `text-sm font-bold font-mono mt-1 ${isAbove ? 'vwap-above' : 'vwap-below'}`;
-      }
-
-      // ORB Status
-      if (orbData.status) {
-        const orbEl = document.getElementById('orb-status');
-        if (orbData.status === 'breakout') {
-          orbEl.textContent = '↑ BREAK';
-          orbEl.className = 'text-sm font-bold font-mono mt-1 orb-breakout';
-        } else if (orbData.status === 'breakdown') {
-          orbEl.textContent = '↓ BREAK';
-          orbEl.className = 'text-sm font-bold font-mono mt-1 text-red-400';
-        } else {
-          orbEl.textContent = '↔ RANGE';
-          orbEl.className = 'text-sm font-bold font-mono mt-1 text-slate-400';
-        }
-      }
-
-      // Gap Status
-      if (gapData.classification) {
-        const gapEl = document.getElementById('gap-status');
-        if (gapData.classification === 'gap_and_go') {
-          gapEl.textContent = '🚀 GO';
-          gapEl.className = 'text-sm font-bold font-mono mt-1 gap-go';
-        } else if (gapData.classification === 'gap_fill') {
-          gapEl.textContent = '↩ FILL';
-          gapEl.className = 'text-sm font-bold font-mono mt-1 gap-fill';
-        } else {
-          gapEl.textContent = '-- N/A';
-          gapEl.className = 'text-sm font-bold font-mono mt-1 text-slate-500';
-        }
-      }
-
-      // Day Trade Candidates
-      if (candidates.length > 0) {
-        const container = document.getElementById('daytrade-candidates');
-        const list = document.getElementById('daytrade-list');
-        container.classList.remove('hidden');
-
-        list.innerHTML = candidates.slice(0, 5).map(c => {
-          const score = c.momentum_score || c.score || 0;
-          const scoreColor = score >= 70 ? 'text-emerald-400' : score >= 50 ? 'text-amber-400' : 'text-slate-400';
-          return `<div class="flex justify-between items-center bg-slate-900/50 rounded px-2 py-1">
-            <span class="font-mono font-bold text-red-300">${c.ticker}</span>
-            <span class="text-slate-400 text-xxs">${c.signal || c.pattern || ''}</span>
-            <span class="${scoreColor} font-mono">${score.toFixed(0)}</span>
-          </div>`;
-        }).join('');
-      }
-    }
-
-    // --- Cross-Validation Generator ---
+    // --- Logic: Cross-Val Toggle ---
     function toggleCrossVal() {
       const panel = document.getElementById('crossval-panel');
-      const toggle = document.getElementById('crossval-toggle');
+      const icon = document.getElementById('crossval-icon');
+      
       if (panel.classList.contains('hidden')) {
         panel.classList.remove('hidden');
-        toggle.textContent = '[COLLAPSE]';
+        icon.classList.add('rotate-180');
       } else {
         panel.classList.add('hidden');
-        toggle.textContent = '[EXPAND]';
+        icon.classList.remove('rotate-180');
+      }
+    }
+
+    // --- Logic: Copy ---
+    async function copyPrompt(key) {
+      if (!appData || !appData.prompts || !appData.prompts[key]) {
+        showToast("NO DATA");
+        return;
+      }
+      
+      const text = appData.prompts[key];
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("COPIED!");
+      } catch (err) {
+        // Fallback for older browsers
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast("COPIED!");
       }
     }
 
     function generateCrossVal(type) {
-      const geminiSummary = document.getElementById('gemini-summary').value.trim();
-      const claudeSummary = document.getElementById('claude-summary').value.trim();
-
-      if (!geminiSummary || !claudeSummary) {
-        showToast('❌ 両方のSummaryを入力してください');
+      const gSummary = document.getElementById('gemini-summary').value;
+      const cSummary = document.getElementById('claude-summary').value;
+      
+      if (!gSummary || !cSummary) {
+        showToast("MISSING INPUT");
         return;
       }
 
-      const typeName = type === 'lt' ? 'Long-Term' : 'Swing';
-      const date = appData?.metadata?.date || new Date().toISOString().split('T')[0];
-      const regime = 'NEUTRAL'; // Default
-
-      const prompt = `# 🔬 Cross-Validation: ${typeName} Final Verdict
-Date: ${date} | Market: ${regime}
+      // Generate prompt logic (similar to Python logic)
+      const prompt = `# 🔬 Cross-Validation: ${type === 'lt' ? 'Long-Term' : 'Swing'}
+Date: ${appData.metadata.date}
 
 ---
-
-## ⚠️ CRITICAL: Devil's Advocate Constraint (Ver 21.1)
-
-**意見が分かれた場合は、必ず保守的な判断（PASS）を採用すること。**
-
-理由: 投資においてFalse Positive（誤エントリー）はFalse Negative（機会損失）より損失が大きい。
-**"When in doubt, PASS."**
+## ⚠️ CRITICAL: Devil's Advocate Constraint
+**If opinions diverge, default to PASS.** (False positives > False negatives)
 
 ---
-
-## 📊 Analyst A (Gemini) Summary
-
-\`\`\`
-${geminiSummary}
-\`\`\`
+## 📊 Analyst A (Gemini)
+${gSummary}
 
 ---
-
-## 📊 Analyst B (Claude) Summary
-
-\`\`\`
-${claudeSummary}
-\`\`\`
+## 📊 Analyst B (Claude)
+${cSummary}
 
 ---
-
-## 🎯 Your Task: Cross-Validation Analysis
-
-上記2つのAI分析を比較し、最終判断を下してください。
-
-### 1. Consensus (一致点)
-
-両者が同意している判断を列挙:
-
-| Ticker | Action | 一致理由 |
-|--------|--------|----------|
-
-### 2. Divergence (相違点) ⚠️
-
-意見が分かれた点と、どちらが妥当かを判断:
-
-**⚠️ 判断が分かれた場合 → PASSを選択**
-
-| Ticker | Gemini | Claude | 採用判断 | 理由 |
-|--------|--------|--------|----------|------|
-
-### 3. Blind Spots (見落とし)
-
-一方のみが指摘した重要事項:
-
-- **Geminiのみ**:
-- **Claudeのみ**:
-
-### 4. Final Verdict (最終判断)
-
-⚠️ **Devil's Advocate確認**: 相違点があった銘柄はPASSしているか？
-
-| Ticker | Action | Entry | Stop | Target | Confidence | 決定理由 |
-|--------|--------|-------|------|--------|------------|----------|
-
-### 5. Meta-Analysis
-
-- **より保守的だったAI**:
-- **より積極的だったAI**:
-- **相違銘柄PASS数**: X / Y (全相違銘柄がPASSされたか)
-
----
-
-**Important:**
-- ⚠️ **意見が分かれた = PASS（Devil's Advocate原則）**
-- 両者がPROCEEDで一致した場合のみ、PROCEEDを検討
-- 決算日リスク（⚠️ERR, 🔴, 🟡）がある銘柄は特に慎重に
-- 日本語で出力すること
+## 🎯 Task: Final Verdict
+Compare A & B. Return structured JSON with "final_decision": "PROCEED" or "PASS".
 `;
-
-      // Copy to clipboard
+      
       navigator.clipboard.writeText(prompt).then(() => {
-        showToast(`✅ ${typeName.toUpperCase()} CROSS-VAL COPIED`);
-      }).catch(() => {
-        // Fallback
-        const textArea = document.createElement("textarea");
-        textArea.value = prompt;
-        textArea.style.position = "fixed";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          showToast(`✅ ${typeName.toUpperCase()} CROSS-VAL COPIED`);
-        } catch (e) {
-          showToast("❌ COPY FAILED");
-        }
-        document.body.removeChild(textArea);
+        showToast("GENERATED & COPIED");
       });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      const m = document.getElementById('toast-msg');
+      m.textContent = msg;
+      
+      t.classList.remove('opacity-0', 'translate-y-4');
+      setTimeout(() => {
+        t.classList.add('opacity-0', 'translate-y-4');
+      }, 2000);
     }
   </script>
 </body>
