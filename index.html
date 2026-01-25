@@ -202,7 +202,7 @@
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
-<body class="p-4 max-w-md mx-auto">
+<body class="p-4 max-w-md mx-auto lg:max-w-6xl">
 
   <div id="loader-screen" class="flex flex-col items-center justify-center min-h-[80vh] fade-in">
     <div class="text-center mb-10">
@@ -227,7 +227,7 @@
   </div>
 
   <div id="dashboard" class="hidden fade-in pb-20">
-    
+
     <div class="text-center mb-6">
       <div class="flex items-center justify-center gap-2 mb-1">
         <h2 class="text-xl font-bold text-white text-glow-blue">Analysis Report</h2>
@@ -237,220 +237,236 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 mb-4">
-      <div class="neon-glass card-base card-lt rounded-xl p-4 text-center relative">
-        <h4 class="text-blue-400 text-xs font-bold mb-2 uppercase tracking-wider">🚀 Long-Term</h4>
-        <div id="lt-signal-count" class="text-3xl font-bold text-blue-400 text-glow-blue">--</div>
-        <div class="text-xs text-slate-400 mt-2 font-mono">
-          W:<span id="lt-watch" class="text-slate-200">--</span> <span class="text-slate-600">|</span> R:<span id="lt-ready" class="text-slate-200">--</span>
-        </div>
-      </div>
-      <div class="neon-glass card-base card-swing rounded-xl p-4 text-center relative">
-        <h4 class="text-amber-400 text-xs font-bold mb-2 uppercase tracking-wider">🏄 Swing</h4>
-        <div id="swing-signal-count" class="text-3xl font-bold text-amber-400 text-glow-amber">--</div>
-        <div class="text-xs text-slate-400 mt-2 font-mono">
-          W:<span id="swing-watch" class="text-slate-200">--</span> <span class="text-slate-600">|</span> R:<span id="swing-ready" class="text-slate-200">--</span>
-        </div>
-      </div>
-    </div>
+    <!-- PC: 2カラムレイアウト -->
+    <div class="lg:grid lg:grid-cols-2 lg:gap-8">
 
-    <div class="grid grid-cols-3 gap-3 mb-4">
-      <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
-        <div class="text-xxs text-violet-300 uppercase font-display">Total</div>
-        <div id="stat-total" class="font-bold text-violet-100 text-lg">--</div>
-      </div>
-      <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
-        <div class="text-xxs text-violet-300 uppercase font-display">Watch</div>
-        <div id="stat-watch" class="font-bold text-violet-100 text-lg">--</div>
-      </div>
-      <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
-        <div class="text-xxs text-violet-300 uppercase font-display">Charts</div>
-        <div id="stat-charts" class="font-bold text-violet-100 text-lg">--</div>
-      </div>
-    </div>
-
-    <div id="sector-bar" class="neon-glass card-base card-sector rounded-xl p-3 mb-4 text-center hidden">
-      <div class="text-emerald-400 text-xs font-bold mb-1 uppercase tracking-wider">🔄 Sector Rotation</div>
-      <div id="sector-text" class="text-xs text-slate-200 truncate font-mono"></div>
-    </div>
-
-    <div id="signal-alert" class="neon-glass alert-box rounded-xl p-4 mb-6 text-center hidden">
-      <span id="signal-alert-text" class="text-emerald-400 font-bold text-sm font-display tracking-wide"></span>
-    </div>
-
-    <!-- Ver 21.1: Portfolio Review Section -->
-    <div id="portfolio-section" class="neon-glass card-base card-portfolio rounded-xl p-4 mb-4 hidden">
-      <div class="flex items-center justify-between mb-3">
-        <h4 class="text-violet-400 text-xs font-bold uppercase tracking-wider">💼 Portfolio Review</h4>
-        <span id="portfolio-health" class="text-xs font-mono text-slate-400">Health: --</span>
-      </div>
-
-      <!-- Sell Signals -->
-      <div id="sell-signals-container" class="mb-3 hidden">
-        <div class="text-xxs text-red-400 uppercase mb-1 font-display">🚨 Sell Signals</div>
-        <div id="sell-signals-list" class="space-y-1 text-xs"></div>
-      </div>
-
-      <!-- Add-on Candidates -->
-      <div id="addon-signals-container" class="hidden">
-        <div class="text-xxs text-emerald-400 uppercase mb-1 font-display">📈 Add-on Candidates</div>
-        <div id="addon-signals-list" class="space-y-1 text-xs"></div>
-      </div>
-    </div>
-
-    <!-- Ver 21.1: Day Trade Section -->
-    <div id="daytrade-section" class="neon-glass card-base card-daytrade rounded-xl p-4 mb-4 hidden">
-      <div class="flex items-center justify-between mb-3">
-        <h4 class="text-red-400 text-xs font-bold uppercase tracking-wider">🏎️ Day Trade</h4>
-        <span id="market-hours" class="text-xs font-mono text-slate-400">Market: --</span>
-      </div>
-
-      <div class="grid grid-cols-3 gap-2 text-center">
-        <!-- VWAP Status -->
-        <div class="bg-slate-900/50 rounded-lg p-2">
-          <div class="text-xxs text-slate-500 uppercase font-display">VWAP</div>
-          <div id="vwap-status" class="text-sm font-bold font-mono mt-1">--</div>
+      <!-- 左カラム: サマリー & ステータス -->
+      <div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="neon-glass card-base card-lt rounded-xl p-4 text-center relative">
+            <h4 class="text-blue-400 text-xs font-bold mb-2 uppercase tracking-wider">🚀 Long-Term</h4>
+            <div id="lt-signal-count" class="text-3xl font-bold text-blue-400 text-glow-blue">--</div>
+            <div class="text-xs text-slate-400 mt-2 font-mono">
+              W:<span id="lt-watch" class="text-slate-200">--</span> <span class="text-slate-600">|</span> R:<span id="lt-ready" class="text-slate-200">--</span>
+            </div>
+          </div>
+          <div class="neon-glass card-base card-swing rounded-xl p-4 text-center relative">
+            <h4 class="text-amber-400 text-xs font-bold mb-2 uppercase tracking-wider">🏄 Swing</h4>
+            <div id="swing-signal-count" class="text-3xl font-bold text-amber-400 text-glow-amber">--</div>
+            <div class="text-xs text-slate-400 mt-2 font-mono">
+              W:<span id="swing-watch" class="text-slate-200">--</span> <span class="text-slate-600">|</span> R:<span id="swing-ready" class="text-slate-200">--</span>
+            </div>
+          </div>
         </div>
 
-        <!-- ORB Status -->
-        <div class="bg-slate-900/50 rounded-lg p-2">
-          <div class="text-xxs text-slate-500 uppercase font-display">ORB</div>
-          <div id="orb-status" class="text-sm font-bold font-mono mt-1">--</div>
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
+            <div class="text-xxs text-violet-300 uppercase font-display">Total</div>
+            <div id="stat-total" class="font-bold text-violet-100 text-lg">--</div>
+          </div>
+          <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
+            <div class="text-xxs text-violet-300 uppercase font-display">Watch</div>
+            <div id="stat-watch" class="font-bold text-violet-100 text-lg">--</div>
+          </div>
+          <div class="neon-glass card-base card-stat rounded-lg p-3 text-center">
+            <div class="text-xxs text-violet-300 uppercase font-display">Charts</div>
+            <div id="stat-charts" class="font-bold text-violet-100 text-lg">--</div>
+          </div>
         </div>
 
-        <!-- Gap Status -->
-        <div class="bg-slate-900/50 rounded-lg p-2">
-          <div class="text-xxs text-slate-500 uppercase font-display">GAP</div>
-          <div id="gap-status" class="text-sm font-bold font-mono mt-1">--</div>
+        <div id="sector-bar" class="neon-glass card-base card-sector rounded-xl p-3 mb-4 text-center hidden">
+          <div class="text-emerald-400 text-xs font-bold mb-1 uppercase tracking-wider">🔄 Sector Rotation</div>
+          <div id="sector-text" class="text-xs text-slate-200 font-mono flex flex-wrap justify-center gap-x-2"></div>
         </div>
-      </div>
 
-      <!-- Day Trade Candidates -->
-      <div id="daytrade-candidates" class="mt-3 hidden">
-        <div class="text-xxs text-slate-400 uppercase mb-1 font-display">Top Momentum</div>
-        <div id="daytrade-list" class="space-y-1 text-xs"></div>
-      </div>
-    </div>
+        <div id="signal-alert" class="neon-glass alert-box rounded-xl p-4 mb-6 text-center hidden">
+          <span id="signal-alert-text" class="text-emerald-400 font-bold text-sm font-display tracking-wide"></span>
+        </div>
 
-    <div class="mb-6">
-      <div class="flex items-center gap-3 mb-4 text-slate-400">
-        <div class="h-px bg-slate-700/50 flex-1 box-shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
-        <span class="text-xs font-bold uppercase tracking-widest font-display text-indigo-300">📋 Command Prompts</span>
-        <div class="h-px bg-slate-700/50 flex-1"></div>
-      </div>
+        <!-- Ver 21.1: Portfolio Review Section -->
+        <div id="portfolio-section" class="neon-glass card-base card-portfolio rounded-xl p-4 mb-4 hidden">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-violet-400 text-xs font-bold uppercase tracking-wider">💼 Portfolio Review</h4>
+            <span id="portfolio-health" class="text-xs font-mono text-slate-400">Health: --</span>
+          </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <button onclick="copyPrompt('pf')" id="btn-pf" class="btn-neon btn-pf p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
-          <span>💼</span> Portfolio
-        </button>
+          <!-- Sell Signals -->
+          <div id="sell-signals-container" class="mb-3 hidden">
+            <div class="text-xxs text-red-400 uppercase mb-1 font-display">🚨 Sell Signals</div>
+            <div id="sell-signals-list" class="space-y-1 text-xs"></div>
+          </div>
 
-        <button onclick="copyPrompt('short')" id="btn-day" class="btn-neon btn-day p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
-          <span>🏎️</span> Day
-        </button>
-      </div>
+          <!-- Add-on Candidates -->
+          <div id="addon-signals-container" class="hidden">
+            <div class="text-xxs text-emerald-400 uppercase mb-1 font-display">📈 Add-on Candidates</div>
+            <div id="addon-signals-list" class="space-y-1 text-xs"></div>
+          </div>
+        </div>
 
-      <!-- Ver 21.0: 2-Phase Long Term Prompts -->
-      <div class="mt-3">
-        <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">🚀 Long-Term (2-Phase)</div>
-        <div class="grid grid-cols-2 gap-3">
-          <button onclick="copyPrompt('long_p1')" id="btn-long-p1" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-            <span>1️⃣</span> LT Phase1
-            <span id="badge-long" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-emerald-400/30"></span>
-          </button>
-          <button onclick="copyPrompt('long_p2')" id="btn-long-p2" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-            <span>2️⃣</span> LT Phase2
-          </button>
+        <!-- Ver 21.1: Day Trade Section -->
+        <div id="daytrade-section" class="neon-glass card-base card-daytrade rounded-xl p-4 mb-4 hidden">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-red-400 text-xs font-bold uppercase tracking-wider">🏎️ Day Trade</h4>
+            <span id="market-hours" class="text-xs font-mono text-slate-400">Market: --</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <!-- VWAP Status -->
+            <div class="bg-slate-900/50 rounded-lg p-2">
+              <div class="text-xxs text-slate-500 uppercase font-display">VWAP</div>
+              <div id="vwap-status" class="text-sm font-bold font-mono mt-1">--</div>
+            </div>
+
+            <!-- ORB Status -->
+            <div class="bg-slate-900/50 rounded-lg p-2">
+              <div class="text-xxs text-slate-500 uppercase font-display">ORB</div>
+              <div id="orb-status" class="text-sm font-bold font-mono mt-1">--</div>
+            </div>
+
+            <!-- Gap Status -->
+            <div class="bg-slate-900/50 rounded-lg p-2">
+              <div class="text-xxs text-slate-500 uppercase font-display">GAP</div>
+              <div id="gap-status" class="text-sm font-bold font-mono mt-1">--</div>
+            </div>
+          </div>
+
+          <!-- Day Trade Candidates -->
+          <div id="daytrade-candidates" class="mt-3 hidden">
+            <div class="text-xxs text-slate-400 uppercase mb-1 font-display">Top Momentum</div>
+            <div id="daytrade-list" class="space-y-1 text-xs"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Ver 21.0: 2-Phase Swing Prompts -->
-      <div class="mt-3">
-        <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">🏄 Swing (2-Phase)</div>
-        <div class="grid grid-cols-2 gap-3">
-          <button onclick="copyPrompt('swing_p1')" id="btn-swing-p1" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-            <span>1️⃣</span> SW Phase1
-            <span id="badge-swing" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-amber-400/30"></span>
-          </button>
-          <button onclick="copyPrompt('swing_p2')" id="btn-swing-p2" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-            <span>2️⃣</span> SW Phase2
-          </button>
+      <!-- 右カラム: コマンドプロンプト & ツール -->
+      <div>
+        <div class="mb-6">
+          <div class="flex items-center gap-3 mb-4 text-slate-400">
+            <div class="h-px bg-slate-700/50 flex-1 box-shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+            <span class="text-xs font-bold uppercase tracking-widest font-display text-indigo-300">📋 Command Prompts</span>
+            <div class="h-px bg-slate-700/50 flex-1"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="copyPrompt('pf')" id="btn-pf" class="btn-neon btn-pf p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
+              <span>💼</span> Portfolio
+            </button>
+
+            <button onclick="copyPrompt('short')" id="btn-day" class="btn-neon btn-day p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
+              <span>🏎️</span> Day
+            </button>
+          </div>
+
+          <!-- Ver 21.0: 2-Phase Long Term Prompts -->
+          <div class="mt-3">
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">🚀 Long-Term (2-Phase)</div>
+            <div class="grid grid-cols-2 gap-3">
+              <button onclick="copyPrompt('long_p1')" id="btn-long-p1" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+                <span>1️⃣</span> LT Phase1
+                <span id="badge-long" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-emerald-400/30"></span>
+              </button>
+              <button onclick="copyPrompt('long_p2')" id="btn-long-p2" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+                <span>2️⃣</span> LT Phase2
+              </button>
+            </div>
+          </div>
+
+          <!-- Ver 21.0: 2-Phase Swing Prompts -->
+          <div class="mt-3">
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">🏄 Swing (2-Phase)</div>
+            <div class="grid grid-cols-2 gap-3">
+              <button onclick="copyPrompt('swing_p1')" id="btn-swing-p1" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+                <span>1️⃣</span> SW Phase1
+                <span id="badge-swing" class="hidden text-[9px] bg-black/40 px-1.5 py-0.5 rounded-sm ml-1 font-mono border border-amber-400/30"></span>
+              </button>
+              <button onclick="copyPrompt('swing_p2')" id="btn-swing-p2" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+                <span>2️⃣</span> SW Phase2
+              </button>
+            </div>
+          </div>
+
+          <!-- Ver 21.0: Summary Prompts -->
+          <div class="mt-3">
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">📋 Summary (for Cross-Val)</div>
+            <div class="grid grid-cols-2 gap-3">
+              <button onclick="copyPrompt('lt_summary')" id="btn-lt-summary" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+                <span>📋</span> LT Summary
+              </button>
+              <button onclick="copyPrompt('swing_summary')" id="btn-swing-summary" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+                <span>📋</span> SW Summary
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 mt-3">
+            <button onclick="copyPrompt('translate')" class="btn-neon btn-tr p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
+              <span>🇯🇵</span> Translate
+            </button>
+          </div>
         </div>
-      </div>
 
-      <!-- Ver 21.0: Summary Prompts -->
-      <div class="mt-3">
-        <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">📋 Summary (for Cross-Val)</div>
-        <div class="grid grid-cols-2 gap-3">
-          <button onclick="copyPrompt('lt_summary')" id="btn-lt-summary" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-            <span>📋</span> LT Summary
-          </button>
-          <button onclick="copyPrompt('swing_summary')" id="btn-swing-summary" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-            <span>📋</span> SW Summary
-          </button>
-        </div>
-      </div>
+        <!-- Ver 21.0: Cross-Validation Generator -->
+        <div class="neon-glass rounded-xl p-5 mb-6 border-t border-slate-700/30">
+          <div class="flex items-center gap-3 mb-4">
+            <h4 class="text-xs font-bold text-cyan-300 uppercase tracking-widest font-display">🔬 Cross-Validation Generator</h4>
+            <button onclick="toggleCrossVal()" id="crossval-toggle" class="text-xs text-slate-500 hover:text-cyan-400 ml-auto">
+              [EXPAND]
+            </button>
+          </div>
 
-      <div class="grid grid-cols-1 gap-3 mt-3">
-        <button onclick="copyPrompt('translate')" class="btn-neon btn-tr p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
-          <span>🇯🇵</span> Translate
-        </button>
-      </div>
-    </div>
+          <div id="crossval-panel" class="hidden">
+            <div class="lg:grid lg:grid-cols-2 lg:gap-4">
+              <div>
+                <div class="text-[10px] text-slate-500 mb-2">Gemini Summary (C1):</div>
+                <textarea id="gemini-summary" rows="4" placeholder="Gemini の Summary 回答を貼り付け..." class="cyber-input w-full rounded-lg px-3 py-2 text-xs mb-3 resize-none"></textarea>
+              </div>
 
-    <!-- Ver 21.0: Cross-Validation Generator -->
-    <div class="neon-glass rounded-xl p-5 mb-6 border-t border-slate-700/30">
-      <div class="flex items-center gap-3 mb-4">
-        <h4 class="text-xs font-bold text-cyan-300 uppercase tracking-widest font-display">🔬 Cross-Validation Generator</h4>
-        <button onclick="toggleCrossVal()" id="crossval-toggle" class="text-xs text-slate-500 hover:text-cyan-400 ml-auto">
-          [EXPAND]
-        </button>
-      </div>
+              <div>
+                <div class="text-[10px] text-slate-500 mb-2">Claude Summary (C2):</div>
+                <textarea id="claude-summary" rows="4" placeholder="Claude の Summary 回答を貼り付け..." class="cyber-input w-full rounded-lg px-3 py-2 text-xs mb-3 resize-none"></textarea>
+              </div>
+            </div>
 
-      <div id="crossval-panel" class="hidden">
-        <div class="text-[10px] text-slate-500 mb-2">Gemini Summary (C1):</div>
-        <textarea id="gemini-summary" rows="4" placeholder="Gemini の Summary 回答を貼り付け..." class="cyber-input w-full rounded-lg px-3 py-2 text-xs mb-3 resize-none"></textarea>
+            <div class="grid grid-cols-2 gap-3">
+              <button onclick="generateCrossVal('lt')" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+                <span>🔬</span> LT Cross-Val
+              </button>
+              <button onclick="generateCrossVal('swing')" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+                <span>🔬</span> SW Cross-Val
+              </button>
+            </div>
 
-        <div class="text-[10px] text-slate-500 mb-2">Claude Summary (C2):</div>
-        <textarea id="claude-summary" rows="4" placeholder="Claude の Summary 回答を貼り付け..." class="cyber-input w-full rounded-lg px-3 py-2 text-xs mb-3 resize-none"></textarea>
-
-        <div class="grid grid-cols-2 gap-3">
-          <button onclick="generateCrossVal('lt')" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-            <span>🔬</span> LT Cross-Val
-          </button>
-          <button onclick="generateCrossVal('swing')" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
-            <span>🔬</span> SW Cross-Val
-          </button>
+            <div class="text-[10px] text-slate-600 mt-3 text-center">
+              生成されたプロンプトは自動でコピーされます
+            </div>
+          </div>
         </div>
 
-        <div class="text-[10px] text-slate-600 mt-3 text-center">
-          生成されたプロンプトは自動でコピーされます
-        </div>
-      </div>
-    </div>
+        <div class="neon-glass rounded-xl p-5 border-t border-slate-700/30">
+          <h4 class="text-xs font-bold text-indigo-300 mb-4 uppercase tracking-widest font-display">🧮 Position Calculator</h4>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <input type="number" id="calc-eq" placeholder="Total $" value="10000" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
+            <input type="number" id="calc-risk" placeholder="Risk %" value="1" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
+            <input type="number" id="calc-entry" placeholder="Entry Price" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
+            <input type="number" id="calc-stop" placeholder="Stop Price" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
+          </div>
 
-    <div class="neon-glass rounded-xl p-5 border-t border-slate-700/30">
-      <h4 class="text-xs font-bold text-indigo-300 mb-4 uppercase tracking-widest font-display">🧮 Position Calculator</h4>
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <input type="number" id="calc-eq" placeholder="Total $" value="10000" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
-        <input type="number" id="calc-risk" placeholder="Risk %" value="1" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
-        <input type="number" id="calc-entry" placeholder="Entry Price" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
-        <input type="number" id="calc-stop" placeholder="Stop Price" class="cyber-input rounded-lg px-3 py-2.5 text-sm outline-none">
-      </div>
-      
-      <div class="bg-slate-900/60 rounded-lg p-4 grid grid-cols-3 gap-2 text-center border border-slate-700/50">
-        <div>
-          <div class="text-xxs text-slate-500 font-display uppercase">Risk Amt</div>
-          <div id="res-risk" class="text-sm font-bold text-slate-300 font-mono mt-1">$0</div>
-        </div>
-        <div class="border-l border-slate-700/50 relative">
-           <div class="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-indigo-500/50 to-transparent"></div>
-          <div class="text-xxs text-slate-500 font-display uppercase">Shares</div>
-          <div id="res-shares" class="text-lg font-bold text-blue-400 text-glow-blue font-mono mt-1">---</div>
-        </div>
-        <div class="border-l border-slate-700/50 relative">
-          <div class="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-emerald-500/50 to-transparent"></div>
-          <div class="text-xxs text-slate-500 font-display uppercase">Position</div>
-          <div id="res-cost" class="text-sm font-bold text-emerald-400 font-mono mt-1">$0</div>
+          <div class="bg-slate-900/60 rounded-lg p-4 grid grid-cols-3 gap-2 text-center border border-slate-700/50">
+            <div>
+              <div class="text-xxs text-slate-500 font-display uppercase">Risk Amt</div>
+              <div id="res-risk" class="text-sm font-bold text-slate-300 font-mono mt-1">$0</div>
+            </div>
+            <div class="border-l border-slate-700/50 relative">
+               <div class="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-indigo-500/50 to-transparent"></div>
+              <div class="text-xxs text-slate-500 font-display uppercase">Shares</div>
+              <div id="res-shares" class="text-lg font-bold text-blue-400 text-glow-blue font-mono mt-1">---</div>
+            </div>
+            <div class="border-l border-slate-700/50 relative">
+              <div class="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-emerald-500/50 to-transparent"></div>
+              <div class="text-xxs text-slate-500 font-display uppercase">Position</div>
+              <div id="res-cost" class="text-sm font-bold text-emerald-400 font-mono mt-1">$0</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -542,11 +558,15 @@
       // Ensure we safely access the arrays
       const topS = (sectors.top_sectors || []).map(s => s.sector).slice(0, 3).join(', ');
       const botS = (sectors.bottom_sectors || []).map(s => s.sector).slice(0, 2).join(', ');
-      
+
       if (topS) {
         const sectorEl = document.getElementById('sector-bar');
         sectorEl.classList.remove('hidden');
-        document.getElementById('sector-text').innerHTML = `<span class="text-emerald-300">🟢 ${topS}</span> <span class="text-slate-500 mx-2">|</span> <span class="text-red-300">🔴 ${botS}</span>`;
+        document.getElementById('sector-text').innerHTML = `
+          <span class="text-emerald-300 whitespace-nowrap">🟢 ${topS}</span>
+          <span class="text-slate-500">|</span>
+          <span class="text-red-300 whitespace-nowrap">🔴 ${botS}</span>
+        `;
       }
 
       // 5. Signal Alert
