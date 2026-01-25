@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#090a0f">
-  <title>US Stock Analyzer - Command Center</title>
+  <title>US Stock Analyzer - Command Center (Ver 21.1)</title>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -108,6 +108,26 @@
     .card-stat:hover { border-color: var(--neon-purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
 
     .card-sector { border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.05); }
+
+    /* Ver 21.1: Portfolio & Day Trade Cards */
+    .card-portfolio { border-color: rgba(139, 92, 246, 0.5); background: rgba(139, 92, 246, 0.05); }
+    .card-portfolio:hover { box-shadow: 0 0 25px rgba(139, 92, 246, 0.4); border-color: var(--neon-purple); }
+
+    .card-daytrade { border-color: rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.05); }
+    .card-daytrade:hover { box-shadow: 0 0 25px rgba(239, 68, 68, 0.4); border-color: var(--neon-red); }
+
+    /* Urgency indicators */
+    .urgency-urgent { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.8); }
+    .urgency-high { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.8); }
+    .urgency-medium { color: #eab308; }
+    .urgency-low { color: #22c55e; }
+
+    /* VWAP/ORB status */
+    .vwap-above { color: #10b981; }
+    .vwap-below { color: #ef4444; }
+    .orb-breakout { color: #10b981; text-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+    .gap-go { color: #10b981; }
+    .gap-fill { color: #f59e0b; }
 
     /* --- アラート --- */
     .alert-box {
@@ -256,6 +276,60 @@
 
     <div id="signal-alert" class="neon-glass alert-box rounded-xl p-4 mb-6 text-center hidden">
       <span id="signal-alert-text" class="text-emerald-400 font-bold text-sm font-display tracking-wide"></span>
+    </div>
+
+    <!-- Ver 21.1: Portfolio Review Section -->
+    <div id="portfolio-section" class="neon-glass card-base card-portfolio rounded-xl p-4 mb-4 hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="text-violet-400 text-xs font-bold uppercase tracking-wider">💼 Portfolio Review</h4>
+        <span id="portfolio-health" class="text-xs font-mono text-slate-400">Health: --</span>
+      </div>
+
+      <!-- Sell Signals -->
+      <div id="sell-signals-container" class="mb-3 hidden">
+        <div class="text-xxs text-red-400 uppercase mb-1 font-display">🚨 Sell Signals</div>
+        <div id="sell-signals-list" class="space-y-1 text-xs"></div>
+      </div>
+
+      <!-- Add-on Candidates -->
+      <div id="addon-signals-container" class="hidden">
+        <div class="text-xxs text-emerald-400 uppercase mb-1 font-display">📈 Add-on Candidates</div>
+        <div id="addon-signals-list" class="space-y-1 text-xs"></div>
+      </div>
+    </div>
+
+    <!-- Ver 21.1: Day Trade Section -->
+    <div id="daytrade-section" class="neon-glass card-base card-daytrade rounded-xl p-4 mb-4 hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="text-red-400 text-xs font-bold uppercase tracking-wider">🏎️ Day Trade</h4>
+        <span id="market-hours" class="text-xs font-mono text-slate-400">Market: --</span>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <!-- VWAP Status -->
+        <div class="bg-slate-900/50 rounded-lg p-2">
+          <div class="text-xxs text-slate-500 uppercase font-display">VWAP</div>
+          <div id="vwap-status" class="text-sm font-bold font-mono mt-1">--</div>
+        </div>
+
+        <!-- ORB Status -->
+        <div class="bg-slate-900/50 rounded-lg p-2">
+          <div class="text-xxs text-slate-500 uppercase font-display">ORB</div>
+          <div id="orb-status" class="text-sm font-bold font-mono mt-1">--</div>
+        </div>
+
+        <!-- Gap Status -->
+        <div class="bg-slate-900/50 rounded-lg p-2">
+          <div class="text-xxs text-slate-500 uppercase font-display">GAP</div>
+          <div id="gap-status" class="text-sm font-bold font-mono mt-1">--</div>
+        </div>
+      </div>
+
+      <!-- Day Trade Candidates -->
+      <div id="daytrade-candidates" class="mt-3 hidden">
+        <div class="text-xxs text-slate-400 uppercase mb-1 font-display">Top Momentum</div>
+        <div id="daytrade-list" class="space-y-1 text-xs"></div>
+      </div>
     </div>
 
     <div class="mb-6">
@@ -493,7 +567,13 @@
         alertText.className = "text-slate-400 text-sm font-display tracking-wide";
       }
 
-      // 6. Buttons & Badges
+      // 6. Portfolio Review (Ver 21.1)
+      renderPortfolioSection(data.portfolio || {});
+
+      // 7. Day Trade Section (Ver 21.1)
+      renderDayTradeSection(data.day_trade || {});
+
+      // 8. Buttons & Badges
       const avail = data.availability || {};
       toggleBtn('btn-pf', avail.pf);
       toggleBtn('btn-day', avail.short);
@@ -629,6 +709,152 @@
         t.style.opacity = '0';
         t.style.transform = 'translate(-50%, 0) scale(0.95)';
       }, 2000);
+    }
+
+    // --- Ver 21.1: Portfolio Review Section ---
+    function renderPortfolioSection(portfolio) {
+      const section = document.getElementById('portfolio-section');
+      const sellSignals = portfolio.sell_signals || [];
+      const addonSignals = portfolio.addon_signals || [];
+      const avgHealth = portfolio.avg_health_score;
+
+      // Show section if any data exists
+      if (sellSignals.length > 0 || addonSignals.length > 0 || avgHealth) {
+        section.classList.remove('hidden');
+      } else {
+        return;
+      }
+
+      // Health Score
+      if (avgHealth !== undefined) {
+        const healthEl = document.getElementById('portfolio-health');
+        healthEl.textContent = `Health: ${avgHealth.toFixed(0)}%`;
+        if (avgHealth >= 70) {
+          healthEl.classList.add('text-emerald-400');
+        } else if (avgHealth >= 50) {
+          healthEl.classList.add('text-amber-400');
+        } else {
+          healthEl.classList.add('text-red-400');
+        }
+      }
+
+      // Sell Signals
+      if (sellSignals.length > 0) {
+        const container = document.getElementById('sell-signals-container');
+        const list = document.getElementById('sell-signals-list');
+        container.classList.remove('hidden');
+
+        list.innerHTML = sellSignals.map(sig => {
+          const urgencyClass = `urgency-${sig.urgency?.toLowerCase() || 'low'}`;
+          const reasons = sig.reasons ? sig.reasons.slice(0, 2).join(', ') : '';
+          return `<div class="flex justify-between items-center bg-red-900/20 rounded px-2 py-1">
+            <span class="font-mono font-bold ${urgencyClass}">${sig.ticker}</span>
+            <span class="text-slate-400 truncate ml-2" style="max-width: 60%">${reasons}</span>
+            <span class="text-xxs ${urgencyClass}">${sig.urgency || ''}</span>
+          </div>`;
+        }).join('');
+      }
+
+      // Add-on Signals
+      if (addonSignals.length > 0) {
+        const container = document.getElementById('addon-signals-container');
+        const list = document.getElementById('addon-signals-list');
+        container.classList.remove('hidden');
+
+        list.innerHTML = addonSignals.map(sig => {
+          const pattern = sig.pattern || sig.signal_type || '';
+          return `<div class="flex justify-between items-center bg-emerald-900/20 rounded px-2 py-1">
+            <span class="font-mono font-bold text-emerald-400">${sig.ticker}</span>
+            <span class="text-slate-400">${pattern}</span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // --- Ver 21.1: Day Trade Section ---
+    function renderDayTradeSection(dayTrade) {
+      const section = document.getElementById('daytrade-section');
+      const vwapData = dayTrade.vwap || {};
+      const orbData = dayTrade.orb || {};
+      const gapData = dayTrade.gap || {};
+      const candidates = dayTrade.candidates || [];
+      const marketStatus = dayTrade.market_status;
+
+      // Show section if any data exists
+      if (Object.keys(vwapData).length > 0 || Object.keys(orbData).length > 0 || candidates.length > 0) {
+        section.classList.remove('hidden');
+      } else {
+        return;
+      }
+
+      // Market Hours Status
+      if (marketStatus) {
+        const marketEl = document.getElementById('market-hours');
+        if (marketStatus === 'open') {
+          marketEl.innerHTML = '<span class="text-emerald-400">● LIVE</span>';
+        } else if (marketStatus === 'pre') {
+          marketEl.innerHTML = '<span class="text-amber-400">◐ PRE</span>';
+        } else if (marketStatus === 'after') {
+          marketEl.innerHTML = '<span class="text-violet-400">◐ AH</span>';
+        } else {
+          marketEl.innerHTML = '<span class="text-slate-500">○ CLOSED</span>';
+        }
+      }
+
+      // VWAP Status
+      if (vwapData.trend) {
+        const vwapEl = document.getElementById('vwap-status');
+        const isAbove = vwapData.trend === 'above';
+        vwapEl.textContent = isAbove ? '▲ ABOVE' : '▼ BELOW';
+        vwapEl.className = `text-sm font-bold font-mono mt-1 ${isAbove ? 'vwap-above' : 'vwap-below'}`;
+      }
+
+      // ORB Status
+      if (orbData.status) {
+        const orbEl = document.getElementById('orb-status');
+        if (orbData.status === 'breakout') {
+          orbEl.textContent = '↑ BREAK';
+          orbEl.className = 'text-sm font-bold font-mono mt-1 orb-breakout';
+        } else if (orbData.status === 'breakdown') {
+          orbEl.textContent = '↓ BREAK';
+          orbEl.className = 'text-sm font-bold font-mono mt-1 text-red-400';
+        } else {
+          orbEl.textContent = '↔ RANGE';
+          orbEl.className = 'text-sm font-bold font-mono mt-1 text-slate-400';
+        }
+      }
+
+      // Gap Status
+      if (gapData.classification) {
+        const gapEl = document.getElementById('gap-status');
+        if (gapData.classification === 'gap_and_go') {
+          gapEl.textContent = '🚀 GO';
+          gapEl.className = 'text-sm font-bold font-mono mt-1 gap-go';
+        } else if (gapData.classification === 'gap_fill') {
+          gapEl.textContent = '↩ FILL';
+          gapEl.className = 'text-sm font-bold font-mono mt-1 gap-fill';
+        } else {
+          gapEl.textContent = '-- N/A';
+          gapEl.className = 'text-sm font-bold font-mono mt-1 text-slate-500';
+        }
+      }
+
+      // Day Trade Candidates
+      if (candidates.length > 0) {
+        const container = document.getElementById('daytrade-candidates');
+        const list = document.getElementById('daytrade-list');
+        container.classList.remove('hidden');
+
+        list.innerHTML = candidates.slice(0, 5).map(c => {
+          const score = c.momentum_score || c.score || 0;
+          const scoreColor = score >= 70 ? 'text-emerald-400' : score >= 50 ? 'text-amber-400' : 'text-slate-400';
+          return `<div class="flex justify-between items-center bg-slate-900/50 rounded px-2 py-1">
+            <span class="font-mono font-bold text-red-300">${c.ticker}</span>
+            <span class="text-slate-400 text-xxs">${c.signal || c.pattern || ''}</span>
+            <span class="${scoreColor} font-mono">${score.toFixed(0)}</span>
+          </div>`;
+        }).join('');
+      }
     }
 
     // --- Cross-Validation Generator ---
