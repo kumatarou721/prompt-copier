@@ -365,6 +365,76 @@
           <div id="swing-signal-list" class="mt-4 pt-4 border-t border-white/5 space-y-2"></div>
         </div>
 
+        <div id="portfolio-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-purple-500 hidden relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">💼</span>
+              <h3 class="font-display font-bold text-sm text-purple-400 uppercase tracking-widest">Portfolio</h3>
+            </div>
+            <span id="portfolio-health" class="px-2 py-1 rounded bg-slate-800 text-xs font-mono font-bold border border-slate-700">--</span>
+          </div>
+
+          <div id="sell-signals-container" class="mb-4 hidden">
+            <div class="text-xs font-bold text-red-400 mb-2 flex items-center gap-1">
+              <span class="animate-pulse">🚨</span> SELL SIGNALS
+            </div>
+            <div id="sell-signals-list" class="space-y-2"></div>
+          </div>
+          <div id="addon-signals-container" class="hidden mb-4">
+            <div class="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1">
+              <span>💰</span> ADD-ON OPPORTUNITIES
+            </div>
+            <div id="addon-signals-list" class="space-y-2"></div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-white/5">
+            <button onclick="copyPrompt('pf')" id="btn-pf" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-purple-500/50 text-purple-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="16" x2="16" y1="11" y2="13"/><line x1="8" x2="8" y1="11" y2="13"/><line x1="12" x2="12" y1="15" y2="13"/></svg>
+              COPY REVIEW PROMPT
+            </button>
+          </div>
+        </div>
+
+        <div id="daytrade-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-red-500 hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🏎️</span>
+              <h3 class="font-display font-bold text-sm text-red-400 uppercase tracking-widest">Day Trade</h3>
+            </div>
+            <span id="market-hours" class="text-xxs font-bold px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 uppercase">--</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+              <div class="text-[10px] text-slate-500 font-bold">VWAP</div>
+              <div id="vwap-status" class="text-xs font-mono font-bold mt-1">--</div>
+            </div>
+            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+              <div class="text-[10px] text-slate-500 font-bold">ORB</div>
+              <div id="orb-status" class="text-xs font-mono font-bold mt-1">--</div>
+            </div>
+            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+              <div class="text-[10px] text-slate-500 font-bold">GAP</div>
+              <div id="gap-status" class="text-xs font-mono font-bold mt-1">--</div>
+            </div>
+          </div>
+
+          <div id="daytrade-candidates" class="hidden mb-4">
+            <div class="text-[10px] text-slate-400 uppercase font-bold mb-2 tracking-wider">Momentum Picks</div>
+            <div id="daytrade-list" class="space-y-2"></div>
+          </div>
+
+          <div class="pt-4 border-t border-white/5">
+            <button onclick="copyPrompt('short')" id="btn-day" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-red-500/50 text-red-400 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+              COPY DAY TRADE PROMPT
+            </button>
+          </div>
+        </div>
+
         <div class="space-y-6">
           
           <div id="sector-section" class="glass-panel rounded-xl p-5 hidden">
@@ -473,13 +543,16 @@
     // --- Dashboard Rendering ---
     function renderDashboard(data) {
       // Transition
-      document.getElementById('loader-screen').classList.add('hidden');
+      const loader = document.getElementById('loader-screen');
+      if (loader) loader.classList.add('hidden');
+      
       const dash = document.getElementById('dashboard');
-      dash.classList.remove('hidden');
+      if (dash) dash.classList.remove('hidden');
 
       // 1. Header Info
       const meta = data.metadata || {};
-      document.getElementById('header-date').textContent = formatTime(meta.generated_at);
+      const dateEl = document.getElementById('header-date');
+      if (dateEl) dateEl.textContent = formatTime(meta.generated_at);
       
       let regime = "NEUTRAL";
       if (data.prompts && data.prompts.long_p1) {
@@ -487,9 +560,13 @@
         if (match) regime = match[1];
       }
       const regimeEl = document.getElementById('market-regime-badge');
-      regimeEl.textContent = regime;
-      regimeEl.className = `font-bold ${getRegimeColor(regime)}`;
-      document.getElementById('header-status').classList.remove('hidden');
+      if (regimeEl) {
+        regimeEl.textContent = regime;
+        regimeEl.className = `font-bold ${getRegimeColor(regime)}`;
+      }
+      
+      const headerStatus = document.getElementById('header-status');
+      if (headerStatus) headerStatus.classList.remove('hidden');
 
       // 2. Stats & Visibility Logic
       const signals = data.signals || {};
@@ -501,18 +578,28 @@
       
       // Reveal Sections based on data
       if (data.prompts?.long_p1 && data.prompts.long_p1.length > 50) {
-        document.getElementById('lt-section').classList.remove('hidden');
+        const ltSec = document.getElementById('lt-section');
+        if (ltSec) ltSec.classList.remove('hidden');
+        
         if (ltCount > 0) {
-          document.getElementById('badge-long').textContent = `${ltCount} SIG`;
-          document.getElementById('badge-long').classList.remove('hidden');
+          const badge = document.getElementById('badge-long');
+          if (badge) {
+            badge.textContent = `${ltCount} SIG`;
+            badge.classList.remove('hidden');
+          }
         }
       }
       
       if (data.prompts?.swing_p1 && data.prompts.swing_p1.length > 50) {
-        document.getElementById('swing-section').classList.remove('hidden');
+        const swSec = document.getElementById('swing-section');
+        if (swSec) swSec.classList.remove('hidden');
+        
         if (swCount > 0) {
-          document.getElementById('badge-swing').textContent = `${swCount} SIG`;
-          document.getElementById('badge-swing').classList.remove('hidden');
+          const badge = document.getElementById('badge-swing');
+          if (badge) {
+            badge.textContent = `${swCount} SIG`;
+            badge.classList.remove('hidden');
+          }
         }
       }
 
@@ -522,20 +609,31 @@
 
       // Watchlist Stats
       const watchlists = data.watchlists || {};
-      document.getElementById('lt-watch').textContent = watchlists.long_term?.watching || 0;
-      document.getElementById('lt-ready').textContent = watchlists.long_term?.ready || 0;
-      document.getElementById('swing-watch').textContent = watchlists.swing?.watching || 0;
-      document.getElementById('swing-ready').textContent = watchlists.swing?.ready || 0;
-      document.getElementById('stat-watch').textContent = (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
+      const ltWatch = document.getElementById('lt-watch');
+      if (ltWatch) ltWatch.textContent = watchlists.long_term?.watching || 0;
+      
+      const ltReady = document.getElementById('lt-ready');
+      if (ltReady) ltReady.textContent = watchlists.long_term?.ready || 0;
+      
+      const swWatch = document.getElementById('swing-watch');
+      if (swWatch) swWatch.textContent = watchlists.swing?.watching || 0;
+      
+      const swReady = document.getElementById('swing-ready');
+      if (swReady) swReady.textContent = watchlists.swing?.ready || 0;
+      
+      const statWatch = document.getElementById('stat-watch');
+      if (statWatch) statWatch.textContent = (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
       
       const chartCount = Object.values(data.charts || {}).flat().length;
-      document.getElementById('stat-charts').textContent = chartCount;
+      const statCharts = document.getElementById('stat-charts');
+      if (statCharts) statCharts.textContent = chartCount;
 
       setTimeout(() => {
         const total = (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
         const max = 100;
         const pct = Math.min(100, (total / max) * 100);
-        document.getElementById('progress-bar').style.width = `${pct}%`;
+        const pBar = document.getElementById('progress-bar');
+        if (pBar) pBar.style.width = `${pct}%`;
       }, 100);
 
       // 3. Alerts
@@ -545,21 +643,31 @@
       const alertTitle = document.getElementById('signal-alert-title');
       const alertDesc = document.getElementById('signal-alert-desc');
       
-      alertDiv.classList.remove('hidden');
-      if (totalSignals > 0) {
-        alertDiv.className = "p-4 rounded-xl border border-emerald-500/30 bg-emerald-900/10 flex items-center gap-3 shadow-glow-green";
-        alertIcon.innerHTML = "⚡";
-        alertIcon.className = "p-2 rounded-full bg-emerald-500/20 text-emerald-400";
-        alertTitle.textContent = `${totalSignals} SIGNALS DETECTED`;
-        alertTitle.className = "font-display font-bold text-sm text-emerald-400";
-        alertDesc.textContent = `${ltCount} Long-Term / ${swCount} Swing`;
-      } else {
-        alertDiv.className = "p-4 rounded-xl border border-slate-800 bg-slate-900/30 flex items-center gap-3";
-        alertIcon.innerHTML = "💤";
-        alertIcon.className = "p-2 rounded-full bg-slate-800 text-slate-500";
-        alertTitle.textContent = "NO SIGNALS TODAY";
-        alertTitle.className = "font-display font-bold text-sm text-slate-400";
-        alertDesc.textContent = "Monitoring watchlists...";
+      if (alertDiv) {
+        alertDiv.classList.remove('hidden');
+        if (totalSignals > 0) {
+          alertDiv.className = "p-4 rounded-xl border border-emerald-500/30 bg-emerald-900/10 flex items-center gap-3 shadow-glow-green";
+          if (alertIcon) {
+            alertIcon.innerHTML = "⚡";
+            alertIcon.className = "p-2 rounded-full bg-emerald-500/20 text-emerald-400";
+          }
+          if (alertTitle) {
+            alertTitle.textContent = `${totalSignals} SIGNALS DETECTED`;
+            alertTitle.className = "font-display font-bold text-sm text-emerald-400";
+          }
+          if (alertDesc) alertDesc.textContent = `${ltCount} Long-Term / ${swCount} Swing`;
+        } else {
+          alertDiv.className = "p-4 rounded-xl border border-slate-800 bg-slate-900/30 flex items-center gap-3";
+          if (alertIcon) {
+            alertIcon.innerHTML = "💤";
+            alertIcon.className = "p-2 rounded-full bg-slate-800 text-slate-500";
+          }
+          if (alertTitle) {
+            alertTitle.textContent = "NO SIGNALS TODAY";
+            alertTitle.className = "font-display font-bold text-sm text-slate-400";
+          }
+          if (alertDesc) alertDesc.textContent = "Monitoring watchlists...";
+        }
       }
 
       // 4. Sectors
@@ -568,9 +676,14 @@
       const botS = (sectors.bottom_sectors || []).map(s => `<span class="bg-red-900/30 text-red-400 px-1.5 rounded text-xs border border-red-800">${s.sector}</span>`).join('');
       
       if (topS) {
-        document.getElementById('sector-section').classList.remove('hidden');
-        document.getElementById('sector-top').innerHTML = topS;
-        document.getElementById('sector-bottom').innerHTML = botS;
+        const secSection = document.getElementById('sector-section');
+        if (secSection) {
+          secSection.classList.remove('hidden');
+          const secTop = document.getElementById('sector-top');
+          if (secTop) secTop.innerHTML = topS;
+          const secBot = document.getElementById('sector-bottom');
+          if (secBot) secBot.innerHTML = botS;
+        }
       }
 
       // 5. Portfolio Section
@@ -581,61 +694,86 @@
       
       if (pfPrompt.length > 50) {
         const pfSec = document.getElementById('portfolio-section');
-        pfSec.classList.remove('hidden');
-        
-        const healthEl = document.getElementById('portfolio-health');
-        if (hasUrgent) {
-          pfSec.classList.add('border-red-500');
-          healthEl.textContent = "CRITICAL";
-          healthEl.className = "px-2 py-1 rounded bg-red-900 text-white text-xs font-bold border border-red-700 animate-pulse";
-        } else {
-          healthEl.textContent = "REVIEW";
-        }
+        if (pfSec) {
+          pfSec.classList.remove('hidden');
+          
+          const healthEl = document.getElementById('portfolio-health');
+          if (healthEl) {
+            if (hasUrgent) {
+              pfSec.classList.add('border-red-500');
+              healthEl.textContent = "CRITICAL";
+              healthEl.className = "px-2 py-1 rounded bg-red-900 text-white text-xs font-bold border border-red-700 animate-pulse";
+            } else {
+              healthEl.textContent = "REVIEW";
+            }
+          }
 
-        if (sellMatches > 0) {
-          document.getElementById('sell-signals-container').classList.remove('hidden');
-          document.getElementById('sell-signals-list').innerHTML = `
-            <div class="text-xs text-slate-300 bg-red-900/20 p-2 rounded border border-red-500/20">
-              Found ${sellMatches} potential sell signals.<br>Check prompt for details.
-            </div>
-          `;
-        }
-        
-        if (hasAdd) {
-          document.getElementById('addon-signals-container').classList.remove('hidden');
-          document.getElementById('addon-signals-list').innerHTML = `
-            <div class="text-xs text-slate-300 bg-emerald-900/20 p-2 rounded border border-emerald-500/20">
-              Add-on opportunities detected.
-            </div>
-          `;
+          if (sellMatches > 0) {
+            const sellCont = document.getElementById('sell-signals-container');
+            if (sellCont) sellCont.classList.remove('hidden');
+            
+            const sellList = document.getElementById('sell-signals-list');
+            if (sellList) {
+              sellList.innerHTML = `
+                <div class="text-xs text-slate-300 bg-red-900/20 p-2 rounded border border-red-500/20">
+                  Found ${sellMatches} potential sell signals.<br>Check prompt for details.
+                </div>
+              `;
+            }
+          }
+          
+          if (hasAdd) {
+            const addCont = document.getElementById('addon-signals-container');
+            if (addCont) addCont.classList.remove('hidden');
+            
+            const addList = document.getElementById('addon-signals-list');
+            if (addList) {
+              addList.innerHTML = `
+                <div class="text-xs text-slate-300 bg-emerald-900/20 p-2 rounded border border-emerald-500/20">
+                  Add-on opportunities detected.
+                </div>
+              `;
+            }
+          }
         }
       }
 
       // 6. Day Trade Section
       const dayPrompt = data.prompts?.short || "";
       if (dayPrompt.length > 50) {
-        document.getElementById('daytrade-section').classList.remove('hidden');
+        const dtSec = document.getElementById('daytrade-section');
+        if (dtSec) dtSec.classList.remove('hidden');
         
         const vwapMatch = dayPrompt.match(/VWAP\*\*: ([A-Z]+)/);
         const orbMatch = dayPrompt.match(/ORB\*\*: ([A-Z_]+)/);
         const mktMatch = dayPrompt.match(/Market Status\*\*: (.*)/);
         
-        if (mktMatch) document.getElementById('market-hours').textContent = mktMatch[1].replace(/[🟢🔴]/g, '').trim();
-        if (vwapMatch) document.getElementById('vwap-status').textContent = vwapMatch[1];
-        if (orbMatch) document.getElementById('orb-status').textContent = orbMatch[1];
+        const mh = document.getElementById('market-hours');
+        if (mh && mktMatch) mh.textContent = mktMatch[1].replace(/[🟢🔴]/g, '').trim();
+        
+        const vwap = document.getElementById('vwap-status');
+        if (vwap && vwapMatch) vwap.textContent = vwapMatch[1];
+        
+        const orb = document.getElementById('orb-status');
+        if (orb && orbMatch) orb.textContent = orbMatch[1];
         
         const lines = dayPrompt.split('\n');
         const picks = lines.filter(l => l.includes('|')).slice(4, 8); 
         if (picks.length > 0) {
-          document.getElementById('daytrade-candidates').classList.remove('hidden');
-          document.getElementById('daytrade-list').innerHTML = picks.map(p => {
-            const cols = p.split('|').map(c => c.trim()).filter(c => c);
-            if (cols.length < 2) return '';
-            return `<div class="flex justify-between text-xs border-b border-slate-800 pb-1">
-              <span class="font-bold text-slate-300">${cols[1]}</span>
-              <span class="text-slate-500">${cols[2]}</span>
-            </div>`;
-          }).join('');
+          const dtCand = document.getElementById('daytrade-candidates');
+          if (dtCand) dtCand.classList.remove('hidden');
+          
+          const dtList = document.getElementById('daytrade-list');
+          if (dtList) {
+            dtList.innerHTML = picks.map(p => {
+              const cols = p.split('|').map(c => c.trim()).filter(c => c);
+              if (cols.length < 2) return '';
+              return `<div class="flex justify-between text-xs border-b border-slate-800 pb-1">
+                <span class="font-bold text-slate-300">${cols[1]}</span>
+                <span class="text-slate-500">${cols[2]}</span>
+              </div>`;
+            }).join('');
+          }
         }
       }
 
@@ -665,12 +803,14 @@
 
     function updateStat(id, val) {
       const el = document.getElementById(id);
+      if (!el) return; // FIX: Added safety check
       el.textContent = val;
       if (val > 0) el.classList.add('text-neon-blue');
     }
 
     function setBtnState(id, enabled) {
       const btn = document.getElementById(id);
+      if (!btn) return; // FIX: Added safety check
       if (!enabled) {
         btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
         btn.onclick = null;
@@ -679,19 +819,35 @@
 
     function toggleSection(id) {
       const el = document.getElementById(id);
+      if (!el) return; // FIX: Added safety check
       const icon = document.getElementById(`icon-${id}`);
+      
       if (el.classList.contains('hidden')) {
         el.classList.remove('hidden');
-        icon.classList.add('rotate-180');
+        if (icon) icon.classList.add('rotate-180');
       } else {
         el.classList.add('hidden');
-        icon.classList.remove('rotate-180');
+        if (icon) icon.classList.remove('rotate-180');
+      }
+    }
+
+    function toggleCrossVal() {
+      const panel = document.getElementById('crossval-panel');
+      if (!panel) return;
+      const icon = document.getElementById('crossval-icon');
+      
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        if (icon) icon.classList.add('rotate-180');
+      } else {
+        panel.classList.add('hidden');
+        if (icon) icon.classList.remove('rotate-180');
       }
     }
 
     function renderSignals(signals, containerId, colorClass) {
       const container = document.getElementById(containerId);
-      if (!container) return;
+      if (!container) return; // FIX: Added safety check
       container.innerHTML = ''; 
 
       if (!signals || signals.length === 0) return;
@@ -722,27 +878,41 @@
 
     // --- Logic: Calculator ---
     const calcInputs = ['calc-eq', 'calc-risk', 'calc-entry', 'calc-stop'];
-    calcInputs.forEach(id => document.getElementById(id).addEventListener('input', updateCalc));
+    calcInputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateCalc);
+    });
 
     function updateCalc() {
-      const eq = parseFloat(document.getElementById('calc-eq').value) || 0;
-      const riskPct = parseFloat(document.getElementById('calc-risk').value) || 0;
-      const entry = parseFloat(document.getElementById('calc-entry').value) || 0;
-      const stop = parseFloat(document.getElementById('calc-stop').value) || 0;
+      const eqEl = document.getElementById('calc-eq');
+      const riskEl = document.getElementById('calc-risk');
+      const entryEl = document.getElementById('calc-entry');
+      const stopEl = document.getElementById('calc-stop');
+      
+      if (!eqEl || !riskEl || !entryEl || !stopEl) return;
+
+      const eq = parseFloat(eqEl.value) || 0;
+      const riskPct = parseFloat(riskEl.value) || 0;
+      const entry = parseFloat(entryEl.value) || 0;
+      const stop = parseFloat(stopEl.value) || 0;
 
       const riskAmt = eq * (riskPct / 100);
-      document.getElementById('res-risk').textContent = `$${Math.round(riskAmt)}`;
+      const resRisk = document.getElementById('res-risk');
+      if (resRisk) resRisk.textContent = `$${Math.round(riskAmt)}`;
+
+      const resShares = document.getElementById('res-shares');
+      const resCost = document.getElementById('res-cost');
 
       if (entry > 0 && stop > 0 && entry > stop) {
         const riskPerShare = entry - stop;
         const shares = Math.floor(riskAmt / riskPerShare);
         const cost = shares * entry;
         
-        document.getElementById('res-shares').textContent = shares.toLocaleString();
-        document.getElementById('res-cost').textContent = `$${Math.round(cost).toLocaleString()}`;
+        if (resShares) resShares.textContent = shares.toLocaleString();
+        if (resCost) resCost.textContent = `$${Math.round(cost).toLocaleString()}`;
       } else {
-        document.getElementById('res-shares').textContent = "0";
-        document.getElementById('res-cost').textContent = "$0";
+        if (resShares) resShares.textContent = "0";
+        if (resCost) resCost.textContent = "$0";
       }
     }
 
@@ -805,6 +975,8 @@ Compare A & B. Return structured JSON with "final_decision": "PROCEED" or "PASS"
     function showToast(msg) {
       const t = document.getElementById('toast');
       const m = document.getElementById('toast-msg');
+      if (!t || !m) return;
+      
       m.textContent = msg;
       
       t.classList.remove('opacity-0', 'translate-y-4');
