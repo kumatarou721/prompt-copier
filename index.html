@@ -662,6 +662,15 @@ Date: ${date} | Market: ${regime}
 
 ---
 
+## ⚠️ CRITICAL: Devil's Advocate Constraint (Ver 21.1)
+
+**意見が分かれた場合は、必ず保守的な判断（PASS）を採用すること。**
+
+理由: 投資においてFalse Positive（誤エントリー）はFalse Negative（機会損失）より損失が大きい。
+**"When in doubt, PASS."**
+
+---
+
 ## 📊 Analyst A (Gemini) Summary
 
 \`\`\`
@@ -689,11 +698,13 @@ ${claudeSummary}
 | Ticker | Action | 一致理由 |
 |--------|--------|----------|
 
-### 2. Divergence (相違点)
+### 2. Divergence (相違点) ⚠️
 
 意見が分かれた点と、どちらが妥当かを判断:
 
-| Ticker | Gemini | Claude | より妥当 | 理由 |
+**⚠️ 判断が分かれた場合 → PASSを選択**
+
+| Ticker | Gemini | Claude | 採用判断 | 理由 |
 |--------|--------|--------|----------|------|
 
 ### 3. Blind Spots (見落とし)
@@ -705,6 +716,8 @@ ${claudeSummary}
 
 ### 4. Final Verdict (最終判断)
 
+⚠️ **Devil's Advocate確認**: 相違点があった銘柄はPASSしているか？
+
 | Ticker | Action | Entry | Stop | Target | Confidence | 決定理由 |
 |--------|--------|-------|------|--------|------------|----------|
 
@@ -712,14 +725,14 @@ ${claudeSummary}
 
 - **より保守的だったAI**:
 - **より積極的だったAI**:
-- **推奨重み配分 (Gemini:Claude)**:
+- **相違銘柄PASS数**: X / Y (全相違銘柄がPASSされたか)
 
 ---
 
 **Important:**
-- 両者の分析を公平に評価すること
-- 相違点は必ず理由を明記
-- 最終判断には確信度を必ず含める
+- ⚠️ **意見が分かれた = PASS（Devil's Advocate原則）**
+- 両者がPROCEEDで一致した場合のみ、PROCEEDを検討
+- 決算日リスク（⚠️ERR, 🔴, 🟡）がある銘柄は特に慎重に
 - 日本語で出力すること
 `;
 
