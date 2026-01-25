@@ -47,13 +47,6 @@
           },
           animation: {
             'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'border-flow': 'borderFlow 3s ease infinite',
-          },
-          keyframes: {
-            borderFlow: {
-              '0%, 100%': { backgroundPosition: '0% 50%' },
-              '50%': { backgroundPosition: '100% 50%' },
-            }
           }
         }
       }
@@ -98,7 +91,7 @@
     input[type="number"]::-webkit-inner-spin-button, 
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-    /* Grid layout tweaks */
+    /* Layout tweaks */
     .grid-dashboard {
       display: grid;
       grid-template-columns: 1fr;
@@ -106,13 +99,18 @@
     }
     @media (min-width: 1024px) {
       .grid-dashboard {
-        grid-template-columns: 1fr 320px; /* Main content + Sidebar */
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on desktop */
       }
     }
     @media (min-width: 1280px) {
       .grid-dashboard {
-        grid-template-columns: 1fr 380px;
+        grid-template-columns: repeat(3, 1fr); /* 3 columns on large screens */
       }
+    }
+    
+    /* Utility class for spanning full width in grid */
+    .col-span-full {
+      grid-column: 1 / -1;
     }
   </style>
 </head>
@@ -223,8 +221,7 @@
 
       <div class="grid-dashboard">
         
-        <div class="space-y-6">
-          
+        <div class="col-span-full">
           <div id="signal-alert" class="hidden p-4 rounded-xl border transition-all duration-300 flex items-center gap-3">
             <div class="p-2 rounded-full bg-slate-900/50" id="alert-icon">
               </div>
@@ -233,7 +230,158 @@
               <p id="signal-alert-desc" class="text-xs text-slate-400 mt-0.5">--</p>
             </div>
           </div>
+        </div>
 
+        <div id="portfolio-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-purple-500 hidden relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">💼</span>
+              <h3 class="font-display font-bold text-sm text-purple-400 uppercase tracking-widest">Portfolio</h3>
+            </div>
+            <span id="portfolio-health" class="px-2 py-1 rounded bg-slate-800 text-xs font-mono font-bold border border-slate-700">--</span>
+          </div>
+
+          <div id="sell-signals-container" class="mb-4 hidden">
+            <div class="text-xs font-bold text-red-400 mb-2 flex items-center gap-1">
+              <span class="animate-pulse">🚨</span> SELL SIGNALS
+            </div>
+            <div id="sell-signals-list" class="space-y-2"></div>
+          </div>
+          <div id="addon-signals-container" class="hidden mb-4">
+            <div class="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1">
+              <span>💰</span> ADD-ON OPPORTUNITIES
+            </div>
+            <div id="addon-signals-list" class="space-y-2"></div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-white/5">
+            <button onclick="copyPrompt('pf')" id="btn-pf" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-purple-500/50 text-purple-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="16" x2="16" y1="11" y2="13"/><line x1="8" x2="8" y1="11" y2="13"/><line x1="12" x2="12" y1="15" y2="13"/></svg>
+              COPY REVIEW PROMPT
+            </button>
+          </div>
+        </div>
+
+        <div id="lt-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-blue-500 hidden relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">📈</span>
+              <h3 class="font-display font-bold text-sm text-blue-400 uppercase tracking-widest">Long-Term</h3>
+            </div>
+            <div id="badge-long" class="text-[9px] bg-blue-900/50 text-blue-300 px-1.5 py-0.5 rounded border border-blue-800 hidden">0 SIG</div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex gap-2">
+              <button onclick="copyPrompt('long_p1')" id="btn-long-p1" class="flex-1 bg-slate-800 hover:bg-blue-900/20 border border-slate-700 hover:border-blue-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                1. Quick Screen
+              </button>
+              <div class="text-slate-600 flex items-center">→</div>
+              <button onclick="copyPrompt('long_p2')" id="btn-long-p2" class="flex-1 bg-slate-800 hover:bg-blue-900/20 border border-slate-700 hover:border-blue-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                2. Deep Analysis
+              </button>
+            </div>
+
+            <div class="bg-black/20 rounded-lg p-3 border border-white/5">
+              <button onclick="toggleSection('lt-crossval')" class="w-full flex items-center justify-between text-xs font-bold text-blue-300/70 hover:text-blue-300 transition-colors">
+                <span>🔬 Cross-Validation</span>
+                <svg class="w-3 h-3 transition-transform" id="icon-lt-crossval" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div id="lt-crossval" class="hidden pt-3 mt-2 border-t border-white/5 space-y-3">
+                <textarea id="lt-gemini" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-blue-500 outline-none resize-none" placeholder="Paste Gemini Summary..."></textarea>
+                <textarea id="lt-claude" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-blue-500 outline-none resize-none" placeholder="Paste Claude Summary..."></textarea>
+                <button onclick="generateCrossVal('lt')" class="w-full bg-blue-900/30 hover:bg-blue-900/50 border border-blue-500/30 text-blue-300 py-2 rounded text-xs font-bold">
+                  Generate Verification Prompt
+                </button>
+                <div class="flex justify-center gap-3">
+                  <button onclick="copyPrompt('lt_summary')" class="text-[9px] text-slate-500 hover:text-blue-400 underline">Copy Summary Prompt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="swing-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-amber-500 hidden relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🏄</span>
+              <h3 class="font-display font-bold text-sm text-amber-400 uppercase tracking-widest">Swing</h3>
+            </div>
+            <div id="badge-swing" class="text-[9px] bg-amber-900/50 text-amber-300 px-1.5 py-0.5 rounded border border-amber-800 hidden">0 SIG</div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex gap-2">
+              <button onclick="copyPrompt('swing_p1')" id="btn-swing-p1" class="flex-1 bg-slate-800 hover:bg-amber-900/20 border border-slate-700 hover:border-amber-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                1. Quick Screen
+              </button>
+              <div class="text-slate-600 flex items-center">→</div>
+              <button onclick="copyPrompt('swing_p2')" id="btn-swing-p2" class="flex-1 bg-slate-800 hover:bg-amber-900/20 border border-slate-700 hover:border-amber-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                2. Technical
+              </button>
+            </div>
+
+            <div class="bg-black/20 rounded-lg p-3 border border-white/5">
+              <button onclick="toggleSection('sw-crossval')" class="w-full flex items-center justify-between text-xs font-bold text-amber-300/70 hover:text-amber-300 transition-colors">
+                <span>🔬 Cross-Validation</span>
+                <svg class="w-3 h-3 transition-transform" id="icon-sw-crossval" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div id="sw-crossval" class="hidden pt-3 mt-2 border-t border-white/5 space-y-3">
+                <textarea id="sw-gemini" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Paste Gemini Summary..."></textarea>
+                <textarea id="sw-claude" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Paste Claude Summary..."></textarea>
+                <button onclick="generateCrossVal('swing')" class="w-full bg-amber-900/30 hover:bg-amber-900/50 border border-amber-500/30 text-amber-300 py-2 rounded text-xs font-bold">
+                  Generate Verification Prompt
+                </button>
+                <div class="flex justify-center gap-3">
+                  <button onclick="copyPrompt('swing_summary')" class="text-[9px] text-slate-500 hover:text-amber-400 underline">Copy Summary Prompt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="daytrade-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-red-500 hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🏎️</span>
+              <h3 class="font-display font-bold text-sm text-red-400 uppercase tracking-widest">Day Trade</h3>
+            </div>
+            <span id="market-hours" class="text-xxs font-bold px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 uppercase">--</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+              <div class="text-[10px] text-slate-500 font-bold">VWAP</div>
+              <div id="vwap-status" class="text-xs font-mono font-bold mt-1">--</div>
+            </div>
+            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+              <div class="text-[10px] text-slate-500 font-bold">ORB</div>
+              <div id="orb-status" class="text-xs font-mono font-bold mt-1">--</div>
+            </div>
+            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+              <div class="text-[10px] text-slate-500 font-bold">GAP</div>
+              <div id="gap-status" class="text-xs font-mono font-bold mt-1">--</div>
+            </div>
+          </div>
+
+          <div id="daytrade-candidates" class="hidden mb-4">
+            <div class="text-[10px] text-slate-400 uppercase font-bold mb-2 tracking-wider">Momentum Picks</div>
+            <div id="daytrade-list" class="space-y-2"></div>
+          </div>
+
+          <div class="pt-4 border-t border-white/5">
+            <button onclick="copyPrompt('short')" id="btn-day" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-red-500/50 text-red-400 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+              COPY DAY TRADE PROMPT
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          
           <div id="sector-section" class="glass-panel rounded-xl p-5 hidden">
             <div class="flex items-center gap-2 mb-4">
               <span class="text-lg">🔄</span>
@@ -248,167 +396,6 @@
               <div>
                 <div class="text-xxs text-slate-500 font-bold mb-1 uppercase">Weak Outflow (Avoid)</div>
                 <div id="sector-bottom" class="flex flex-wrap gap-2"></div>
-              </div>
-            </div>
-          </div>
-
-          <div id="portfolio-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-purple-500 hidden relative overflow-hidden">
-            <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-              <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            </div>
-            <div class="flex items-center justify-between mb-4 relative z-10">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">💼</span>
-                <h3 class="font-display font-bold text-sm text-purple-400 uppercase tracking-widest">Portfolio</h3>
-              </div>
-              <span id="portfolio-health" class="px-2 py-1 rounded bg-slate-800 text-xs font-mono font-bold border border-slate-700">--</span>
-            </div>
-
-            <div id="sell-signals-container" class="mb-4 hidden">
-              <div class="text-xs font-bold text-red-400 mb-2 flex items-center gap-1">
-                <span class="animate-pulse">🚨</span> SELL SIGNALS
-              </div>
-              <div id="sell-signals-list" class="space-y-2"></div>
-            </div>
-
-            <div id="addon-signals-container" class="hidden">
-              <div class="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1">
-                <span>💰</span> ADD-ON OPPORTUNITIES
-              </div>
-              <div id="addon-signals-list" class="space-y-2"></div>
-            </div>
-          </div>
-
-          <div id="daytrade-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-red-500 hidden">
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">🏎️</span>
-                <h3 class="font-display font-bold text-sm text-red-400 uppercase tracking-widest">Day Trade</h3>
-              </div>
-              <span id="market-hours" class="text-xxs font-bold px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 uppercase">--</span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 mb-4">
-              <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
-                <div class="text-[10px] text-slate-500 font-bold">VWAP</div>
-                <div id="vwap-status" class="text-xs font-mono font-bold mt-1">--</div>
-              </div>
-              <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
-                <div class="text-[10px] text-slate-500 font-bold">ORB</div>
-                <div id="orb-status" class="text-xs font-mono font-bold mt-1">--</div>
-              </div>
-              <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
-                <div class="text-[10px] text-slate-500 font-bold">GAP</div>
-                <div id="gap-status" class="text-xs font-mono font-bold mt-1">--</div>
-              </div>
-            </div>
-
-            <div id="daytrade-candidates" class="hidden">
-              <div class="text-[10px] text-slate-400 uppercase font-bold mb-2 tracking-wider">Momentum Picks</div>
-              <div id="daytrade-list" class="space-y-2"></div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="space-y-6">
-          
-          <div class="glass-panel rounded-xl p-5 sticky top-20">
-            <h3 class="font-display font-bold text-xs text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="16" x2="16" y1="11" y2="13"/><line x1="8" x2="8" y1="11" y2="13"/><line x1="12" x2="12" y1="15" y2="13"/></svg>
-              Command Prompts
-            </h3>
-
-            <div class="grid grid-cols-2 gap-3 mb-6">
-              <button onclick="copyPrompt('pf')" id="btn-pf" class="group relative overflow-hidden rounded-lg bg-slate-800 p-3 text-left transition-all hover:bg-slate-700 border border-slate-700 hover:border-purple-500/50">
-                <div class="text-xs font-bold text-purple-400 mb-0.5">PORTFOLIO</div>
-                <div class="text-[10px] text-slate-500 group-hover:text-slate-300">Review holdings</div>
-                <div class="absolute bottom-0 left-0 h-0.5 w-full bg-purple-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-              </button>
-              
-              <button onclick="copyPrompt('short')" id="btn-day" class="group relative overflow-hidden rounded-lg bg-slate-800 p-3 text-left transition-all hover:bg-slate-700 border border-slate-700 hover:border-red-500/50">
-                <div class="text-xs font-bold text-red-400 mb-0.5">DAY TRADE</div>
-                <div class="text-[10px] text-slate-500 group-hover:text-slate-300">Intraday setup</div>
-                <div class="absolute bottom-0 left-0 h-0.5 w-full bg-red-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-              </button>
-            </div>
-
-            <div class="mb-5">
-              <div class="flex items-center justify-between mb-2">
-                <div class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Long-Term (2-Phase)</div>
-                <div id="badge-long" class="hidden text-[9px] bg-blue-900/50 text-blue-300 px-1.5 py-0.5 rounded border border-blue-800"></div>
-              </div>
-              <div class="flex gap-2">
-                <button onclick="copyPrompt('long_p1')" id="btn-long-p1" class="flex-1 bg-slate-800 hover:bg-blue-900/20 border border-slate-700 hover:border-blue-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
-                  1. Screen
-                </button>
-                <div class="text-slate-600 flex items-center">→</div>
-                <button onclick="copyPrompt('long_p2')" id="btn-long-p2" class="flex-1 bg-slate-800 hover:bg-blue-900/20 border border-slate-700 hover:border-blue-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
-                  2. Analysis
-                </button>
-              </div>
-            </div>
-
-            <div class="mb-5">
-              <div class="flex items-center justify-between mb-2">
-                <div class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Swing (2-Phase)</div>
-                <div id="badge-swing" class="hidden text-[9px] bg-amber-900/50 text-amber-300 px-1.5 py-0.5 rounded border border-amber-800"></div>
-              </div>
-              <div class="flex gap-2">
-                <button onclick="copyPrompt('swing_p1')" id="btn-swing-p1" class="flex-1 bg-slate-800 hover:bg-amber-900/20 border border-slate-700 hover:border-amber-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
-                  1. Screen
-                </button>
-                <div class="text-slate-600 flex items-center">→</div>
-                <button onclick="copyPrompt('swing_p2')" id="btn-swing-p2" class="flex-1 bg-slate-800 hover:bg-amber-900/20 border border-slate-700 hover:border-amber-500/50 text-slate-300 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
-                  2. Analysis
-                </button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-2 pt-4 border-t border-white/5">
-              <button onclick="copyPrompt('translate')" class="w-full py-2 text-xs font-mono text-slate-500 hover:text-slate-300 transition-colors flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
-                Translate to Japanese
-              </button>
-            </div>
-          </div>
-
-          <div class="glass-panel rounded-xl overflow-hidden">
-            <button onclick="toggleCrossVal()" class="w-full p-4 flex items-center justify-between bg-white/5 hover:bg-white/10 transition-colors text-left">
-              <div class="flex items-center gap-2">
-                <span class="text-cyan-400 text-lg">🔬</span>
-                <span class="text-xs font-bold font-display uppercase tracking-wider text-cyan-100">Cross-Validation</span>
-              </div>
-              <svg id="crossval-icon" class="w-4 h-4 text-slate-400 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            
-            <div id="crossval-panel" class="hidden p-4 border-t border-white/5 bg-black/20">
-              <div class="space-y-4">
-                <div class="grid grid-cols-1 gap-3">
-                  <div class="relative">
-                    <span class="absolute top-2 left-3 text-[10px] font-bold text-slate-500 uppercase">Gemini (C1)</span>
-                    <textarea id="gemini-summary" rows="3" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 pt-7 text-xs text-slate-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none" placeholder="Paste Gemini Summary..."></textarea>
-                  </div>
-                  <div class="relative">
-                    <span class="absolute top-2 left-3 text-[10px] font-bold text-slate-500 uppercase">Claude (C2)</span>
-                    <textarea id="claude-summary" rows="3" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 pt-7 text-xs text-slate-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none" placeholder="Paste Claude Summary..."></textarea>
-                  </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3">
-                  <button onclick="generateCrossVal('lt')" class="bg-cyan-900/30 hover:bg-cyan-900/50 border border-cyan-500/30 text-cyan-300 py-2 rounded-lg text-xs font-bold transition-all">
-                    LT Verify
-                  </button>
-                  <button onclick="generateCrossVal('swing')" class="bg-cyan-900/30 hover:bg-cyan-900/50 border border-cyan-500/30 text-cyan-300 py-2 rounded-lg text-xs font-bold transition-all">
-                    Swing Verify
-                  </button>
-                </div>
-                
-                <div class="flex gap-2 justify-center pt-2 border-t border-white/5">
-                  <button onclick="copyPrompt('lt_summary')" class="text-[10px] text-slate-500 hover:text-cyan-400 underline">Copy LT Summary</button>
-                  <span class="text-slate-700">|</span>
-                  <button onclick="copyPrompt('swing_summary')" class="text-[10px] text-slate-500 hover:text-cyan-400 underline">Copy SW Summary</button>
-                </div>
               </div>
             </div>
           </div>
@@ -457,7 +444,16 @@
             </div>
           </div>
 
-        </div> </div> </div> </main>
+          <div class="glass-panel rounded-xl p-4">
+            <button onclick="copyPrompt('translate')" class="w-full py-2 text-xs font-mono text-slate-500 hover:text-slate-300 transition-colors flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+              Copy Translation Prompt
+            </button>
+          </div>
+
+        </div>
+
+      </div> </div> </main>
 
   <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-none opacity-0 transform translate-y-4 transition-all duration-300">
     <div class="bg-slate-800/90 backdrop-blur text-white px-4 py-2.5 rounded-full shadow-lg border border-white/10 flex items-center gap-2">
@@ -473,7 +469,7 @@
 
     // --- File Handling ---
     const fileInput = document.getElementById('file-input');
-    fileInput.addEventListener('click', (e) => e.target.value = ''); // Allow re-select
+    fileInput.addEventListener('click', (e) => e.target.value = '');
     fileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -481,7 +477,6 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
-          // JSON sanitization
           let jsonStr = e.target.result
             .replace(/:\s*NaN\b/g, ': null')
             .replace(/:\s*Infinity\b/g, ': null')
@@ -498,20 +493,14 @@
 
     // --- Dashboard Rendering ---
     function renderDashboard(data) {
-      // Transition
       document.getElementById('loader-screen').classList.add('hidden');
       const dash = document.getElementById('dashboard');
       dash.classList.remove('hidden');
 
-      // 1. Header Info
+      // 1. Header & Meta
       const meta = data.metadata || {};
       document.getElementById('header-date').textContent = formatTime(meta.generated_at);
       
-      // Market Regime (from first prompt text mostly, or fallback)
-      // Extract from sector rotation prompt if available or data
-      // For simplicity, we check if we can find it in the prompt text
-      // In a real app, 'market_regime' should be in metadata. Assuming standard fallback here.
-      // Let's grab it from prompts text regex if not in meta
       let regime = "NEUTRAL";
       if (data.prompts && data.prompts.long_p1) {
         const match = data.prompts.long_p1.match(/Market: ([A-Z_]+)/);
@@ -522,32 +511,45 @@
       regimeEl.className = `font-bold ${getRegimeColor(regime)}`;
       document.getElementById('header-status').classList.remove('hidden');
 
-      // 2. Stats
+      // 2. Stats & Visibility Logic
       const signals = data.signals || {};
-      const watchlists = data.watchlists || {};
-      
       const ltCount = (signals.long_term || []).length;
       const swCount = (signals.swing || []).length;
       
       updateStat('lt-signal-count', ltCount);
       updateStat('swing-signal-count', swCount);
       
+      // Reveal Sections based on data
+      if (data.prompts?.long_p1 && data.prompts.long_p1.length > 50) {
+        document.getElementById('lt-section').classList.remove('hidden');
+        if (ltCount > 0) {
+          document.getElementById('badge-long').textContent = `${ltCount} SIG`;
+          document.getElementById('badge-long').classList.remove('hidden');
+        }
+      }
+      
+      if (data.prompts?.swing_p1 && data.prompts.swing_p1.length > 50) {
+        document.getElementById('swing-section').classList.remove('hidden');
+        if (swCount > 0) {
+          document.getElementById('badge-swing').textContent = `${swCount} SIG`;
+          document.getElementById('badge-swing').classList.remove('hidden');
+        }
+      }
+
+      // Watchlist Stats
+      const watchlists = data.watchlists || {};
       document.getElementById('lt-watch').textContent = watchlists.long_term?.watching || 0;
       document.getElementById('lt-ready').textContent = watchlists.long_term?.ready || 0;
-      
       document.getElementById('swing-watch').textContent = watchlists.swing?.watching || 0;
       document.getElementById('swing-ready').textContent = watchlists.swing?.ready || 0;
-
-      document.getElementById('stat-watch').textContent = 
-        (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
+      document.getElementById('stat-watch').textContent = (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
       
       const chartCount = Object.values(data.charts || {}).flat().length;
       document.getElementById('stat-charts').textContent = chartCount;
 
-      // Progress Bar Animation
       setTimeout(() => {
         const total = (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
-        const max = 100; // Arbitrary max for bar visuals
+        const max = 100;
         const pct = Math.min(100, (total / max) * 100);
         document.getElementById('progress-bar').style.width = `${pct}%`;
       }, 100);
@@ -587,20 +589,7 @@
         document.getElementById('sector-bottom').innerHTML = botS;
       }
 
-      // 5. Portfolio Section (Mock logic assuming structure exists in JSON)
-      // Note: If JSON structure differs from mock, add checks.
-      // Assuming 'portfolio' key in JSON based on previous context.
-      // If not present in JSON export logic yet, this will just hide.
-      // Ver 21.1 Logic
-      // Since JSON export might not fully match Ver 21.1 prompt structure directly in 'portfolio' key,
-      // we'll check if prompt text contains indicators or if we can parse it.
-      // For now, we'll try to extract simple data if available or just show "Check Prompt"
-      // BUT the improved JSON export logic in Python was 'ctx.df_portfolio_analysis' -> not exported to JSON in provided snippets?
-      // Actually, Cell 9 exports 'prompts', 'signals', 'watchlists'.
-      // It does NOT export raw portfolio analysis dataframe.
-      // So we can only rely on the PROMPT TEXT or add parsing.
-      // To keep it simple and robust, we'll parse the prompt text for "URGENT" or "SELL".
-      
+      // 5. Portfolio Section
       const pfPrompt = data.prompts?.pf || "";
       const hasUrgent = pfPrompt.includes("🚨 URGENT");
       const hasAdd = pfPrompt.includes("🟢 ADD");
@@ -611,9 +600,8 @@
         pfSec.classList.remove('hidden');
         
         const healthEl = document.getElementById('portfolio-health');
-        // Fake health score extraction if not available, or just status
         if (hasUrgent) {
-          pfSec.classList.add('border-red-500'); // Override default purple
+          pfSec.classList.add('border-red-500');
           healthEl.textContent = "CRITICAL";
           healthEl.className = "px-2 py-1 rounded bg-red-900 text-white text-xs font-bold border border-red-700 animate-pulse";
         } else {
@@ -644,7 +632,6 @@
       if (dayPrompt.length > 50) {
         document.getElementById('daytrade-section').classList.remove('hidden');
         
-        // Simple extraction regex
         const vwapMatch = dayPrompt.match(/VWAP\*\*: ([A-Z]+)/);
         const orbMatch = dayPrompt.match(/ORB\*\*: ([A-Z_]+)/);
         const mktMatch = dayPrompt.match(/Market Status\*\*: (.*)/);
@@ -653,9 +640,8 @@
         if (vwapMatch) document.getElementById('vwap-status').textContent = vwapMatch[1];
         if (orbMatch) document.getElementById('orb-status').textContent = orbMatch[1];
         
-        // Candidates extraction (simple line check)
         const lines = dayPrompt.split('\n');
-        const picks = lines.filter(l => l.includes('|')).slice(4, 8); // Skip table headers
+        const picks = lines.filter(l => l.includes('|')).slice(4, 8); 
         if (picks.length > 0) {
           document.getElementById('daytrade-candidates').classList.remove('hidden');
           document.getElementById('daytrade-list').innerHTML = picks.map(p => {
@@ -677,16 +663,6 @@
       setBtnState('btn-long-p2', avail.long_p2);
       setBtnState('btn-swing-p1', avail.swing_p1);
       setBtnState('btn-swing-p2', avail.swing_p2);
-      
-      // Badges
-      if (ltCount > 0) {
-        document.getElementById('badge-long').classList.remove('hidden');
-        document.getElementById('badge-long').textContent = `${ltCount} SIG`;
-      }
-      if (swCount > 0) {
-        document.getElementById('badge-swing').classList.remove('hidden');
-        document.getElementById('badge-swing').textContent = `${swCount} SIG`;
-      }
     }
 
     // --- Helpers ---
@@ -700,13 +676,13 @@
       if (regime.includes('STRONG_BULL')) return 'text-purple-400';
       if (regime.includes('BULL')) return 'text-emerald-400';
       if (regime.includes('BEAR') || regime.includes('CORRECTION')) return 'text-red-400';
-      return 'text-amber-400'; // NEUTRAL
+      return 'text-amber-400';
     }
 
     function updateStat(id, val) {
       const el = document.getElementById(id);
       el.textContent = val;
-      if (val > 0) el.classList.add('text-neon-blue'); // fallback color class if needed
+      if (val > 0) el.classList.add('text-neon-blue');
     }
 
     function setBtnState(id, enabled) {
@@ -714,6 +690,18 @@
       if (!enabled) {
         btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
         btn.onclick = null;
+      }
+    }
+
+    function toggleSection(id) {
+      const el = document.getElementById(id);
+      const icon = document.getElementById(`icon-${id}`);
+      if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        el.classList.add('hidden');
+        icon.classList.remove('rotate-180');
       }
     }
 
@@ -743,21 +731,7 @@
       }
     }
 
-    // --- Logic: Cross-Val Toggle ---
-    function toggleCrossVal() {
-      const panel = document.getElementById('crossval-panel');
-      const icon = document.getElementById('crossval-icon');
-      
-      if (panel.classList.contains('hidden')) {
-        panel.classList.remove('hidden');
-        icon.classList.add('rotate-180');
-      } else {
-        panel.classList.add('hidden');
-        icon.classList.remove('rotate-180');
-      }
-    }
-
-    // --- Logic: Copy ---
+    // --- Logic: Copy & Generate ---
     async function copyPrompt(key) {
       if (!appData || !appData.prompts || !appData.prompts[key]) {
         showToast("NO DATA");
@@ -769,7 +743,6 @@
         await navigator.clipboard.writeText(text);
         showToast("COPIED!");
       } catch (err) {
-        // Fallback for older browsers
         const ta = document.createElement("textarea");
         ta.value = text;
         document.body.appendChild(ta);
@@ -781,172 +754,35 @@
     }
 
     function generateCrossVal(type) {
-      const gSummary = document.getElementById('gemini-summary').value;
-      const cSummary = document.getElementById('claude-summary').value;
-
+      const prefix = type === 'lt' ? 'lt' : 'sw';
+      const gSummary = document.getElementById(`${prefix}-gemini`).value;
+      const cSummary = document.getElementById(`${prefix}-claude`).value;
+      
       if (!gSummary || !cSummary) {
         showToast("MISSING INPUT");
         return;
       }
 
-      const isLT = type === 'lt';
-      const typeName = isLT ? 'Long-Term' : 'Swing';
-      const holdPeriod = isLT ? '3-12 months' : '5-20 days';
-      const earningsBuffer = isLT ? '21 days' : '5 days';
-
-      // Generate prompt logic (Ver 21.2 - Enhanced Cross-Validation)
-      const prompt = `# 🔬 Cross-Validation: ${typeName} - Ver 21.2
+      const prompt = `# 🔬 Cross-Validation: ${type === 'lt' ? 'Long-Term' : 'Swing'}
 Date: ${appData.metadata.date}
-Hold Period: ${holdPeriod}
 
 ---
-
-## ⚠️ CRITICAL RULES
-
-1. **Conservative Bias**: When opinions diverge, default to **PASS**
-2. **Stop Price**: Use the **tighter** (higher) stop between analysts
-3. **Entry Price**: Use the **higher** (safer) entry between analysts
-4. **Position Size**: Use the **smaller** size when risk assessments differ
+## ⚠️ CRITICAL: Devil's Advocate Constraint
+**If opinions diverge, default to PASS.** (False positives > False negatives)
 
 ---
-
 ## 📊 Analyst A (Gemini)
 ${gSummary}
 
 ---
-
 ## 📊 Analyst B (Claude)
 ${cSummary}
 
 ---
-
-## 🔄 Cross-Validation Framework
-
-### Step 1: Consensus Analysis (一致点)
-
-| Ticker | A Action | B Action | Consensus |
-|--------|----------|----------|-----------|
-| [Fill] | BUY/PASS | BUY/PASS | ✅STRONG / ⚠️WEAK / ❌CONFLICT |
-
-**Consensus Rules:**
-- Both BUY with similar params = ✅ STRONG CONSENSUS
-- One BUY, one WAIT = ⚠️ WEAK (take WAIT)
-- One BUY, one PASS = ❌ CONFLICT (default PASS)
-
-### Step 2: Divergence Analysis (相違点)
-
-For each ticker where A and B differ:
-
-| Aspect | Analyst A | Analyst B | Resolution |
-|--------|-----------|-----------|------------|
-| Action | | | |
-| Entry | | | Take higher |
-| Stop | | | Take tighter |
-| Target | | | Take lower |
-| Risk Level | | | Take higher risk |
-
-**Root Cause Analysis:**
-- Why do they differ?
-- Which analyst has stronger data support?
-- Is one being too aggressive or too conservative?
-
-### Step 3: Devil's Advocate Synthesis
-
-| Ticker | A's Bear Case | B's Bear Case | Combined Risk |
-|--------|---------------|---------------|---------------|
-| [Fill] | | | LOW/MED/HIGH |
-
-**If combined bear arguments are compelling → PASS**
-
-### Step 4: Stop Reason Validation
-
-| Ticker | A's Stop Reason | B's Stop Reason | Final Stop Reason |
-|--------|-----------------|-----------------|-------------------|
-| [Fill] | | | Must be specific level |
-
-**CRITICAL: Final stop reason must include specific technical levels (MA, swing low, etc.)**
-
----
-
-## 🎯 Final Verdict
-
-### Synthesis Rules
-
-| Situation | Action |
-|-----------|--------|
-| Both BUY, similar params | Proceed with averaged params |
-| One BUY, one WAIT | Take WAIT (conservative) |
-| One BUY, one PASS | **PASS** (conservative) |
-| Different entries | Use **higher** entry |
-| Different stops | Use **tighter** stop |
-| Different targets | Use **lower** target |
-| Different risk levels | Use **higher** risk assessment |
-| Conflicting thesis | **Manual review required** |
-
----
-
-## 📤 Required JSON Output
-
-\`\`\`json
-{
-  "cross_validation_date": "${appData.metadata.date}",
-  "analysis_type": "${typeName}",
-  "consensus_summary": {
-    "strong_consensus": ["TICKER1"],
-    "weak_consensus": ["TICKER2"],
-    "conflicts": ["TICKER3"]
-  },
-  "final_recommendations": [
-    {
-      "ticker": "AAPL",
-      "final_action": "BUY|WAIT|PASS",
-      "consensus_type": "STRONG|WEAK|RESOLVED_CONFLICT",
-      "entry": {
-        "price": 150.00,
-        "source": "Analyst B (more conservative)"
-      },
-      "stop": {
-        "price": 147.00,
-        "reason": "Below 21 EMA ($147.50) and swing low ($146.80)",
-        "source": "Analyst A (tighter)"
-      },
-      "target": 156.00,
-      "position_size_pct": 3.0,
-      "risk_level": "MEDIUM",
-      "divergence_notes": "A was more bullish (entry $148), B more cautious (entry $150). Used B's entry.",
-      "combined_bear_case": ["Stop hunt risk at $147", "Sector rotation out of tech"]
-    }
-  ],
-  "passed_tickers": [
-    {
-      "ticker": "NVDA",
-      "reason": "Analysts disagree: A=BUY, B=PASS. Defaulting to PASS per conservative rule.",
-      "revisit_condition": "Wait for both analysts to agree on entry"
-    }
-  ],
-  "key_insights": {
-    "strongest_pick": "AAPL",
-    "biggest_divergence": "NVDA - fundamentally different views on valuation",
-    "market_timing_note": "Both agree market is extended, reduce position sizes"
-  }
-}
-\`\`\`
-
----
-
-## 📋 日本語サマリー (Japanese Summary)
-
-最終レポートには以下を含めてください：
-
-1. **推奨銘柄**: 両AIが一致した銘柄のみ
-2. **エントリー条件**: より保守的な価格を採用
-3. **ストップロス**: より厳格な価格を採用（理由も記載）
-4. **見送り銘柄**: 意見が分かれた銘柄とその理由
-5. **注意点**: 両AIが共通して指摘したリスク
-
-Begin cross-validation analysis.
+## 🎯 Task: Final Verdict
+Compare A & B. Return structured JSON with "final_decision": "PROCEED" or "PASS".
 `;
-
+      
       navigator.clipboard.writeText(prompt).then(() => {
         showToast("GENERATED & COPIED");
       });
