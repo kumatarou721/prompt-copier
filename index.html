@@ -783,33 +783,170 @@
     function generateCrossVal(type) {
       const gSummary = document.getElementById('gemini-summary').value;
       const cSummary = document.getElementById('claude-summary').value;
-      
+
       if (!gSummary || !cSummary) {
         showToast("MISSING INPUT");
         return;
       }
 
-      // Generate prompt logic (similar to Python logic)
-      const prompt = `# 🔬 Cross-Validation: ${type === 'lt' ? 'Long-Term' : 'Swing'}
+      const isLT = type === 'lt';
+      const typeName = isLT ? 'Long-Term' : 'Swing';
+      const holdPeriod = isLT ? '3-12 months' : '5-20 days';
+      const earningsBuffer = isLT ? '21 days' : '5 days';
+
+      // Generate prompt logic (Ver 21.2 - Enhanced Cross-Validation)
+      const prompt = `# 🔬 Cross-Validation: ${typeName} - Ver 21.2
 Date: ${appData.metadata.date}
+Hold Period: ${holdPeriod}
 
 ---
-## ⚠️ CRITICAL: Devil's Advocate Constraint
-**If opinions diverge, default to PASS.** (False positives > False negatives)
+
+## ⚠️ CRITICAL RULES
+
+1. **Conservative Bias**: When opinions diverge, default to **PASS**
+2. **Stop Price**: Use the **tighter** (higher) stop between analysts
+3. **Entry Price**: Use the **higher** (safer) entry between analysts
+4. **Position Size**: Use the **smaller** size when risk assessments differ
 
 ---
+
 ## 📊 Analyst A (Gemini)
 ${gSummary}
 
 ---
+
 ## 📊 Analyst B (Claude)
 ${cSummary}
 
 ---
-## 🎯 Task: Final Verdict
-Compare A & B. Return structured JSON with "final_decision": "PROCEED" or "PASS".
+
+## 🔄 Cross-Validation Framework
+
+### Step 1: Consensus Analysis (一致点)
+
+| Ticker | A Action | B Action | Consensus |
+|--------|----------|----------|-----------|
+| [Fill] | BUY/PASS | BUY/PASS | ✅STRONG / ⚠️WEAK / ❌CONFLICT |
+
+**Consensus Rules:**
+- Both BUY with similar params = ✅ STRONG CONSENSUS
+- One BUY, one WAIT = ⚠️ WEAK (take WAIT)
+- One BUY, one PASS = ❌ CONFLICT (default PASS)
+
+### Step 2: Divergence Analysis (相違点)
+
+For each ticker where A and B differ:
+
+| Aspect | Analyst A | Analyst B | Resolution |
+|--------|-----------|-----------|------------|
+| Action | | | |
+| Entry | | | Take higher |
+| Stop | | | Take tighter |
+| Target | | | Take lower |
+| Risk Level | | | Take higher risk |
+
+**Root Cause Analysis:**
+- Why do they differ?
+- Which analyst has stronger data support?
+- Is one being too aggressive or too conservative?
+
+### Step 3: Devil's Advocate Synthesis
+
+| Ticker | A's Bear Case | B's Bear Case | Combined Risk |
+|--------|---------------|---------------|---------------|
+| [Fill] | | | LOW/MED/HIGH |
+
+**If combined bear arguments are compelling → PASS**
+
+### Step 4: Stop Reason Validation
+
+| Ticker | A's Stop Reason | B's Stop Reason | Final Stop Reason |
+|--------|-----------------|-----------------|-------------------|
+| [Fill] | | | Must be specific level |
+
+**CRITICAL: Final stop reason must include specific technical levels (MA, swing low, etc.)**
+
+---
+
+## 🎯 Final Verdict
+
+### Synthesis Rules
+
+| Situation | Action |
+|-----------|--------|
+| Both BUY, similar params | Proceed with averaged params |
+| One BUY, one WAIT | Take WAIT (conservative) |
+| One BUY, one PASS | **PASS** (conservative) |
+| Different entries | Use **higher** entry |
+| Different stops | Use **tighter** stop |
+| Different targets | Use **lower** target |
+| Different risk levels | Use **higher** risk assessment |
+| Conflicting thesis | **Manual review required** |
+
+---
+
+## 📤 Required JSON Output
+
+\`\`\`json
+{
+  "cross_validation_date": "${appData.metadata.date}",
+  "analysis_type": "${typeName}",
+  "consensus_summary": {
+    "strong_consensus": ["TICKER1"],
+    "weak_consensus": ["TICKER2"],
+    "conflicts": ["TICKER3"]
+  },
+  "final_recommendations": [
+    {
+      "ticker": "AAPL",
+      "final_action": "BUY|WAIT|PASS",
+      "consensus_type": "STRONG|WEAK|RESOLVED_CONFLICT",
+      "entry": {
+        "price": 150.00,
+        "source": "Analyst B (more conservative)"
+      },
+      "stop": {
+        "price": 147.00,
+        "reason": "Below 21 EMA ($147.50) and swing low ($146.80)",
+        "source": "Analyst A (tighter)"
+      },
+      "target": 156.00,
+      "position_size_pct": 3.0,
+      "risk_level": "MEDIUM",
+      "divergence_notes": "A was more bullish (entry $148), B more cautious (entry $150). Used B's entry.",
+      "combined_bear_case": ["Stop hunt risk at $147", "Sector rotation out of tech"]
+    }
+  ],
+  "passed_tickers": [
+    {
+      "ticker": "NVDA",
+      "reason": "Analysts disagree: A=BUY, B=PASS. Defaulting to PASS per conservative rule.",
+      "revisit_condition": "Wait for both analysts to agree on entry"
+    }
+  ],
+  "key_insights": {
+    "strongest_pick": "AAPL",
+    "biggest_divergence": "NVDA - fundamentally different views on valuation",
+    "market_timing_note": "Both agree market is extended, reduce position sizes"
+  }
+}
+\`\`\`
+
+---
+
+## 📋 日本語サマリー (Japanese Summary)
+
+最終レポートには以下を含めてください：
+
+1. **推奨銘柄**: 両AIが一致した銘柄のみ
+2. **エントリー条件**: より保守的な価格を採用
+3. **ストップロス**: より厳格な価格を採用（理由も記載）
+4. **見送り銘柄**: 意見が分かれた銘柄とその理由
+5. **注意点**: 両AIが共通して指摘したリスク
+
+Begin cross-validation analysis.
 `;
-      
+
       navigator.clipboard.writeText(prompt).then(() => {
         showToast("GENERATED & COPIED");
       });
