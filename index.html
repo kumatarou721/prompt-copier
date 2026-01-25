@@ -303,10 +303,54 @@
         </div>
       </div>
 
+      <!-- Ver 21.0: Summary Prompts -->
+      <div class="mt-3">
+        <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2 text-center font-display">📋 Summary (for Cross-Val)</div>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="copyPrompt('lt_summary')" id="btn-lt-summary" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+            <span>📋</span> LT Summary
+          </button>
+          <button onclick="copyPrompt('swing_summary')" id="btn-swing-summary" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+            <span>📋</span> SW Summary
+          </button>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 gap-3 mt-3">
         <button onclick="copyPrompt('translate')" class="btn-neon btn-tr p-4 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2">
           <span>🇯🇵</span> Translate
         </button>
+      </div>
+    </div>
+
+    <!-- Ver 21.0: Cross-Validation Generator -->
+    <div class="neon-glass rounded-xl p-5 mb-6 border-t border-slate-700/30">
+      <div class="flex items-center gap-3 mb-4">
+        <h4 class="text-xs font-bold text-cyan-300 uppercase tracking-widest font-display">🔬 Cross-Validation Generator</h4>
+        <button onclick="toggleCrossVal()" id="crossval-toggle" class="text-xs text-slate-500 hover:text-cyan-400 ml-auto">
+          [EXPAND]
+        </button>
+      </div>
+
+      <div id="crossval-panel" class="hidden">
+        <div class="text-[10px] text-slate-500 mb-2">Gemini Summary (C1):</div>
+        <textarea id="gemini-summary" rows="4" placeholder="Gemini の Summary 回答を貼り付け..." class="cyber-input w-full rounded-lg px-3 py-2 text-xs mb-3 resize-none"></textarea>
+
+        <div class="text-[10px] text-slate-500 mb-2">Claude Summary (C2):</div>
+        <textarea id="claude-summary" rows="4" placeholder="Claude の Summary 回答を貼り付け..." class="cyber-input w-full rounded-lg px-3 py-2 text-xs mb-3 resize-none"></textarea>
+
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="generateCrossVal('lt')" class="btn-neon btn-long p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+            <span>🔬</span> LT Cross-Val
+          </button>
+          <button onclick="generateCrossVal('swing')" class="btn-neon btn-swing p-3 rounded-xl text-white font-bold shadow-lg flex justify-center items-center gap-2 text-sm">
+            <span>🔬</span> SW Cross-Val
+          </button>
+        </div>
+
+        <div class="text-[10px] text-slate-600 mt-3 text-center">
+          生成されたプロンプトは自動でコピーされます
+        </div>
       </div>
     </div>
 
@@ -460,6 +504,10 @@
       toggleBtn('btn-swing-p1', avail.swing_p1 || avail.swing);
       toggleBtn('btn-swing-p2', avail.swing_p2 || avail.swing);
 
+      // Ver 21.0: Summary buttons
+      toggleBtn('btn-lt-summary', avail.lt_summary || avail.long);
+      toggleBtn('btn-swing-summary', avail.swing_summary || avail.swing);
+
       if (ltCount > 0) showBadge('badge-long', `${ltCount}⚡`);
       if (swingCount > 0) showBadge('badge-swing', `${swingCount}⚡`);
     }
@@ -581,6 +629,119 @@
         t.style.opacity = '0';
         t.style.transform = 'translate(-50%, 0) scale(0.95)';
       }, 2000);
+    }
+
+    // --- Cross-Validation Generator ---
+    function toggleCrossVal() {
+      const panel = document.getElementById('crossval-panel');
+      const toggle = document.getElementById('crossval-toggle');
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        toggle.textContent = '[COLLAPSE]';
+      } else {
+        panel.classList.add('hidden');
+        toggle.textContent = '[EXPAND]';
+      }
+    }
+
+    function generateCrossVal(type) {
+      const geminiSummary = document.getElementById('gemini-summary').value.trim();
+      const claudeSummary = document.getElementById('claude-summary').value.trim();
+
+      if (!geminiSummary || !claudeSummary) {
+        showToast('❌ 両方のSummaryを入力してください');
+        return;
+      }
+
+      const typeName = type === 'lt' ? 'Long-Term' : 'Swing';
+      const date = appData?.metadata?.date || new Date().toISOString().split('T')[0];
+      const regime = 'NEUTRAL'; // Default
+
+      const prompt = `# 🔬 Cross-Validation: ${typeName} Final Verdict
+Date: ${date} | Market: ${regime}
+
+---
+
+## 📊 Analyst A (Gemini) Summary
+
+\`\`\`
+${geminiSummary}
+\`\`\`
+
+---
+
+## 📊 Analyst B (Claude) Summary
+
+\`\`\`
+${claudeSummary}
+\`\`\`
+
+---
+
+## 🎯 Your Task: Cross-Validation Analysis
+
+上記2つのAI分析を比較し、最終判断を下してください。
+
+### 1. Consensus (一致点)
+
+両者が同意している判断を列挙:
+
+| Ticker | Action | 一致理由 |
+|--------|--------|----------|
+
+### 2. Divergence (相違点)
+
+意見が分かれた点と、どちらが妥当かを判断:
+
+| Ticker | Gemini | Claude | より妥当 | 理由 |
+|--------|--------|--------|----------|------|
+
+### 3. Blind Spots (見落とし)
+
+一方のみが指摘した重要事項:
+
+- **Geminiのみ**:
+- **Claudeのみ**:
+
+### 4. Final Verdict (最終判断)
+
+| Ticker | Action | Entry | Stop | Target | Confidence | 決定理由 |
+|--------|--------|-------|------|--------|------------|----------|
+
+### 5. Meta-Analysis
+
+- **より保守的だったAI**:
+- **より積極的だったAI**:
+- **推奨重み配分 (Gemini:Claude)**:
+
+---
+
+**Important:**
+- 両者の分析を公平に評価すること
+- 相違点は必ず理由を明記
+- 最終判断には確信度を必ず含める
+- 日本語で出力すること
+`;
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(prompt).then(() => {
+        showToast(`✅ ${typeName.toUpperCase()} CROSS-VAL COPIED`);
+      }).catch(() => {
+        // Fallback
+        const textArea = document.createElement("textarea");
+        textArea.value = prompt;
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showToast(`✅ ${typeName.toUpperCase()} CROSS-VAL COPIED`);
+        } catch (e) {
+          showToast("❌ COPY FAILED");
+        }
+        document.body.removeChild(textArea);
+      });
     }
   </script>
 </body>
