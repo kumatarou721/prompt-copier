@@ -757,18 +757,21 @@
       const prefix = type === 'lt' ? 'lt' : 'sw';
       const gSummary = document.getElementById(`${prefix}-gemini`).value;
       const cSummary = document.getElementById(`${prefix}-claude`).value;
-      
+
       if (!gSummary || !cSummary) {
         showToast("MISSING INPUT");
         return;
       }
 
-      const prompt = `# 🔬 Cross-Validation: ${type === 'lt' ? 'Long-Term' : 'Swing'}
-Date: ${appData.metadata.date}
+      const typeLabel = type === 'lt' ? 'Long-Term' : 'Swing';
+      const prompt = `# 🔬 Cross-Validation Report: ${typeLabel}
+Ver 21.2 | Date: ${appData.metadata.date}
 
 ---
-## ⚠️ CRITICAL: Devil's Advocate Constraint
-**If opinions diverge, default to PASS.** (False positives > False negatives)
+## ⚠️ CRITICAL CONSTRAINTS
+1. **Conservative Bias**: When analysts disagree → Default to PASS
+2. **Stop Validation Required**: Both analysts must have valid stop.reason
+3. **False Positive Preference**: Missing a trade is better than a bad trade
 
 ---
 ## 📊 Analyst A (Gemini)
@@ -779,10 +782,78 @@ ${gSummary}
 ${cSummary}
 
 ---
-## 🎯 Task: Final Verdict
-Compare A & B. Return structured JSON with "final_decision": "PROCEED" or "PASS".
+## 🎯 4-Step Verification Framework
+
+### Step 1: Consensus Analysis
+For EACH ticker, identify agreement level:
+- ✅ FULL: Both PROCEED with same stop
+- ⚠️ PARTIAL: Both PROCEED but different stops
+- ❌ DIVERGE: One PROCEED, one PASS
+- ⏸️ SKIP: Both PASS
+
+### Step 2: Divergence Deep-Dive
+For ANY ⚠️ or ❌ cases, analyze:
+- Which analyst identified risks the other missed?
+- Is the disagreement on fundamentals or technicals?
+- What specific data point caused divergence?
+
+### Step 3: Devil's Advocate Synthesis
+For EACH PROCEED candidate:
+- What is the STRONGEST argument to PASS?
+- Pre-Mortem: Which failure scenario is most likely?
+- If short-seller's thesis has merit → PASS
+
+### Step 4: Stop Validation
+Check stop.reason quality:
+- Must be specific price level with rationale
+- "Below support" is WEAK → Need "Below $XX.XX (20-day low)"
+- Missing or vague stop.reason → PASS
+
+---
+## 📋 Required Output Format
+\`\`\`json
+{
+  "cross_validation": {
+    "date": "${appData.metadata.date}",
+    "type": "${typeLabel}",
+    "version": "21.2"
+  },
+  "ticker_analysis": [
+    {
+      "ticker": "SYMBOL",
+      "gemini_verdict": "PROCEED|PASS",
+      "claude_verdict": "PROCEED|PASS",
+      "consensus": "FULL|PARTIAL|DIVERGE|SKIP",
+      "divergence_reason": "string or null",
+      "devils_advocate_concern": "string",
+      "stop_validation": {
+        "gemini_stop": "price and reason",
+        "claude_stop": "price and reason",
+        "stop_quality": "STRONG|WEAK|MISSING"
+      },
+      "final_decision": "PROCEED|PASS",
+      "decision_rationale": "string"
+    }
+  ],
+  "summary": {
+    "total_candidates": 0,
+    "proceed_count": 0,
+    "pass_count": 0,
+    "highest_conviction": "TICKER or null",
+    "biggest_concern": "string"
+  }
+}
+\`\`\`
+
+---
+## 📝 日本語サマリー
+最後に、以下の形式で日本語要約を追加してください：
+- 分析対象: X銘柄
+- 両者一致でPROCEED: X銘柄 (ティッカー一覧)
+- 意見相違でPASS: X銘柄 (理由)
+- 最重要アクション: 具体的な推奨
 `;
-      
+
       navigator.clipboard.writeText(prompt).then(() => {
         showToast("GENERATED & COPIED");
       });
