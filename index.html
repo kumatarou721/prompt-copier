@@ -274,9 +274,9 @@
                 <svg class="w-4 h-4 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </summary>
               <div class="p-3 space-y-3 bg-black/20">
-                <p class="text-[9px] text-slate-500 mb-2">Paste summaries from Gemini & Claude here:</p>
-                <textarea id="lt-gemini-summary" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-cyan-500 outline-none resize-none" placeholder="Gemini Summary..."></textarea>
-                <textarea id="lt-claude-summary" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-cyan-500 outline-none resize-none" placeholder="Claude Summary..."></textarea>
+                <p class="text-[9px] text-slate-500 mb-2">Paste FULL analysis from Gemini & Claude:</p>
+                <textarea id="lt-gemini-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-cyan-500 outline-none resize-none" placeholder="Paste Gemini's Full Output here..."></textarea>
+                <textarea id="lt-claude-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-cyan-500 outline-none resize-none" placeholder="Paste Claude's Full Output here..."></textarea>
                 <button onclick="generateCrossVal('lt')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2 rounded-md text-xs font-bold transition-all shadow-lg active:scale-[0.98]">
                   🔬 Verify & Generate Final
                 </button>
@@ -322,9 +322,9 @@
                 <svg class="w-4 h-4 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </summary>
               <div class="p-3 space-y-3 bg-black/20">
-                <p class="text-[9px] text-slate-500 mb-2">Paste summaries from Gemini & Claude here:</p>
-                <textarea id="swing-gemini-summary" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Gemini Summary..."></textarea>
-                <textarea id="swing-claude-summary" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Claude Summary..."></textarea>
+                <p class="text-[9px] text-slate-500 mb-2">Paste FULL analysis from Gemini & Claude:</p>
+                <textarea id="swing-gemini-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Paste Gemini's Full Output here..."></textarea>
+                <textarea id="swing-claude-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Paste Claude's Full Output here..."></textarea>
                 <button onclick="generateCrossVal('swing')" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded-md text-xs font-bold transition-all shadow-lg active:scale-[0.98]">
                   ⚖️ Verify & Generate Final
                 </button>
@@ -360,11 +360,29 @@
             <div id="addon-signals-list" class="space-y-2"></div>
           </div>
 
-          <div class="mt-4 pt-4 border-t border-white/5">
-            <button onclick="copyPrompt('pf')" id="btn-pf" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-purple-500/50 text-purple-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+          <div class="space-y-4 relative z-10">
+            <button onclick="copyPrompt('pf')" id="btn-pf" class="w-full bg-slate-800 hover:bg-purple-900/20 border border-slate-700 hover:border-purple-500/50 text-purple-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="16" x2="16" y1="11" y2="13"/><line x1="8" x2="8" y1="11" y2="13"/><line x1="12" x2="12" y1="15" y2="13"/></svg>
-              COPY REVIEW PROMPT
+              1. Copy Review Prompt
             </button>
+
+            <details class="bg-black/20 rounded-lg border border-white/5 overflow-hidden group">
+              <summary class="p-3 text-xs font-bold text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-white/5 hover:text-purple-300 flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  2. Sell/Hold Verification
+                </span>
+                <svg class="w-4 h-4 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div class="p-3 space-y-3 bg-black/20">
+                <p class="text-[9px] text-slate-500 mb-2">Paste FULL analysis from Gemini & Claude:</p>
+                <textarea id="pf-gemini-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-purple-500 outline-none resize-none" placeholder="Paste Gemini's Full Output here..."></textarea>
+                <textarea id="pf-claude-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-purple-500 outline-none resize-none" placeholder="Paste Claude's Full Output here..."></textarea>
+                <button onclick="generateCrossVal('pf')" class="w-full bg-purple-900/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-200 py-2 rounded-md text-xs font-bold transition-all shadow-lg active:scale-[0.98]">
+                  🛡️ Generate Sell Decision
+                </button>
+              </div>
+            </details>
           </div>
         </div>
 
@@ -573,7 +591,7 @@
         }
       }
 
-      // Render Detailed Lists (New Function Call)
+      // Render Detailed Lists
       renderSignals(data.signals?.long_term, 'lt-signal-list', 'text-blue-400');
       renderSignals(data.signals?.swing, 'swing-signal-list', 'text-amber-400');
 
@@ -890,25 +908,66 @@
         return;
       }
 
-      const prompt = `# 🔬 Cross-Validation: ${type === 'lt' ? 'Long-Term' : 'Swing'}
+      let prompt = "";
+
+      if (type === 'pf') {
+        // Portfolio: Handle Full-Text Multi-Ticker Analysis
+        prompt = `# 🛡️ Portfolio Decision Cross-Validation (Full Scan)
+Date: ${appData.metadata.date}
+
+---
+## ⚠️ CRITICAL: Risk Management Priority
+**Objective:** Compare the two analyst reports below and extract ALL ACTIONABLE signals.
+**Rule:** If ANY analyst recommends "SELL" or "TRIM" for a specific ticker, **the final decision for that ticker must lean towards risk reduction.**
+
+---
+## 📊 Analyst A (Gemini) - Full Report
+${gSummary}
+
+---
+## 📊 Analyst B (Claude) - Full Report
+${cSummary}
+
+---
+## 🎯 Task: Final Verdict per Ticker
+The input contains analysis for multiple portfolio positions.
+For EACH ticker mentioned in the reports:
+1. Compare Analyst A and B's assessment.
+2. Determine if a SELL/TRIM signal is valid.
+3. Output format:
+   - **[TICKER]**: [ACTION (HOLD/TRIM/SELL/ADD)]
+     - *Reason*: (Brief reason focusing on downside risk)
+`;
+      } else {
+        // LT/Swing: Handle Full-Text Analysis
+        prompt = `# 🔬 Cross-Validation: ${type === 'lt' ? 'Long-Term' : 'Swing'}
 Date: ${appData.metadata.date}
 
 ---
 ## ⚠️ CRITICAL: Devil's Advocate Constraint
-**If opinions diverge, default to PASS.** (False positives > False negatives)
+**Objective:** Extract the final trade decision from the full reports below.
+**Rule:** If opinions diverge on a ticker, default to **PASS**. (False positives > False negatives)
 
 ---
-## 📊 Analyst A (Gemini)
+## 📊 Analyst A (Gemini) - Full Report
 ${gSummary}
 
 ---
-## 📊 Analyst B (Claude)
+## 📊 Analyst B (Claude) - Full Report
 ${cSummary}
 
 ---
 ## 🎯 Task: Final Verdict
-Compare A & B. Return structured JSON with "final_decision": "PROCEED" or "PASS".
+Based on the full analysis above, return a JSON list of approved tickers.
+Format:
+{
+  "approved_tickers": [
+    { "ticker": "XYZ", "decision": "PROCEED", "reason": "Both analysts agree on..." }
+  ]
+}
+If no tickers are approved, return empty list.
 `;
+      }
       
       navigator.clipboard.writeText(prompt).then(() => {
         showToast("GENERATED & COPIED");
