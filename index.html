@@ -1,215 +1,991 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>US Stock Analytics Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { 
-            background-color: #f8f9fa; 
-            font-family: "Helvetica Neue", Arial, sans-serif;
-        }
-        .card { 
-            margin-bottom: 20px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-            border: none;
-        }
-        .metric-value { 
-            font-size: 1.8rem; 
-            font-weight: bold; 
-        }
-        .metric-label { 
-            font-size: 0.9rem; 
-            color: #6c757d; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .status-bull { color: #198754; } /* Green */
-        .status-bear { color: #dc3545; } /* Red */
-        .status-neutral { color: #fd7e14; } /* Orange */
-        
-        /* ファイル入力エリアのスタイル */
-        .file-upload-wrapper {
-            background: rgba(255,255,255,0.1);
-            padding: 5px;
-            border-radius: 5px;
-        }
-        .navbar-brand { font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<nav class="navbar navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">🇺🇸 US Stock AI Dashboard</span>
-        
-        <div class="d-flex file-upload-wrapper">
-            <input class="form-control form-control-sm" type="file" id="jsonFile" accept=".json">
-        </div>
-    </div>
-</nav>
-
-<div class="container">
-
-    <div id="loading-alert" class="alert alert-info text-center shadow-sm">
-        <strong>データ読込待機中:</strong> 右上の「ファイルを選択」ボタンから、ノートブックが出力したJSONファイルを選択してください。
-        <br><small>（AIによる詳細分析はノートブック上で行います。ここは環境認識用です）</small>
-    </div>
-    
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Market Regime (全体環境)</h5>
-                    <small id="last-updated-text" class="text-white-50"></small>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center" id="market-metrics">
-                        <div class="col text-muted py-3">- Waiting for Data -</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Portfolio Status</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small mb-3">現在の保有銘柄と損益状況</p>
-                    <div id="portfolio-list">
-                        <div class="text-muted small text-center py-3">- No Portfolio Data -</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">Day Trade Environment</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small mb-3">本日のデイトレ環境 (Gap / Pre-market)</p>
-                    <div id="day-trade-metrics">
-                         <div class="text-muted small text-center py-3">- Check Notebook for Intraday Scenarios -</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    </div>
-
-<script>
-    // ファイルが選択されたら実行されるメイン処理
-    document.getElementById('jsonFile').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        
-        // ファイル読み込み成功時の処理
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                renderDashboard(data);
-                
-                // 案内アラートを消す
-                document.getElementById('loading-alert').style.display = 'none';
-            } catch (error) {
-                alert("JSONファイルの読み込みに失敗しました。ファイルの中身を確認してください。\nError: " + error.message);
-                console.error(error);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f172a">
+  <title>US Stock Analyzer - Command Center</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Chakra Petch"', 'sans-serif'],
+            display: ['"Orbitron"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            bg: {
+              main: '#030712', 
+              card: 'rgba(17, 24, 39, 0.7)', 
+            },
+            neon: {
+              blue: '#3b82f6',
+              purple: '#8b5cf6',
+              cyan: '#06b6d4',
+              green: '#10b981',
+              amber: '#f59e0b',
+              red: '#ef4444',
             }
-        };
+          },
+          backgroundImage: {
+            'cyber-grid': "linear-gradient(rgba(17, 24, 39, 0.9), rgba(3, 7, 18, 0.95)), url('data:image/svg+xml,%3Csvg width=\\'40\\' height=\\'40\\' viewBox=\\'0 0 40 40\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cpath d=\\'M0 0h40v40H0V0zm1 1h38v38H1V1z\\' fill=\\'%233b82f6\\' fill-opacity=\\'0.05\\' fill-rule=\\'evenodd\\'/%3E%3C/svg%3E')",
+          },
+          boxShadow: {
+            'glow-blue': '0 0 15px rgba(59, 130, 246, 0.3)',
+            'glow-amber': '0 0 15px rgba(245, 158, 11, 0.3)',
+            'glow-green': '0 0 15px rgba(16, 185, 129, 0.3)',
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* Glassmorphism Utilities */
+    .glass-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .glass-panel-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @media (hover: hover) {
+      .glass-panel-hover:hover {
+        background: rgba(30, 41, 59, 0.8);
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    /* Input Reset */
+    input[type="number"]::-webkit-inner-spin-button, 
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+    /* Grid layout tweaks */
+    .grid-dashboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    /* Force 2 columns max for symmetry */
+    @media (min-width: 1024px) {
+      .grid-dashboard {
+        grid-template-columns: repeat(2, 1fr); 
+      }
+    }
+    
+    .col-span-full {
+      grid-column: 1 / -1;
+    }
+
+    /* Accordion transitions */
+    details > summary {
+      list-style: none;
+    }
+    details > summary::-webkit-details-marker {
+      display: none;
+    }
+    details[open] summary ~ * {
+      animation: sweep .3s ease-in-out;
+    }
+    @keyframes sweep {
+      0%    {opacity: 0; transform: translateY(-10px)}
+      100%  {opacity: 1; transform: translateY(0)}
+    }
+  </style>
+</head>
+<body class="bg-bg-main bg-cyber-grid text-slate-200 min-h-screen font-sans selection:bg-neon-blue selection:text-white pb-24 lg:pb-10">
+
+  <header class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/5 bg-opacity-90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
+        <h1 class="font-display font-bold text-lg tracking-wider bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+          US STOCK <span class="hidden sm:inline">ANALYZER</span>
+        </h1>
+      </div>
+      
+      <div id="header-status" class="flex items-center gap-4 text-xs font-mono hidden">
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+          <span class="text-slate-400">MARKET:</span>
+          <span id="market-regime-badge" class="font-bold text-white">--</span>
+        </div>
+        <div class="text-slate-500 hidden sm:block" id="header-date">--</div>
+      </div>
+
+      <button onclick="location.reload()" class="p-2 text-slate-400 hover:text-white active:scale-95 transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="pt-20 px-4 max-w-7xl mx-auto">
+    
+    <div id="loader-screen" class="min-h-[70vh] flex flex-col items-center justify-center fade-in">
+      <div class="w-full max-w-md p-1">
+        <div class="glass-panel rounded-2xl p-8 text-center relative overflow-hidden group">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500"></div>
+          
+          <div class="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800/50 border border-slate-700 group-hover:border-blue-500/50 group-hover:shadow-glow-blue transition-all duration-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          
+          <h2 class="text-2xl font-display font-bold text-white mb-2">Load Data Module</h2>
+          <p class="text-slate-400 text-sm mb-8">Select <code class="bg-slate-900 px-1.5 py-0.5 rounded text-blue-300">mobile_prompts.json</code> to initialize</p>
+          
+          <label class="block w-full">
+            <span class="sr-only">Choose file</span>
+            <input type="file" id="file-input" accept=".json" class="block w-full text-sm text-slate-400
+              file:mr-4 file:py-2.5 file:px-6
+              file:rounded-full file:border-0
+              file:text-sm file:font-bold file:font-display
+              file:bg-blue-600 file:text-white
+              hover:file:bg-blue-500
+              active:file:scale-95 transition-all
+              cursor-pointer mx-auto
+            "/>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div id="dashboard" class="hidden animate-in fade-in zoom-in duration-300">
+      
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div class="glass-panel glass-panel-hover rounded-xl p-4 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-3 opacity-10"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div>
+          <h3 class="text-blue-400 text-xs font-display font-bold uppercase tracking-wider mb-1">Long-Term</h3>
+          <div class="flex items-baseline gap-1">
+            <span id="lt-signal-count" class="text-3xl font-mono font-bold text-white">--</span>
+            <span class="text-xs text-slate-500 font-bold">Signals</span>
+          </div>
+          <div class="mt-2 flex gap-3 text-xs font-mono text-slate-400">
+            <span>Wait: <span id="lt-watch" class="text-slate-200">--</span></span>
+            <span>Ready: <span id="lt-ready" class="text-blue-300 font-bold">--</span></span>
+          </div>
+        </div>
+
+        <div class="glass-panel glass-panel-hover rounded-xl p-4 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-3 opacity-10"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><path d="M2 12h5"/><path d="M17 12h5"/><path d="M7 12a5 5 0 0 1 5-5 5 5 0 0 1 5 5"/></svg></div>
+          <h3 class="text-amber-400 text-xs font-display font-bold uppercase tracking-wider mb-1">Swing</h3>
+          <div class="flex items-baseline gap-1">
+            <span id="swing-signal-count" class="text-3xl font-mono font-bold text-white">--</span>
+            <span class="text-xs text-slate-500 font-bold">Signals</span>
+          </div>
+          <div class="mt-2 flex gap-3 text-xs font-mono text-slate-400">
+            <span>Wait: <span id="swing-watch" class="text-slate-200">--</span></span>
+            <span>Ready: <span id="swing-ready" class="text-amber-300 font-bold">--</span></span>
+          </div>
+        </div>
+
+        <div class="glass-panel glass-panel-hover rounded-xl p-4">
+          <h3 class="text-slate-400 text-xs font-display font-bold uppercase tracking-wider mb-1">Watchlist</h3>
+          <div class="flex items-baseline gap-1">
+            <span id="stat-watch" class="text-2xl font-mono font-bold text-white">--</span>
+            <span class="text-xs text-slate-500">Total</span>
+          </div>
+          <div class="mt-3 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-amber-500 w-0 transition-all duration-1000"></div>
+          </div>
+        </div>
+
+        <div class="glass-panel glass-panel-hover rounded-xl p-4">
+          <h3 class="text-slate-400 text-xs font-display font-bold uppercase tracking-wider mb-1">Charts</h3>
+          <div class="flex items-baseline gap-1">
+            <span id="stat-charts" class="text-2xl font-mono font-bold text-white">--</span>
+            <span class="text-xs text-slate-500">Generated</span>
+          </div>
+          <div class="mt-2 text-xxs text-slate-500">Check Google Drive</div>
+        </div>
+      </div>
+
+      <div class="grid-dashboard">
         
-        // テキストとして読み込む
-        reader.readAsText(file);
+        <div class="col-span-full space-y-3">
+          <div id="signal-alert" class="hidden p-4 rounded-xl border transition-all duration-300 flex items-center gap-3">
+            <div class="p-2 rounded-full bg-slate-900/50" id="alert-icon">
+              </div>
+            <div>
+              <h3 id="signal-alert-title" class="font-display font-bold text-sm">--</h3>
+              <p id="signal-alert-desc" class="text-xs text-slate-400 mt-0.5">--</p>
+            </div>
+          </div>
+
+          <button onclick="copyPrompt('translate')" class="w-full glass-panel hover:bg-slate-800/50 transition-colors rounded-lg p-2.5 flex items-center justify-center gap-2 text-xs font-mono font-bold text-slate-400 hover:text-blue-300 border border-white/5 shadow-sm active:scale-[0.99]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+            <span>COPY TRANSLATION PROMPT</span>
+          </button>
+        </div>
+
+        <div id="lt-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-blue-500 hidden relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">📈</span>
+              <h3 class="font-display font-bold text-sm text-blue-400 uppercase tracking-widest">Long-Term</h3>
+            </div>
+            <div id="badge-long" class="text-[9px] bg-blue-900/50 text-blue-300 px-1.5 py-0.5 rounded border border-blue-800 hidden">0 SIG</div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="copyPrompt('long_p1')" id="btn-long-p1" class="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-blue-900/20 border border-slate-700 hover:border-blue-500/50 text-slate-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                <span>1. Quick Screen</span>
+                <span class="text-[9px] opacity-60 font-normal">A/D Days Check</span>
+              </button>
+              <button onclick="copyPrompt('long_p2')" id="btn-long-p2" class="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-blue-900/20 border border-slate-700 hover:border-blue-500/50 text-slate-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                <span>2. Deep Analysis</span>
+                <span class="text-[9px] opacity-60 font-normal">Pre-Mortem</span>
+              </button>
+            </div>
+
+            <button onclick="copyPrompt('lt_summary')" class="w-full bg-indigo-900/40 hover:bg-indigo-800/60 border border-indigo-500/30 hover:border-indigo-400/50 text-indigo-200 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              3. Get Summary Prompt
+            </button>
+
+            <details class="bg-black/20 rounded-lg border border-white/5 overflow-hidden group">
+              <summary class="p-3 text-xs font-bold text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-white/5 hover:text-cyan-300 flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                  4. Cross-Validation
+                </span>
+                <svg class="w-4 h-4 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div class="p-3 space-y-3 bg-black/20">
+                <p class="text-[9px] text-slate-500 mb-2">Paste FULL analysis from Gemini & Claude:</p>
+                <textarea id="lt-gemini-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-cyan-500 outline-none resize-none" placeholder="Paste Gemini's Full Output here..."></textarea>
+                <textarea id="lt-claude-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-cyan-500 outline-none resize-none" placeholder="Paste Claude's Full Output here..."></textarea>
+                <button onclick="generateCrossVal('lt')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2 rounded-md text-xs font-bold transition-all shadow-lg active:scale-[0.98]">
+                  🔬 Verify & Generate Final
+                </button>
+              </div>
+            </details>
+          </div>
+          
+          <div id="lt-signal-list" class="mt-4 pt-4 border-t border-white/5 space-y-2"></div>
+        </div>
+
+        <div id="swing-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-amber-500 hidden relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🏄</span>
+              <h3 class="font-display font-bold text-sm text-amber-400 uppercase tracking-widest">Swing</h3>
+            </div>
+            <div id="badge-swing" class="text-[9px] bg-amber-900/50 text-amber-300 px-1.5 py-0.5 rounded border border-amber-800 hidden">0 SIG</div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="copyPrompt('swing_p1')" id="btn-swing-p1" class="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-amber-900/20 border border-slate-700 hover:border-amber-500/50 text-slate-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                <span>1. Quick Screen</span>
+                <span class="text-[9px] opacity-60 font-normal">A/D + PEAD</span>
+              </button>
+              <button onclick="copyPrompt('swing_p2')" id="btn-swing-p2" class="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-amber-900/20 border border-slate-700 hover:border-amber-500/50 text-slate-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98]">
+                <span>2. Technical</span>
+                <span class="text-[9px] opacity-60 font-normal">Pre-Mortem</span>
+              </button>
+            </div>
+
+            <button onclick="copyPrompt('swing_summary')" class="w-full bg-indigo-900/40 hover:bg-indigo-800/60 border border-indigo-500/30 hover:border-indigo-400/50 text-indigo-200 py-2.5 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              3. Get Summary Prompt
+            </button>
+
+            <details class="bg-black/20 rounded-lg border border-white/5 overflow-hidden group">
+              <summary class="p-3 text-xs font-bold text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-white/5 hover:text-amber-300 flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                  4. Cross-Validation
+                </span>
+                <svg class="w-4 h-4 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div class="p-3 space-y-3 bg-black/20">
+                <p class="text-[9px] text-slate-500 mb-2">Paste FULL analysis from Gemini & Claude:</p>
+                <textarea id="swing-gemini-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Paste Gemini's Full Output here..."></textarea>
+                <textarea id="swing-claude-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-amber-500 outline-none resize-none" placeholder="Paste Claude's Full Output here..."></textarea>
+                <button onclick="generateCrossVal('swing')" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded-md text-xs font-bold transition-all shadow-lg active:scale-[0.98]">
+                  ⚖️ Verify & Generate Final
+                </button>
+              </div>
+            </details>
+          </div>
+          
+          <div id="swing-signal-list" class="mt-4 pt-4 border-t border-white/5 space-y-2"></div>
+        </div>
+
+        <div id="portfolio-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-purple-500 hidden relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">💼</span>
+              <h3 class="font-display font-bold text-sm text-purple-400 uppercase tracking-widest">Portfolio</h3>
+            </div>
+            <span id="portfolio-health" class="px-2 py-1 rounded bg-slate-800 text-xs font-mono font-bold border border-slate-700">--</span>
+          </div>
+
+          <div id="sell-signals-container" class="mb-4 hidden">
+            <div class="text-xs font-bold text-red-400 mb-2 flex items-center gap-1">
+              <span class="animate-pulse">🚨</span> SELL SIGNALS
+            </div>
+            <div id="sell-signals-list" class="space-y-2"></div>
+          </div>
+          <div id="addon-signals-container" class="hidden mb-4">
+            <div class="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1">
+              <span>💰</span> ADD-ON OPPORTUNITIES
+            </div>
+            <div id="addon-signals-list" class="space-y-2"></div>
+          </div>
+
+          <div class="space-y-4 relative z-10">
+            <button onclick="copyPrompt('pf')" id="btn-pf" class="w-full bg-slate-800 hover:bg-purple-900/20 border border-slate-700 hover:border-purple-500/50 text-purple-300 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="16" x2="16" y1="11" y2="13"/><line x1="8" x2="8" y1="11" y2="13"/><line x1="12" x2="12" y1="15" y2="13"/></svg>
+              1. Copy Review Prompt
+            </button>
+
+            <details class="bg-black/20 rounded-lg border border-white/5 overflow-hidden group">
+              <summary class="p-3 text-xs font-bold text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-white/5 hover:text-purple-300 flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  2. Sell/Hold Verification
+                </span>
+                <svg class="w-4 h-4 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div class="p-3 space-y-3 bg-black/20">
+                <p class="text-[9px] text-slate-500 mb-2">Paste FULL analysis from Gemini & Claude:</p>
+                <textarea id="pf-gemini-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-purple-500 outline-none resize-none" placeholder="Paste Gemini's Full Output here..."></textarea>
+                <textarea id="pf-claude-summary" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-[10px] text-slate-300 focus:border-purple-500 outline-none resize-none" placeholder="Paste Claude's Full Output here..."></textarea>
+                <button onclick="generateCrossVal('pf')" class="w-full bg-purple-900/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-200 py-2 rounded-md text-xs font-bold transition-all shadow-lg active:scale-[0.98]">
+                  🛡️ Generate Sell Decision
+                </button>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div id="daytrade-section" class="glass-panel rounded-xl p-5 border-l-4 border-l-red-500 hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🏎️</span>
+              <h3 class="font-display font-bold text-sm text-red-400 uppercase tracking-widest">Day Trade</h3>
+            </div>
+            <span id="market-hours" class="text-xxs font-bold px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 uppercase">--</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+              <div class="text-[10px] text-slate-500 font-bold">VWAP</div>
+              <div id="vwap-status" class="text-xs font-mono font-bold mt-1">--</div>
+            </div>
+            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+              <div class="text-[10px] text-slate-500 font-bold">ORB</div>
+              <div id="orb-status" class="text-xs font-mono font-bold mt-1">--</div>
+            </div>
+            <div class="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
+              <div class="text-[10px] text-slate-500 font-bold">GAP</div>
+              <div id="gap-status" class="text-xs font-mono font-bold mt-1">--</div>
+            </div>
+          </div>
+
+          <div id="daytrade-candidates" class="hidden mb-4">
+            <div class="text-[10px] text-slate-400 uppercase font-bold mb-2 tracking-wider">Momentum Picks</div>
+            <div id="daytrade-list" class="space-y-2"></div>
+          </div>
+
+          <div class="pt-4 border-t border-white/5">
+            <button onclick="copyPrompt('short')" id="btn-day" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-red-500/50 text-red-400 py-3 rounded-lg text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+              COPY DAY TRADE PROMPT
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          
+          <div id="sector-section" class="glass-panel rounded-xl p-5 hidden">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-lg">🔄</span>
+              <h3 class="font-display font-bold text-sm text-emerald-400 uppercase tracking-widest">Sector Flow</h3>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <div class="text-xxs text-slate-500 font-bold mb-1 uppercase">Strong Inflow (Buy Focus)</div>
+                <div id="sector-top" class="flex flex-wrap gap-2"></div>
+              </div>
+              <div class="h-px bg-white/5 w-full"></div>
+              <div>
+                <div class="text-xxs text-slate-500 font-bold mb-1 uppercase">Weak Outflow (Avoid)</div>
+                <div id="sector-bottom" class="flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-xl p-5">
+            <h3 class="font-display font-bold text-xs text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+              Quick Calc
+            </h3>
+            <div class="space-y-3">
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Capital</label>
+                  <input type="number" id="calc-eq" value="10000" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-right focus:border-blue-500 outline-none font-mono">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Risk %</label>
+                  <input type="number" id="calc-risk" value="1.0" step="0.1" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-right focus:border-blue-500 outline-none font-mono">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Entry $</label>
+                  <input type="number" id="calc-entry" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-right focus:border-blue-500 outline-none font-mono">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Stop $</label>
+                  <input type="number" id="calc-stop" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-right focus:border-blue-500 outline-none font-mono">
+                </div>
+              </div>
+              
+              <div class="bg-slate-800/50 rounded-lg p-3 mt-2 border border-slate-700/50">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-xs text-slate-400">Shares:</span>
+                  <span id="res-shares" class="font-mono font-bold text-white text-lg">0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-slate-400">Size:</span>
+                  <span id="res-cost" class="font-mono text-emerald-400 text-sm">$0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-slate-400">Risk Amt:</span>
+                  <span id="res-risk" class="font-mono text-red-400 text-xs">$0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div> </div> </main>
+
+  <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-none opacity-0 transform translate-y-4 transition-all duration-300">
+    <div class="bg-slate-800/90 backdrop-blur text-white px-4 py-2.5 rounded-full shadow-lg border border-white/10 flex items-center gap-2">
+      <div class="bg-emerald-500 rounded-full p-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="text-slate-900"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <span id="toast-msg" class="text-sm font-bold font-display tracking-wide">COPIED</span>
+    </div>
+  </div>
+
+  <script>
+    let appData = null;
+
+    // --- File Handling ---
+    const fileInput = document.getElementById('file-input');
+    fileInput.addEventListener('click', (e) => e.target.value = ''); // Allow re-select
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          // JSON sanitization
+          let jsonStr = e.target.result
+            .replace(/:\s*NaN\b/g, ': null')
+            .replace(/:\s*Infinity\b/g, ': null')
+            .replace(/:\s*-Infinity\b/g, ': null');
+          
+          appData = JSON.parse(jsonStr);
+          renderDashboard(appData);
+        } catch (error) {
+          alert("Error parsing JSON: " + error.message);
+        }
+      };
+      reader.readAsText(file);
     });
 
-    // 画面描画関数
+    // --- Dashboard Rendering ---
     function renderDashboard(data) {
-        // --- 1. 更新日時 ---
-        if (data.last_updated) {
-            document.getElementById('last-updated-text').textContent = "Updated: " + data.last_updated;
-        } else {
-            document.getElementById('last-updated-text').textContent = "Updated: " + new Date().toLocaleString();
+      // Transition
+      const loader = document.getElementById('loader-screen');
+      if (loader) loader.classList.add('hidden');
+      
+      const dash = document.getElementById('dashboard');
+      if (dash) dash.classList.remove('hidden');
+
+      // 1. Header Info
+      const meta = data.metadata || {};
+      const dateEl = document.getElementById('header-date');
+      if (dateEl) dateEl.textContent = formatTime(meta.generated_at);
+      
+      let regime = "NEUTRAL";
+      if (data.prompts && data.prompts.long_p1) {
+        const match = data.prompts.long_p1.match(/Market: ([A-Z_]+)/);
+        if (match) regime = match[1];
+      }
+      const regimeEl = document.getElementById('market-regime-badge');
+      if (regimeEl) {
+        regimeEl.textContent = regime;
+        regimeEl.className = `font-bold ${getRegimeColor(regime)}`;
+      }
+      
+      const headerStatus = document.getElementById('header-status');
+      if (headerStatus) headerStatus.classList.remove('hidden');
+
+      // 2. Stats & Visibility Logic
+      const signals = data.signals || {};
+      const ltCount = (signals.long_term || []).length;
+      const swCount = (signals.swing || []).length;
+      
+      updateStat('lt-signal-count', ltCount);
+      updateStat('swing-signal-count', swCount);
+      
+      // Reveal Sections based on data
+      if (data.prompts?.long_p1 && data.prompts.long_p1.length > 50) {
+        const ltSec = document.getElementById('lt-section');
+        if (ltSec) ltSec.classList.remove('hidden');
+        
+        if (ltCount > 0) {
+          const badge = document.getElementById('badge-long');
+          if (badge) {
+            badge.textContent = `${ltCount} SIG`;
+            badge.classList.remove('hidden');
+          }
         }
-
-        // --- 2. Market Regime (市場環境) ---
-        // データがない場合のデフォルト値設定
-        const regime = data.regime || 'Unknown';
-        const spyTrend = data.spy_trend || '-';
-        const vixLevel = data.vix_level !== undefined ? data.vix_level : '-';
-
-        // 色の判定
-        let regimeClass = 'text-muted';
-        if (regime.includes('Bull')) regimeClass = 'status-bull';
-        else if (regime.includes('Bear')) regimeClass = 'status-bear';
-        else if (regime.includes('Neutral') || regime.includes('Chop')) regimeClass = 'status-neutral';
-
-        const marketHTML = `
-            <div class="col-md-4 mb-3">
-                <div class="metric-label">Market Regime</div>
-                <div class="metric-value ${regimeClass}">${regime}</div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="metric-label">SPY Trend</div>
-                <div class="metric-value">${spyTrend}</div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="metric-label">VIX Level</div>
-                <div class="metric-value ${vixLevel > 20 ? 'text-danger' : 'text-success'}">${vixLevel}</div>
-            </div>
-        `;
-        document.getElementById('market-metrics').innerHTML = marketHTML;
-
-
-        // --- 3. Portfolio (ポートフォリオ) ---
-        // data.portfolio がリストとして存在する場合のみ表示
-        const pfDiv = document.getElementById('portfolio-list');
-        if (data.portfolio && data.portfolio.length > 0) {
-            let pfHTML = '<ul class="list-group list-group-flush">';
-            data.portfolio.forEach(item => {
-                // 想定されるデータ構造: {symbol: "AAPL", price: 150.0, ...}
-                const symbol = item.symbol || item.Ticker || "UNKNOWN";
-                const price = item.price || item.Close || "-";
-                
-                pfHTML += `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="fw-bold">${symbol}</span>
-                        <span>$${price}</span>
-                    </li>
-                `;
-            });
-            pfHTML += '</ul>';
-            pfDiv.innerHTML = pfHTML;
-        } else {
-            pfDiv.innerHTML = '<div class="alert alert-light text-center">No active holdings found in data.</div>';
+      }
+      
+      if (data.prompts?.swing_p1 && data.prompts.swing_p1.length > 50) {
+        const swSec = document.getElementById('swing-section');
+        if (swSec) swSec.classList.remove('hidden');
+        
+        if (swCount > 0) {
+          const badge = document.getElementById('badge-swing');
+          if (badge) {
+            badge.textContent = `${swCount} SIG`;
+            badge.classList.remove('hidden');
+          }
         }
+      }
 
+      // Render Detailed Lists
+      renderSignals(data.signals?.long_term, 'lt-signal-list', 'text-blue-400');
+      renderSignals(data.signals?.swing, 'swing-signal-list', 'text-amber-400');
 
-        // --- 4. Day Trade (デイトレ情報) ---
-        // data.day_trade が存在する場合
-        const dtDiv = document.getElementById('day-trade-metrics');
-        if (data.day_trade) {
-            // 単純なキー・バリュー表示の例
-            let dtHTML = '<table class="table table-sm">';
-            for (const [key, value] of Object.entries(data.day_trade)) {
-                dtHTML += `<tr><td class="text-muted">${key}</td><td class="fw-bold text-end">${value}</td></tr>`;
+      // Watchlist Stats
+      const watchlists = data.watchlists || {};
+      const ltWatch = document.getElementById('lt-watch');
+      if (ltWatch) ltWatch.textContent = watchlists.long_term?.watching || 0;
+      
+      const ltReady = document.getElementById('lt-ready');
+      if (ltReady) ltReady.textContent = watchlists.long_term?.ready || 0;
+      
+      const swWatch = document.getElementById('swing-watch');
+      if (swWatch) swWatch.textContent = watchlists.swing?.watching || 0;
+      
+      const swReady = document.getElementById('swing-ready');
+      if (swReady) swReady.textContent = watchlists.swing?.ready || 0;
+      
+      const statWatch = document.getElementById('stat-watch');
+      if (statWatch) statWatch.textContent = (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
+      
+      const chartCount = Object.values(data.charts || {}).flat().length;
+      const statCharts = document.getElementById('stat-charts');
+      if (statCharts) statCharts.textContent = chartCount;
+
+      setTimeout(() => {
+        const total = (watchlists.long_term?.watching||0) + (watchlists.swing?.watching||0);
+        const max = 100;
+        const pct = Math.min(100, (total / max) * 100);
+        const pBar = document.getElementById('progress-bar');
+        if (pBar) pBar.style.width = `${pct}%`;
+      }, 100);
+
+      // 3. Alerts
+      const totalSignals = ltCount + swCount;
+      const alertDiv = document.getElementById('signal-alert');
+      const alertIcon = document.getElementById('alert-icon');
+      const alertTitle = document.getElementById('signal-alert-title');
+      const alertDesc = document.getElementById('signal-alert-desc');
+      
+      if (alertDiv) {
+        alertDiv.classList.remove('hidden');
+        if (totalSignals > 0) {
+          alertDiv.className = "p-4 rounded-xl border border-emerald-500/30 bg-emerald-900/10 flex items-center gap-3 shadow-glow-green";
+          if (alertIcon) {
+            alertIcon.innerHTML = "⚡";
+            alertIcon.className = "p-2 rounded-full bg-emerald-500/20 text-emerald-400";
+          }
+          if (alertTitle) {
+            alertTitle.textContent = `${totalSignals} SIGNALS DETECTED`;
+            alertTitle.className = "font-display font-bold text-sm text-emerald-400";
+          }
+          if (alertDesc) alertDesc.textContent = `${ltCount} Long-Term / ${swCount} Swing`;
+        } else {
+          alertDiv.className = "p-4 rounded-xl border border-slate-800 bg-slate-900/30 flex items-center gap-3";
+          if (alertIcon) {
+            alertIcon.innerHTML = "💤";
+            alertIcon.className = "p-2 rounded-full bg-slate-800 text-slate-500";
+          }
+          if (alertTitle) {
+            alertTitle.textContent = "NO SIGNALS TODAY";
+            alertTitle.className = "font-display font-bold text-sm text-slate-400";
+          }
+          if (alertDesc) alertDesc.textContent = "Monitoring watchlists...";
+        }
+      }
+
+      // 4. Sectors
+      const sectors = data.sector_rotation || {};
+      const topS = (sectors.top_sectors || []).map(s => `<span class="bg-emerald-900/30 text-emerald-400 px-1.5 rounded text-xs border border-emerald-800">${s.sector}</span>`).join('');
+      const botS = (sectors.bottom_sectors || []).map(s => `<span class="bg-red-900/30 text-red-400 px-1.5 rounded text-xs border border-red-800">${s.sector}</span>`).join('');
+      
+      if (topS) {
+        const secSection = document.getElementById('sector-section');
+        if (secSection) {
+          secSection.classList.remove('hidden');
+          const secTop = document.getElementById('sector-top');
+          if (secTop) secTop.innerHTML = topS;
+          const secBot = document.getElementById('sector-bottom');
+          if (secBot) secBot.innerHTML = botS;
+        }
+      }
+
+      // 5. Portfolio Section
+      const pfPrompt = data.prompts?.pf || "";
+      const hasUrgent = pfPrompt.includes("🚨 URGENT");
+      const hasAdd = pfPrompt.includes("🟢 ADD");
+      const sellMatches = (pfPrompt.match(/🔴 SELL|🟠 REDUCE/g) || []).length;
+      
+      if (pfPrompt.length > 50) {
+        const pfSec = document.getElementById('portfolio-section');
+        if (pfSec) {
+          pfSec.classList.remove('hidden');
+          
+          const healthEl = document.getElementById('portfolio-health');
+          if (healthEl) {
+            if (hasUrgent) {
+              pfSec.classList.add('border-red-500');
+              healthEl.textContent = "CRITICAL";
+              healthEl.className = "px-2 py-1 rounded bg-red-900 text-white text-xs font-bold border border-red-700 animate-pulse";
+            } else {
+              healthEl.textContent = "REVIEW";
             }
-            dtHTML += '</table>';
-            dtDiv.innerHTML = dtHTML;
-        } else {
-            dtDiv.innerHTML = '<div class="alert alert-light text-center">Check Notebook for pre-market scenarios.</div>';
-        }
-    }
-</script>
+          }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+          if (sellMatches > 0) {
+            const sellCont = document.getElementById('sell-signals-container');
+            if (sellCont) sellCont.classList.remove('hidden');
+            
+            const sellList = document.getElementById('sell-signals-list');
+            if (sellList) {
+              sellList.innerHTML = `
+                <div class="text-xs text-slate-300 bg-red-900/20 p-2 rounded border border-red-500/20">
+                  Found ${sellMatches} potential sell signals.<br>Check prompt for details.
+                </div>
+              `;
+            }
+          }
+          
+          if (hasAdd) {
+            const addCont = document.getElementById('addon-signals-container');
+            if (addCont) addCont.classList.remove('hidden');
+            
+            const addList = document.getElementById('addon-signals-list');
+            if (addList) {
+              addList.innerHTML = `
+                <div class="text-xs text-slate-300 bg-emerald-900/20 p-2 rounded border border-emerald-500/20">
+                  Add-on opportunities detected.
+                </div>
+              `;
+            }
+          }
+        }
+      }
+
+      // 6. Day Trade Section
+      const dayPrompt = data.prompts?.short || "";
+      if (dayPrompt.length > 50) {
+        const dtSec = document.getElementById('daytrade-section');
+        if (dtSec) dtSec.classList.remove('hidden');
+        
+        const vwapMatch = dayPrompt.match(/VWAP\*\*: ([A-Z]+)/);
+        const orbMatch = dayPrompt.match(/ORB\*\*: ([A-Z_]+)/);
+        const mktMatch = dayPrompt.match(/Market Status\*\*: (.*)/);
+        
+        const mh = document.getElementById('market-hours');
+        if (mh && mktMatch) mh.textContent = mktMatch[1].replace(/[🟢🔴]/g, '').trim();
+        
+        const vwap = document.getElementById('vwap-status');
+        if (vwap && vwapMatch) vwap.textContent = vwapMatch[1];
+        
+        const orb = document.getElementById('orb-status');
+        if (orb && orbMatch) orb.textContent = orbMatch[1];
+        
+        const lines = dayPrompt.split('\n');
+        const picks = lines.filter(l => l.includes('|')).slice(4, 8); 
+        if (picks.length > 0) {
+          const dtCand = document.getElementById('daytrade-candidates');
+          if (dtCand) dtCand.classList.remove('hidden');
+          
+          const dtList = document.getElementById('daytrade-list');
+          if (dtList) {
+            dtList.innerHTML = picks.map(p => {
+              const cols = p.split('|').map(c => c.trim()).filter(c => c);
+              if (cols.length < 2) return '';
+              return `<div class="flex justify-between text-xs border-b border-slate-800 pb-1">
+                <span class="font-bold text-slate-300">${cols[1]}</span>
+                <span class="text-slate-500">${cols[2]}</span>
+              </div>`;
+            }).join('');
+          }
+        }
+      }
+
+      // 7. Buttons Availability
+      const avail = data.availability || {};
+      setBtnState('btn-pf', avail.pf);
+      setBtnState('btn-day', avail.short);
+      setBtnState('btn-long-p1', avail.long_p1);
+      setBtnState('btn-long-p2', avail.long_p2);
+      setBtnState('btn-swing-p1', avail.swing_p1);
+      setBtnState('btn-swing-p2', avail.swing_p2);
+    }
+
+    // --- Helpers ---
+    function formatTime(iso) {
+      if (!iso) return '--';
+      const d = new Date(iso);
+      return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function getRegimeColor(regime) {
+      if (regime.includes('STRONG_BULL')) return 'text-purple-400';
+      if (regime.includes('BULL')) return 'text-emerald-400';
+      if (regime.includes('BEAR') || regime.includes('CORRECTION')) return 'text-red-400';
+      return 'text-amber-400';
+    }
+
+    function updateStat(id, val) {
+      const el = document.getElementById(id);
+      if (!el) return; 
+      el.textContent = val;
+      if (val > 0) el.classList.add('text-neon-blue');
+    }
+
+    function setBtnState(id, enabled) {
+      const btn = document.getElementById(id);
+      if (!btn) return; 
+      if (!enabled) {
+        btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
+        btn.onclick = null;
+      }
+    }
+
+    function renderSignals(signals, containerId, colorClass) {
+      const container = document.getElementById(containerId);
+      if (!container) return; 
+      container.innerHTML = ''; 
+
+      if (!signals || signals.length === 0) return;
+
+      signals.forEach(sig => {
+        let icon = '💫';
+        if (sig.confidence === 'HIGH') icon = '🔥';
+        if (sig.confidence === 'MEDIUM') icon = '✨';
+        
+        const html = `
+          <div class="bg-slate-900/50 rounded-lg p-3 border border-slate-700/50 flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-bold text-white text-sm">${sig.ticker}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-slate-300">${sig.signal_type}</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-1">${sig.notes || ''}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-sm text-white">$${sig.price}</div>
+              <div class="text-xs ${colorClass} font-bold">${icon} ${sig.confidence}</div>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+      });
+    }
+
+    // --- Logic: Calculator ---
+    const calcInputs = ['calc-eq', 'calc-risk', 'calc-entry', 'calc-stop'];
+    calcInputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateCalc);
+    });
+
+    function updateCalc() {
+      const eqEl = document.getElementById('calc-eq');
+      const riskEl = document.getElementById('calc-risk');
+      const entryEl = document.getElementById('calc-entry');
+      const stopEl = document.getElementById('calc-stop');
+      
+      if (!eqEl || !riskEl || !entryEl || !stopEl) return;
+
+      const eq = parseFloat(eqEl.value) || 0;
+      const riskPct = parseFloat(riskEl.value) || 0;
+      const entry = parseFloat(entryEl.value) || 0;
+      const stop = parseFloat(stopEl.value) || 0;
+
+      const riskAmt = eq * (riskPct / 100);
+      const resRisk = document.getElementById('res-risk');
+      if (resRisk) resRisk.textContent = `$${Math.round(riskAmt)}`;
+
+      const resShares = document.getElementById('res-shares');
+      const resCost = document.getElementById('res-cost');
+
+      if (entry > 0 && stop > 0 && entry > stop) {
+        const riskPerShare = entry - stop;
+        const shares = Math.floor(riskAmt / riskPerShare);
+        const cost = shares * entry;
+        
+        if (resShares) resShares.textContent = shares.toLocaleString();
+        if (resCost) resCost.textContent = `$${Math.round(cost).toLocaleString()}`;
+      } else {
+        if (resShares) resShares.textContent = "0";
+        if (resCost) resCost.textContent = "$0";
+      }
+    }
+
+    // --- Logic: Copy & Generate ---
+    async function copyPrompt(key) {
+      if (!appData || !appData.prompts || !appData.prompts[key]) {
+        showToast("NO DATA");
+        return;
+      }
+      
+      const text = appData.prompts[key];
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("COPIED!");
+      } catch (err) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast("COPIED!");
+      }
+    }
+
+    function generateCrossVal(type) {
+      // Get values from specific textareas
+      const gSummary = document.getElementById(`${type}-gemini-summary`).value;
+      const cSummary = document.getElementById(`${type}-claude-summary`).value;
+      
+      if (!gSummary || !cSummary) {
+        showToast("MISSING INPUT");
+        return;
+      }
+
+      let prompt = "";
+
+      if (type === 'pf') {
+        // Portfolio: Handle Full-Text Multi-Ticker Analysis
+        prompt = `# 🛡️ Portfolio Decision Cross-Validation (Full Scan)
+Date: ${appData.metadata.date}
+
+---
+## ⚠️ CRITICAL: Risk Management Priority
+**Objective:** Compare the two analyst reports below and extract ALL ACTIONABLE signals.
+**Rule:** If ANY analyst recommends "SELL" or "TRIM" for a specific ticker, **the final decision for that ticker must lean towards risk reduction.**
+
+---
+## 📊 Analyst A (Gemini) - Full Report
+${gSummary}
+
+---
+## 📊 Analyst B (Claude) - Full Report
+${cSummary}
+
+---
+## 🎯 Task: Final Verdict per Ticker
+The input contains analysis for multiple portfolio positions.
+For EACH ticker mentioned in the reports:
+1. Compare Analyst A and B's assessment.
+2. Determine if a SELL/TRIM signal is valid.
+3. Output format:
+   - **[TICKER]**: [ACTION (HOLD/TRIM/SELL/ADD)]
+     - *Reason*: (Brief reason focusing on downside risk)
+`;
+      } else {
+        // LT/Swing: Handle Full-Text Analysis
+        prompt = `# 🔬 Cross-Validation: ${type === 'lt' ? 'Long-Term' : 'Swing'}
+Date: ${appData.metadata.date}
+
+---
+## ⚠️ CRITICAL: Devil's Advocate Constraint
+**Objective:** Extract the final trade decision from the full reports below.
+**Rule:** If opinions diverge on a ticker, default to **PASS**. (False positives > False negatives)
+
+---
+## 📊 Analyst A (Gemini) - Full Report
+${gSummary}
+
+---
+## 📊 Analyst B (Claude) - Full Report
+${cSummary}
+
+---
+## 🎯 Task: Final Verdict
+Based on the full analysis above, return a JSON list of approved tickers.
+Format:
+{
+  "approved_tickers": [
+    { "ticker": "XYZ", "decision": "PROCEED", "reason": "Both analysts agree on..." }
+  ]
+}
+If no tickers are approved, return empty list.
+`;
+      }
+      
+      navigator.clipboard.writeText(prompt).then(() => {
+        showToast("GENERATED & COPIED");
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      const m = document.getElementById('toast-msg');
+      if (!t || !m) return;
+      
+      m.textContent = msg;
+      
+      t.classList.remove('opacity-0', 'translate-y-4');
+      setTimeout(() => {
+        t.classList.add('opacity-0', 'translate-y-4');
+      }, 2000);
+    }
+  </script>
 </body>
 </html>
