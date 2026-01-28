@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#020617">
   <title>US Stock Analyzer - Command Center</title>
   
@@ -75,6 +76,8 @@
         radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 60%),
         linear-gradient(rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.95));
       overflow-x: hidden;
+      /* Ensure bottom spacing for home indicator */
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     /* Tech Background Grid */
@@ -169,7 +172,7 @@
   <div class="bg-grid-tech bg-grid-pattern"></div>
   <div class="scanline-overlay"></div>
 
-  <header class="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl">
+  <header class="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
     <div class="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -199,7 +202,7 @@
     </div>
   </header>
 
-  <main class="pt-24 px-4 max-w-7xl mx-auto">
+  <main class="pt-[calc(5rem+env(safe-area-inset-top))] px-4 max-w-7xl mx-auto">
     
     <div id="loader-screen" class="min-h-[60vh] flex flex-col items-center justify-center animate-in fade-in duration-700">
       <div class="w-full max-w-md relative group">
