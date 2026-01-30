@@ -387,7 +387,7 @@
               <summary class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-white/5 hover:text-emerald-300 flex items-center justify-between transition-colors">
                 <span class="flex items-center gap-2">
                   <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover/acc:shadow-[0_0_8px_rgba(16,185,129,0.8)] transition-shadow"></div>
-                  5. Save AI Response
+                  5. Export AI Response
                   <span id="lt-stored-badge" class="hidden text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">0</span>
                 </span>
                 <svg class="w-4 h-4 transition-transform group-open/acc:rotate-180 text-slate-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -397,7 +397,7 @@
                 <textarea id="lt-ai-response" rows="4" class="w-full input-tech rounded p-3 text-[10px] resize-none" placeholder="> Paste AI final response here (JSON or Markdown with JSON)..."></textarea>
                 <div class="flex gap-2">
                   <button onclick="parseAndSaveResponse('lt')" class="flex-1 bg-emerald-700/80 hover:bg-emerald-600 text-white py-2.5 rounded text-xs font-bold font-display tracking-wider transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]">
-                    💾 PARSE & SAVE
+                    📥 PARSE & DOWNLOAD
                   </button>
                   <button onclick="clearStoredResponses('lt')" class="px-3 bg-slate-800 hover:bg-red-900/50 border border-slate-700 hover:border-red-500/50 text-slate-400 hover:text-red-400 py-2.5 rounded text-xs font-bold transition-all active:scale-[0.98]">
                     🗑️
@@ -467,7 +467,7 @@
               <summary class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-white/5 hover:text-emerald-300 flex items-center justify-between transition-colors">
                 <span class="flex items-center gap-2">
                   <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover/acc:shadow-[0_0_8px_rgba(16,185,129,0.8)] transition-shadow"></div>
-                  5. Save AI Response
+                  5. Export AI Response
                   <span id="swing-stored-badge" class="hidden text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">0</span>
                 </span>
                 <svg class="w-4 h-4 transition-transform group-open/acc:rotate-180 text-slate-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -477,7 +477,7 @@
                 <textarea id="swing-ai-response" rows="4" class="w-full input-tech rounded p-3 text-[10px] resize-none" placeholder="> Paste AI final response here (JSON or Markdown with JSON)..."></textarea>
                 <div class="flex gap-2">
                   <button onclick="parseAndSaveResponse('swing')" class="flex-1 bg-emerald-700/80 hover:bg-emerald-600 text-white py-2.5 rounded text-xs font-bold font-display tracking-wider transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]">
-                    💾 PARSE & SAVE
+                    📥 PARSE & DOWNLOAD
                   </button>
                   <button onclick="clearStoredResponses('swing')" class="px-3 bg-slate-800 hover:bg-red-900/50 border border-slate-700 hover:border-red-500/50 text-slate-400 hover:text-red-400 py-2.5 rounded text-xs font-bold transition-all active:scale-[0.98]">
                     🗑️
@@ -859,22 +859,18 @@
         return;
       }
 
-      // Add analysis_type
-      parsed.forEach(item => item.analysis_type = type.toUpperCase());
+      // Add analysis_type and format for Cell 9
+      const today = new Date().toISOString().split('T')[0];
+      parsed.forEach(item => {
+        item.analysis_type = type.toUpperCase();
+        item.date = today;
+        // Normalize recommendation field
+        if (item.recommendation) {
+          item.ai_recommendation = item.recommendation;
+        }
+      });
 
-      // Merge with existing (overwrite by ticker)
-      const existingMap = {};
-      for (const item of storedResponses[type]) {
-        existingMap[item.ticker] = item;
-      }
-      for (const item of parsed) {
-        existingMap[item.ticker] = item;
-      }
-      storedResponses[type] = Object.values(existingMap);
-
-      saveStoredResponses();
-
-      // Show result
+      // Show result preview
       if (resultDiv && itemsDiv) {
         resultDiv.classList.remove('hidden');
         itemsDiv.innerHTML = parsed.map(item => `
@@ -885,8 +881,28 @@
         `).join('');
       }
 
+      // Create output JSON (format for Cell 9)
+      const output = {
+        exported_at: new Date().toISOString(),
+        date: today,
+        type: type.toUpperCase(),
+        recommendations: parsed
+      };
+
+      // Direct download
+      const content = JSON.stringify(output, null, 2);
+      const blob = new Blob([content], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ai_input.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
       textarea.value = '';
-      showToast(`SAVED ${parsed.length} TICKERS`);
+      showToast(`DOWNLOADED ${parsed.length} TICKERS`);
     }
 
     function clearStoredResponses(type) {
