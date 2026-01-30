@@ -382,6 +382,32 @@
                 </button>
               </div>
             </details>
+
+            <details class="group/acc bg-slate-950/30 rounded-lg border border-white/5 overflow-hidden">
+              <summary class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-white/5 hover:text-emerald-300 flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover/acc:shadow-[0_0_8px_rgba(16,185,129,0.8)] transition-shadow"></div>
+                  5. Save AI Response
+                  <span id="lt-stored-badge" class="hidden text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">0</span>
+                </span>
+                <svg class="w-4 h-4 transition-transform group-open/acc:rotate-180 text-slate-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div class="p-4 space-y-3 border-t border-white/5">
+                <p class="text-[9px] text-slate-500 mb-2 font-mono">PASTE FINAL AI RESPONSE (JSON):</p>
+                <textarea id="lt-ai-response" rows="4" class="w-full input-tech rounded p-3 text-[10px] resize-none" placeholder="> Paste AI final response here (JSON or Markdown with JSON)..."></textarea>
+                <div class="flex gap-2">
+                  <button onclick="parseAndSaveResponse('lt')" class="flex-1 bg-emerald-700/80 hover:bg-emerald-600 text-white py-2.5 rounded text-xs font-bold font-display tracking-wider transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]">
+                    💾 PARSE & SAVE
+                  </button>
+                  <button onclick="clearStoredResponses('lt')" class="px-3 bg-slate-800 hover:bg-red-900/50 border border-slate-700 hover:border-red-500/50 text-slate-400 hover:text-red-400 py-2.5 rounded text-xs font-bold transition-all active:scale-[0.98]">
+                    🗑️
+                  </button>
+                </div>
+                <div id="lt-parse-result" class="hidden mt-2 p-3 rounded bg-slate-900/80 border border-slate-700">
+                  <div id="lt-parse-items" class="space-y-1 text-[10px] font-mono"></div>
+                </div>
+              </div>
+            </details>
           </div>
         </div>
 
@@ -434,6 +460,32 @@
                 <button onclick="generateCrossVal('swing')" class="w-full bg-amber-700/80 hover:bg-amber-600 text-white py-2.5 rounded text-xs font-bold font-display tracking-wider transition-all shadow-lg hover:shadow-amber-500/20 active:scale-[0.98]">
                   ⚖️ VERIFY & GENERATE FINAL
                 </button>
+              </div>
+            </details>
+
+            <details class="group/acc bg-slate-950/30 rounded-lg border border-white/5 overflow-hidden">
+              <summary class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-white/5 hover:text-emerald-300 flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover/acc:shadow-[0_0_8px_rgba(16,185,129,0.8)] transition-shadow"></div>
+                  5. Save AI Response
+                  <span id="swing-stored-badge" class="hidden text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">0</span>
+                </span>
+                <svg class="w-4 h-4 transition-transform group-open/acc:rotate-180 text-slate-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div class="p-4 space-y-3 border-t border-white/5">
+                <p class="text-[9px] text-slate-500 mb-2 font-mono">PASTE FINAL AI RESPONSE (JSON):</p>
+                <textarea id="swing-ai-response" rows="4" class="w-full input-tech rounded p-3 text-[10px] resize-none" placeholder="> Paste AI final response here (JSON or Markdown with JSON)..."></textarea>
+                <div class="flex gap-2">
+                  <button onclick="parseAndSaveResponse('swing')" class="flex-1 bg-emerald-700/80 hover:bg-emerald-600 text-white py-2.5 rounded text-xs font-bold font-display tracking-wider transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]">
+                    💾 PARSE & SAVE
+                  </button>
+                  <button onclick="clearStoredResponses('swing')" class="px-3 bg-slate-800 hover:bg-red-900/50 border border-slate-700 hover:border-red-500/50 text-slate-400 hover:text-red-400 py-2.5 rounded text-xs font-bold transition-all active:scale-[0.98]">
+                    🗑️
+                  </button>
+                </div>
+                <div id="swing-parse-result" class="hidden mt-2 p-3 rounded bg-slate-900/80 border border-slate-700">
+                  <div id="swing-parse-items" class="space-y-1 text-[10px] font-mono"></div>
+                </div>
               </div>
             </details>
           </div>
@@ -599,10 +651,42 @@
             </div>
           </div>
 
+          <!-- AI Response Export Section -->
+          <div id="export-section" class="glass-hud rounded-xl p-6 border border-emerald-500/20 hidden">
+            <h3 class="font-display font-bold text-xs text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Export AI Responses
+              <span id="total-stored-badge" class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">0</span>
+            </h3>
+            <div class="space-y-3">
+              <div id="stored-summary" class="text-[10px] font-mono text-slate-400 p-3 bg-slate-900/80 rounded border border-slate-700">
+                <div class="flex justify-between mb-1">
+                  <span>Long-Term:</span>
+                  <span id="lt-count" class="text-blue-400">0 tickers</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Swing:</span>
+                  <span id="swing-count" class="text-amber-400">0 tickers</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="exportResponses('jsonl')" class="bg-emerald-700/80 hover:bg-emerald-600 text-white py-3 rounded text-xs font-bold font-display tracking-wider transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]">
+                  📥 JSONL
+                </button>
+                <button onclick="exportResponses('json')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 py-3 rounded text-xs font-bold font-display tracking-wider transition-all active:scale-[0.98]">
+                  📥 JSON
+                </button>
+              </div>
+              <p class="text-[9px] text-slate-600 font-mono text-center">
+                → Place in input/ai_responses/ai_input.json
+              </p>
+            </div>
+          </div>
+
         </div>
 
       </div>
-    </div> 
+    </div>
   </main>
 
   <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-none opacity-0 transform translate-y-4 transition-all duration-300">
@@ -616,6 +700,244 @@
 
   <script>
     let appData = null;
+
+    // --- AI Response Storage ---
+    const STORAGE_KEY = 'us_stock_analyzer_ai_responses';
+    let storedResponses = { lt: [], swing: [] };
+
+    function loadStoredResponses() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          storedResponses = JSON.parse(stored);
+        }
+      } catch (e) {
+        storedResponses = { lt: [], swing: [] };
+      }
+      updateStoredBadges();
+    }
+
+    function saveStoredResponses() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(storedResponses));
+      updateStoredBadges();
+    }
+
+    function updateStoredBadges() {
+      const ltCount = storedResponses.lt.length;
+      const swCount = storedResponses.swing.length;
+      const total = ltCount + swCount;
+
+      // Update badges
+      const ltBadge = document.getElementById('lt-stored-badge');
+      const swBadge = document.getElementById('swing-stored-badge');
+      const totalBadge = document.getElementById('total-stored-badge');
+      const ltCountEl = document.getElementById('lt-count');
+      const swCountEl = document.getElementById('swing-count');
+      const exportSection = document.getElementById('export-section');
+
+      if (ltBadge) {
+        ltBadge.textContent = ltCount;
+        ltBadge.classList.toggle('hidden', ltCount === 0);
+      }
+      if (swBadge) {
+        swBadge.textContent = swCount;
+        swBadge.classList.toggle('hidden', swCount === 0);
+      }
+      if (totalBadge) {
+        totalBadge.textContent = total;
+      }
+      if (ltCountEl) ltCountEl.textContent = `${ltCount} tickers`;
+      if (swCountEl) swCountEl.textContent = `${swCount} tickers`;
+
+      // Show export section if any responses stored
+      if (exportSection) {
+        exportSection.classList.toggle('hidden', total === 0);
+      }
+    }
+
+    function parseAIResponse(content) {
+      const results = [];
+      content = content.trim();
+
+      // Extract from markdown code blocks
+      const codeBlockPattern = /```(?:json)?\s*([\s\S]*?)```/g;
+      let match;
+      while ((match = codeBlockPattern.exec(content)) !== null) {
+        try {
+          const parsed = JSON.parse(match[1].trim());
+          results.push(...extractRecommendations(parsed));
+        } catch (e) { /* continue */ }
+      }
+      if (results.length > 0) return deduplicateByTicker(results);
+
+      // Try parsing entire content
+      try {
+        const parsed = JSON.parse(content);
+        return deduplicateByTicker(extractRecommendations(parsed));
+      } catch (e) { /* continue */ }
+
+      // Try finding JSON in text
+      const jsonPatterns = [/(\{[\s\S]*\})/, /(\[[\s\S]*\])/];
+      for (const pattern of jsonPatterns) {
+        const match = content.match(pattern);
+        if (match) {
+          try {
+            const parsed = JSON.parse(match[1]);
+            const extracted = extractRecommendations(parsed);
+            if (extracted.length > 0) return deduplicateByTicker(extracted);
+          } catch (e) { /* continue */ }
+        }
+      }
+      return [];
+    }
+
+    function extractRecommendations(parsed) {
+      const results = [];
+      if (Array.isArray(parsed)) {
+        for (const item of parsed) {
+          if (typeof item === 'object' && item.ticker) {
+            results.push(normalizeResponse(item));
+          }
+        }
+      } else if (typeof parsed === 'object') {
+        if (parsed.recommendations) {
+          for (const rec of parsed.recommendations) {
+            if (typeof rec === 'object') {
+              rec._source_date = parsed.date;
+              results.push(normalizeResponse(rec));
+            }
+          }
+        } else if (parsed.approved_tickers) {
+          for (const rec of parsed.approved_tickers) {
+            if (typeof rec === 'object') {
+              if (rec.decision && !rec.recommendation) rec.recommendation = rec.decision;
+              results.push(normalizeResponse(rec));
+            }
+          }
+        } else if (parsed.ticker) {
+          results.push(normalizeResponse(parsed));
+        }
+      }
+      return results;
+    }
+
+    function normalizeResponse(item) {
+      return {
+        ticker: (item.ticker || '').toUpperCase(),
+        recommendation: item.recommendation || item.decision || item.action || 'PROCEED',
+        priority: item.priority || item.rank || 0,
+        reasons: item.reasons || item.reason || [],
+        entry_price: item.entry_price || item.entry || null,
+        stop_price: item.stop_price || item.stop || null,
+        target_price: item.target_price || item.target || null,
+        confidence_score: item.confidence_score || item.confidence || null,
+        _imported_at: new Date().toISOString()
+      };
+    }
+
+    function deduplicateByTicker(items) {
+      const seen = {};
+      for (const item of items) {
+        if (item.ticker) seen[item.ticker] = item;
+      }
+      return Object.values(seen);
+    }
+
+    function parseAndSaveResponse(type) {
+      const textarea = document.getElementById(`${type}-ai-response`);
+      const resultDiv = document.getElementById(`${type}-parse-result`);
+      const itemsDiv = document.getElementById(`${type}-parse-items`);
+
+      if (!textarea || !textarea.value.trim()) {
+        showToast("ERROR: NO INPUT");
+        return;
+      }
+
+      const parsed = parseAIResponse(textarea.value);
+      if (parsed.length === 0) {
+        showToast("ERROR: PARSE FAILED");
+        return;
+      }
+
+      // Add analysis_type
+      parsed.forEach(item => item.analysis_type = type.toUpperCase());
+
+      // Merge with existing (overwrite by ticker)
+      const existingMap = {};
+      for (const item of storedResponses[type]) {
+        existingMap[item.ticker] = item;
+      }
+      for (const item of parsed) {
+        existingMap[item.ticker] = item;
+      }
+      storedResponses[type] = Object.values(existingMap);
+
+      saveStoredResponses();
+
+      // Show result
+      if (resultDiv && itemsDiv) {
+        resultDiv.classList.remove('hidden');
+        itemsDiv.innerHTML = parsed.map(item => `
+          <div class="flex justify-between items-center py-1 border-b border-slate-800 last:border-0">
+            <span class="text-white font-bold">${item.ticker}</span>
+            <span class="${item.recommendation === 'PROCEED' || item.recommendation === 'BUY' ? 'text-emerald-400' : 'text-red-400'}">${item.recommendation}</span>
+          </div>
+        `).join('');
+      }
+
+      textarea.value = '';
+      showToast(`SAVED ${parsed.length} TICKERS`);
+    }
+
+    function clearStoredResponses(type) {
+      storedResponses[type] = [];
+      saveStoredResponses();
+
+      const resultDiv = document.getElementById(`${type}-parse-result`);
+      if (resultDiv) resultDiv.classList.add('hidden');
+
+      showToast(`${type.toUpperCase()} CLEARED`);
+    }
+
+    function exportResponses(format) {
+      const allResponses = [...storedResponses.lt, ...storedResponses.swing];
+      if (allResponses.length === 0) {
+        showToast("NO DATA TO EXPORT");
+        return;
+      }
+
+      const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+      let content, filename;
+
+      if (format === 'jsonl') {
+        content = allResponses.map(item => JSON.stringify(item)).join('\n');
+        filename = `ai_responses_${date}.jsonl`;
+      } else {
+        const output = {
+          date: date,
+          exported_at: new Date().toISOString(),
+          recommendations: allResponses
+        };
+        content = JSON.stringify(output, null, 2);
+        filename = `ai_responses_${date}.json`;
+      }
+
+      // Download
+      const blob = new Blob([content], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast(`EXPORTED ${filename}`);
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', loadStoredResponses);
 
     // --- File Handling ---
     const fileInput = document.getElementById('file-input');
