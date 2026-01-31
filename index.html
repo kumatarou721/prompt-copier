@@ -1021,7 +1021,7 @@
       
       let regime = "NEUTRAL";
       if (data.prompts && data.prompts.long_p1) {
-        const match = data.prompts.long_p1.match(/Market: ([A-Z_]+)/);
+        const match = data.prompts.long_p1.match(/Regime: ([A-Z_]+)/);
         if (match) regime = match[1];
       }
       const regimeEl = document.getElementById('market-regime-badge');
