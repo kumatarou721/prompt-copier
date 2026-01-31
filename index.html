@@ -1272,12 +1272,12 @@
       // Parse from any prompt that has Risk Appetite section
       const promptText = prompts.long_p1 || prompts.pf || '';
       
-      // Extract Risk Appetite data
-      const sentimentMatch = promptText.match(/Sentiment: ([A-Z_]+).*?\(Score: (-?\d+)\)/);
+      // Extract Risk Appetite data (Ver 27.4 Option C: X/5 RISK OFF format)
+      const sentimentMatch = promptText.match(/Sentiment: (.+?) \((\d+)\/5 RISK OFF\)/);
       if (!sentimentMatch) return;
-      
+
       const sentiment = sentimentMatch[1];
-      const score = parseInt(sentimentMatch[2]);
+      const riskOffFromPrompt = parseInt(sentimentMatch[2]);
       
       // Extract individual indicators
       const indicators = {};
